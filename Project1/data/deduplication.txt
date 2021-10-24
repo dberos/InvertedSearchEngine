@@ -1,7 +1,9 @@
+('Deduplication). ['Deduplication'] 
+
 In computing, data deduplication is a technique for eliminating duplicate copies of repeating data. 
 Successful implementation of the technique can improve storage utilization, which may in turn lower capital expenditure by reducing the overall 
 amount of storage media required to meet storage capacity needs. It can also be applied to network data transfers to reduce the number of bytes that  
-must be sent. 
+must be sent.  
 
 The deduplication process requires comparison of data 'chunks' (also known as 'byte patterns') which are unique, contiguous blocks of data. 
 These chunks are identified and stored during a process of analysis, and compared to other chunks within existing data. Whenever a match occurs,  
@@ -14,4 +16,4 @@ This is distinct from modern approaches to data deduplication, which can operate
 
 Deduplication is different from data compression algorithms, such as LZ77 and LZ78. Whereas compression algorithms identify redundant data inside  
 individual files and encodes this redundant data more efficiently, the intent of deduplication is to inspect large volumes of data and identify  
-large sections – such as entire files or large sections of files – that are identical, and replace them with a shared copy. 
+large sections - such as entire files or large sections of files - that are identical, and replace them with a shared copy. 

@@ -37,7 +37,27 @@ int deduplication(FILE* document,Map map){
             while(string!=NULL){
                 // Don't allow special characters
                 if(strcmp(string,".")!=0 && strcmp(string,",")!=0){
-                    Word word=word_create(string[0],string);
+                    // Clean-up for the word
+                    String cleaner=strdup(string);
+                    // Don't allow special characters at the end of the word
+                    while(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','
+                            || cleaner[strlen(cleaner)-1]==')' || cleaner[strlen(cleaner)-1]=='\''
+                                || cleaner[strlen(cleaner)-1]==']'){
+                                        cleaner[strlen(cleaner)-1]='\0';
+                    }
+                    // First characters ' or ( to be removed
+                    String cleaner1=strdup(cleaner);
+                    int i=0;
+                    // Multiple special characters can be together
+                    // So each time jump to the correct letter, instead of cleaner+1
+                    int j=1;
+                    while(cleaner[i]=='\'' || cleaner[i]=='(' || cleaner[i]=='['){
+                        sprintf(cleaner1,"%s",cleaner+j);
+                        i++;
+                        j++;
+                    }
+
+                    Word word=word_create(cleaner1[0],cleaner1);
                     // Whether first letter is capital
                     bool is_cap=map_check_key(caps_map,word);
                     if(is_cap==true){
@@ -47,22 +67,7 @@ int deduplication(FILE* document,Map map){
                         String to_change=strdup(word->word);
                         // change+1 to remove the capital letter and replace it with ch
                         sprintf(change,"%c%s",ch,to_change+1);
-                        
-                        // Clean-up for the word
-                        String cleaner=strdup(change);
-                        // Don't allow special characters at the end of the word
-                        while(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','
-                                || cleaner[strlen(cleaner)-1]==')' || cleaner[strlen(cleaner)-1]=='\''){
-                                    cleaner[strlen(cleaner)-1]='\0';
-                        }
-                        // First characters ' or ( to be removed
-                        String cleaner1=strdup(cleaner);
-                        int i=0;
-                        while(cleaner[i]=='\'' || cleaner[i]=='('){
-                            sprintf(cleaner1,"%s",cleaner+1);
-                            i++;
-                        }
-                        String final=strdup(cleaner1);
+                        String final=strdup(change);
                         Word word1=word_create(final[0],final);
                         if(strcmp(word1->word,"\n")!=0){
                             map_insert(map,word1);
@@ -71,33 +76,20 @@ int deduplication(FILE* document,Map map){
                         free(str);
                         free(change);
                         free(to_change);
-                        free(cleaner);
-                        free(cleaner1);
                         free(final);
                     }
                     else{
-                        String cleaner=strdup(string);
-                        while(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','
-                                    || cleaner[strlen(cleaner)-1]==')' || cleaner[strlen(cleaner)-1]=='\''){
-                                        cleaner[strlen(cleaner)-1]='\0';
-                            }
-                        int i=0;
-                        String cleaner1=strdup(cleaner);
-                        while(cleaner[i]=='\'' || cleaner[i]=='('){
-                            sprintf(cleaner1,"%s",cleaner+1);
-                            i++;
-                        }
                         String final=strdup(cleaner1);
                         Word word1=word_create(final[0],final);
-                        if(strcmp(word1->word,"\n")!=0){
+                        if(strcmp(word1->word,"\n")!=0 && strcmp(word1->word,"-")!=0){
                             map_insert(map,word1);
                         }
                         word_destroy(word1);
-                        free(cleaner);
-                        free(cleaner1);
                         free(final);
                     }
                     word_destroy(word);
+                    free(cleaner);
+                    free(cleaner1);
                     string=strtok(NULL," ");
                 }
             }
