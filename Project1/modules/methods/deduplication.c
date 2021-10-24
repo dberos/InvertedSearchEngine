@@ -51,10 +51,18 @@ int deduplication(FILE* document,Map map){
                         // Clean-up for the word
                         String cleaner=strdup(change);
                         // Don't allow special characters at the end of the word
-                        if(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','){
-                            cleaner[strlen(cleaner)-1]='\0';
+                        while(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','
+                                || cleaner[strlen(cleaner)-1]==')' || cleaner[strlen(cleaner)-1]=='\''){
+                                    cleaner[strlen(cleaner)-1]='\0';
                         }
-                        String final=strdup(cleaner);
+                        // First characters ' or ( to be removed
+                        String cleaner1=strdup(cleaner);
+                        int i=0;
+                        while(cleaner[i]=='\'' || cleaner[i]=='('){
+                            sprintf(cleaner1,"%s",cleaner+1);
+                            i++;
+                        }
+                        String final=strdup(cleaner1);
                         Word word1=word_create(final[0],final);
                         if(strcmp(word1->word,"\n")!=0){
                             map_insert(map,word1);
@@ -64,20 +72,29 @@ int deduplication(FILE* document,Map map){
                         free(change);
                         free(to_change);
                         free(cleaner);
+                        free(cleaner1);
                         free(final);
                     }
                     else{
                         String cleaner=strdup(string);
-                        if(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','){
-                            cleaner[strlen(cleaner)-1]='\0';
+                        while(cleaner[strlen(cleaner)-1]=='.' || cleaner[strlen(cleaner)-1]==','
+                                    || cleaner[strlen(cleaner)-1]==')' || cleaner[strlen(cleaner)-1]=='\''){
+                                        cleaner[strlen(cleaner)-1]='\0';
+                            }
+                        int i=0;
+                        String cleaner1=strdup(cleaner);
+                        while(cleaner[i]=='\'' || cleaner[i]=='('){
+                            sprintf(cleaner1,"%s",cleaner+1);
+                            i++;
                         }
-                        String final=strdup(cleaner);
+                        String final=strdup(cleaner1);
                         Word word1=word_create(final[0],final);
                         if(strcmp(word1->word,"\n")!=0){
                             map_insert(map,word1);
                         }
                         word_destroy(word1);
                         free(cleaner);
+                        free(cleaner1);
                         free(final);
                     }
                     word_destroy(word);

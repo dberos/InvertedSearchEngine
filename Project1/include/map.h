@@ -34,5 +34,5 @@ void map_rehash(Map map);
 bool map_check_key(Map map,Word word);
 
 // For a Map that contains in a Bst "Aa" etc to convert from capital letters and not use ctype.h and tolower()
-// e.h Deduplication and deduplication should count as 1 word in parsing
+// e.g Deduplication and deduplication should count as 1 word in parsing
 String map_return_key(Map map,Word word);
