@@ -11,23 +11,8 @@ int deduplication(FILE* document,Map map){
     String line=NULL;
     size_t len=0;
 
-    // Create an alphabet to insert at a Map so i can convert capital letters
-    String words[]={"Aa","Bb","Cc","Dd","Ee","Ff","Gg","Hh","Ii","Jj",
-                        "Kk","Ll","Mm","Nn","Oo","Pp","Qq","Rr","Ss","Tt",
-                            "Uu","Vv","Ww","Xx","Yy","Zz"};
-
-
-    // Create the Strings to Words
-    Word* capitals=malloc(sizeof(*capitals)*26);
-    for(int i=0;i<26;i++){
-        capitals[i]=word_create(words[i][0],words[i]);
-    }
-
-    // Map for the alphabet
-    Map caps_map=map_create();
-    for(int i=0;i<26;i++){
-        map_insert(caps_map,capitals[i]);
-    }
+    Dictionary dictionary=dictionary_create();
+    dictionary_init(dictionary);
 
 
     while(getline(&line,&len,document)!=-1){
@@ -57,22 +42,20 @@ int deduplication(FILE* document,Map map){
                         j++;
                     }
 
-                    Word word=word_create(cleaner1[0],cleaner1);
+                    Word word=word_create(cleaner1);
                     // Whether first letter is capital
-                    bool is_cap=map_check_key(caps_map,word);
+                    bool is_cap=dictionary_check_key(dictionary,word);
                     if(is_cap==true){
-                        String str=strdup(map_return_key(caps_map,word));
+                        String str=strdup(dictionary_return_key(dictionary,word));
                         char ch=str[1];
                         String change=malloc(100);
                         String to_change=strdup(word->word);
                         // change+1 to remove the capital letter and replace it with ch
                         sprintf(change,"%c%s",ch,to_change+1);
                         String final=strdup(change);
-                        Word word1=word_create(final[0],final);
-                        if(strcmp(word1->word,"\n")!=0){
-                            map_insert(map,word1);
+                        if(strcmp(final,"\n")!=0){
+                            map_insert(map,final);
                         }
-                        word_destroy(word1);
                         free(str);
                         free(change);
                         free(to_change);
@@ -80,11 +63,9 @@ int deduplication(FILE* document,Map map){
                     }
                     else{
                         String final=strdup(cleaner1);
-                        Word word1=word_create(final[0],final);
-                        if(strcmp(word1->word,"\n")!=0 && strcmp(word1->word,"-")!=0){
-                            map_insert(map,word1);
+                        if(strcmp(final,"\n")!=0 && strcmp(final,"-")!=0){
+                            map_insert(map,final);
                         }
-                        word_destroy(word1);
                         free(final);
                     }
                     word_destroy(word);
@@ -97,12 +78,7 @@ int deduplication(FILE* document,Map map){
     }
 
     free(line);
-
-    for(int i=0;i<26;i++){
-        word_destroy(capitals[i]);
-    }
-    free(capitals);
-    map_destroy(caps_map);
+    dictionary_destroy(dictionary);
 
     return 0;
 }

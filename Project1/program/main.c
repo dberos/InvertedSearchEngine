@@ -12,9 +12,10 @@ int main(){
         return 1;
     }
     for(int i=0;i<map->capacity;i++){
-        if(map->array[i].state==occupied){
-            printf("NODE: %s \n",map->array[i].key);
-            bst_inorder(map->array[i].bst);
+        MapNode node=&map->array[i];
+        if(node->bst->root!=NULL){
+            bst_inorder(node->bst);
+            printf("SIZE %d \n",node->bst->size);
             printf("\n");
         }
     }

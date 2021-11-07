@@ -4,6 +4,7 @@
 #include"word.h"
 #include"bst.h"
 #include"map.h"
+#include"dictionary.h"
 #include"hash_functions.h"
 
 // Parse a .txt file

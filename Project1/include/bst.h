@@ -1,16 +1,18 @@
 #pragma once
 
 #include"common_types.h"
-#include"word.h"
+#include"entry.h"
+#include"map.h"
 
 struct bst_node{
-    Word word;
+    Entry entry;
     BstNode left;
     BstNode right;
 };
 
 struct bst{
     BstNode root;
+    int size;
 };
 
 // Creating a Binary Search Tree Node
@@ -20,7 +22,7 @@ BstNode bst_node_create(String string);
 void bst_node_destroy(BstNode node);
 
 // Insert a Node recursively
-BstNode bst_node_insert(BstNode node,String string);
+BstNode bst_node_insert(BstNode node,String string,bool* inserted);
 
 // Inorder traversal, in order to print words
 void bst_node_inorder(BstNode node);
@@ -35,10 +37,16 @@ Bst bst_create();
 void bst_destroy(Bst bst);
 
 // Calling bst_node_insert at the root to make things easier
-void bst_insert(Bst bst,String string);
+bool bst_insert(Bst bst,String string);
 
 // Calling bst_node_inorder at the root
 void bst_inorder(Bst bst);
 
 // Call new_from_old_bst_node at the root
 void new_from_old_bst(Bst new_bst,Bst old_bst);
+
+// Helpful function for map_rehash
+void bst_node_insert_at_map(BstNode node,Map map);
+
+// Call node_insert_at_map at the root
+void bst_insert_at_map(Bst bst,Map map);
