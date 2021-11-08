@@ -5,7 +5,7 @@
 #include"map.h"
 
 struct bst_node{
-    Entry entry;
+    String word;
     BstNode left;
     BstNode right;
 };

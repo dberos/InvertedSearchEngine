@@ -1,6 +1,6 @@
 #include"../../include/dictionary.h"
 
-// Load Factor should be 0.5 since i only want to store in one node a bst with the words of the same initial letter
+// Load Factor should be 0.5 since i only want to store in one node a list with the words of the same initial letter
 // So the key of the node is an initial letter and all words from that initial will be placed at its list
 // Rehash will never happen here or collisions with different letters hashing on the same position
 
@@ -84,7 +84,7 @@ void dictionary_rehash(Dictionary dictionary){
         }
     }
     // Or continue by doubling up the capacity, if all primes are used
-    if(dictionary->capacity>old_capacity){
+    if(dictionary->capacity==old_capacity){
         dictionary->capacity*=2;
     }
 

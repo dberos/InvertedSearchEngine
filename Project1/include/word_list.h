@@ -22,7 +22,7 @@ WordList word_list_create();
 void word_list_destroy(WordList list);
 
 // Inserting at the Word List
-void list_insert(WordList list,String word);
+void word_list_insert(WordList list,String word);
 
 // Inserting at the end of a Word List to not allow duplicates
 bool word_list_insert_end(WordList list,String word);

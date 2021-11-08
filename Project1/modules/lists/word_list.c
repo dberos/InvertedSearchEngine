@@ -25,7 +25,7 @@ void word_list_destroy(WordList list){
     free(list);
 }
 
-void list_insert(WordList list,String word){
+void word_list_insert(WordList list,String word){
     WordListNode node=malloc(sizeof(*node));
     node->word=word_create(word);
     node->next=list->head;
