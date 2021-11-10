@@ -53,6 +53,9 @@ bool map_insert(Map map,String word){
     if(inserted==true){
         // Increase the size of the Map if so
         map->size++;
+        // Entry create
+        // Insert at Entry List
+        // map->entry_list
     }
 
     // Find Load Factor

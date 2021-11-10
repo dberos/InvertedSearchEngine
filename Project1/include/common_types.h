@@ -11,7 +11,7 @@ typedef void* Pointer;
 typedef char* String;
 typedef unsigned long ulong;
 
-typedef ulong(*HashFunction)(String);
+typedef ulong (*HashFunction)(String);
 
 typedef struct word* Word;
 typedef struct entry* Entry;
