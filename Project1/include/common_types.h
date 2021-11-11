@@ -6,6 +6,7 @@
 #include<stdbool.h>
 #include<time.h>
 #include<errno.h>
+#include <ctype.h>
 
 typedef void* Pointer;
 typedef char* String;
