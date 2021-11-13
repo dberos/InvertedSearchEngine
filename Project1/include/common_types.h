@@ -16,6 +16,8 @@ typedef ulong (*HashFunction)(String);
 
 typedef struct word* Word;
 typedef struct entry* Entry;
+typedef struct entry_list* EntryList;
+typedef struct entry_list_node* EntryListNode;
 typedef struct word_list_node* WordListNode;
 typedef struct word_list* WordList;
 typedef struct dictionary* Dictionary;
