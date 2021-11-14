@@ -4,7 +4,7 @@
 
 typedef struct word_node{
     String word;
-    struct word* next;
+    struct word_node* next;
 }word_node;
 
 typedef word_node* word_node_ptr;

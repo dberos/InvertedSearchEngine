@@ -121,6 +121,47 @@ void destroy_entry_index(Index_ptr ix){
     free(ix);
 }
 
-void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result){
+void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, words_list_ptr candidates, Metric type){
+
+    //The search algorithm contains 3 steps:
+
+    //1)
+
+    //String cand_word = pop_word_list(candidates);
+
+    unsigned int distance;
+
+    if(type==0) distance = HammingDistance(node->word, w); // Hamming Distance
+    else if(type==1) distance = HammingDistance(node->word, w);  // Edit Distance
+
+    //If the distance is LE to the threshold then add it to result
+    if(distance<=threshold){
+        add_entry(result, create_entry(node->word));
+    }
     
+    //free(cand_word);
+
+    //Now we should add all the children of our current node that fullfil the [d-n, d+n] requirement
+    int i;
+
+    for( i=0 ; i<node->children_number ; i++ ){
+        if((node->children[i]->parent_distance >= (distance-threshold)) && (node->children[i]->parent_distance =< (distance+threshold))){
+            //add_word_to_list(node->children[i]->word, candidates);
+            recursive_search(w,node->children[i], threshold, result, candidates, type);
+        }
+    }
+
+    
+}
+
+void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, Metric type){
+    
+    create_entry_list(result);
+
+    //create word candidates list and add the root word 
+    words_list_ptr candidates = word_list_create();
+    add_word_to_list(ix->root->word, candidates);
+
+    recursive_search(w,ix->root, threshold, result, candidates, type);
+
 }
