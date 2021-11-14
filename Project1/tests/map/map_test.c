@@ -10,6 +10,7 @@ void test_create(void){
     TEST_ASSERT(map->capacity==53);
     TEST_ASSERT(map->hash_function==hash_string);
     TEST_ASSERT(map->size==0);
+    TEST_ASSERT(map->entry_list!=NULL);
     map_destroy(map);
 }
 

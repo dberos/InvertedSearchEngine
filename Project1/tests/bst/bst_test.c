@@ -2,28 +2,54 @@
 #include"../../include/bst.h"
 #include"../../include/map.h"
 
+static String create_random_string(){
+    // Create alphabet
+    char chars[]="abcdefghijklmnopqrstuvwxyz";
+    // Lenght of alphabet
+    int len=sizeof(chars)-1;
+    // Find a random lenght for the string
+    int random_string_len=rand()%len+1;
+    // Allocate memory for the string
+    String string=malloc(random_string_len+1);
+    for(int i=0;i<random_string_len;i++){
+        // Find random letter
+        int random=rand()%len;
+        // Insert at position i the random letter
+        string[i]=chars[random];
+    }
+    // NULL terminated
+    string[random_string_len]='\0';
+    // Return the string
+    return string;
+}
+
 void test_create(void){
+    // Create a Bst
     Bst bst=bst_create();
+    // TEST_ASSERT everything from bst_create
     TEST_ASSERT(bst!=NULL);
     TEST_ASSERT(bst->root==NULL);
     TEST_ASSERT(bst->size==0);
+    // Destroy the Bst
     bst_destroy(bst);
 }
 
 void test_insert(void){
+    srand(time(0));
     Bst bst=bst_create();
-
-    String strings[]={"at","at","the","the","or","or"};
-
-    for(int i=0;i<6;i++){
+    for(int i=0;i<10000;i++){
+        // Create a random string
+        String string=create_random_string();
+        // Bst size before insertion
         int size=bst->size;
-        bst_insert(bst,strings[i]);
-        if(i%2==0){
+        bool inserted=bst_insert(bst,string);
+        if(inserted==true){
             TEST_ASSERT(bst->size==size+1);
         }
         else{
             TEST_ASSERT(bst->size==size);
         }
+        free(string);
     }
     bst_destroy(bst);
 }
