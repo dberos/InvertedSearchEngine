@@ -32,9 +32,11 @@ typedef index* Index_ptr;
 
 
 
+unsigned int minOfTwo(int x, int y);
+unsigned int minOfThree(int x, int y, int z);
+unsigned int HammingDistance(String str1, String str2);
+unsigned int EditDistance(String str1, String str2);
 
-unsigned int HammingDistance(String a, String b);
-unsigned int EditDistance(String a, String b);
 index_node_ptr create_index_node(const String word);
 void build_entry_index(const EntryList el, Metric type, Index_ptr ix);
 void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type);
