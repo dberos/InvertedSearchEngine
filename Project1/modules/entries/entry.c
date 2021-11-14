@@ -43,7 +43,17 @@ unsigned int get_number_entries(const EntryList el){
 }
 
 void add_entry(EntryList el, const Entry e){
+    //in case this is the first entry
+    if(el->head==NULL){
+        el->head = e;
+        el->end = e;
+        return;
+    }
+
+    //if thsi is not the first entry
     el->end->next = e;
+    //update end
+    el->end = e;
 }
 
 Entry get_first(const EntryList el){
