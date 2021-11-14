@@ -15,13 +15,13 @@ struct entry_list{
 } entry_list;
 
 // Creating an Entry
-void create_entry(String word, Entry entry);
+Entry create_entry(String word);
 
 // Destroying an Entry
 void destroy_entry(Entry entry);
 
 //Creating and entry list
-void create_entry_list(EntryList el);
+EntryList create_entry_list();
 
 //Count length of entry list
 unsigned int get_number_entries(const EntryList el);

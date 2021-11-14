@@ -37,16 +37,9 @@ int deduplication(FILE* document,Map map){
         
         //if line isn't empty
         if(strcmp(line, "\n")){
-        
-        
-        
             //tokenize line
             String word = strtok(line, " ");
-
-
             while(word!=NULL){
-
-
                 //remove special characters & decapitalize @ utilities.h
                 remove_special_characters_decapitalize(word);
                 
@@ -55,16 +48,14 @@ int deduplication(FILE* document,Map map){
                     continue;
                 }
 
-                // printf("%s\n", word);   
                 map_insert(map, word);
-                
-
                 
                 word=strtok(NULL," ");
             }
         
         }
     }
+    free(line);
 
     return 0;
 }

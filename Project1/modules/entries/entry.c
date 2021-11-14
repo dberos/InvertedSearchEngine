@@ -1,14 +1,16 @@
 #include"../../include/entry.h"
 
-void create_entry(const String word, Entry entry){
+Entry create_entry(const String word){
     // Allocate memory for the entry
-    entry = (Entry)malloc(sizeof(entry));
+    Entry entry = malloc(sizeof(*entry));
     // Set word
     entry->word = strdup(word);
     // Set payload to NULL for Project1
     entry->payload = NULL;
     // Set next to NULL (entries also function as Entry List nodes)
     entry->next = NULL;
+
+    return entry;
 }
 
 void destroy_entry(Entry entry){
@@ -18,12 +20,14 @@ void destroy_entry(Entry entry){
     free(entry);
 }
 
-void create_entry_list(EntryList el){
+EntryList create_entry_list(){
     
-    el = (EntryList)malloc(sizeof(entry_list));
+    EntryList el = malloc(sizeof(*el));
     
     el->head = NULL;
     el->end = NULL;
+
+    return el;
 
 }
 

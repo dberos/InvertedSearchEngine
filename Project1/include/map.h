@@ -14,7 +14,7 @@ struct map{
     int size;
     int capacity;
     HashFunction hash_function;
-    // Create Entry List
+    EntryList entry_list;
 };
 
 // Creating a Map

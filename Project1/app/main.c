@@ -19,6 +19,13 @@ int main(){
             printf("\n");
         }
     }
+    int size=0;
+    for(Entry entry=map->entry_list->head;entry!=NULL;entry=entry->next){
+        printf("ENTRY: %s \n",entry->word);
+        size++;
+    }
+    printf("MAP SIZE %d \n",map->size);
+    printf("ENTRY LIST SIZE: %d \n",size);
     map_destroy(map);
     fclose(doc);
 

@@ -25,6 +25,9 @@ Map map_create(){
         map->array[i].bst=bst_create();
     }
 
+    // Create the Entry List
+    map->entry_list=create_entry_list();
+
     // Return the Map
     return map;
 }
@@ -36,6 +39,8 @@ void map_destroy(Map map){
         bst_destroy(map->array[i].bst);
     }
 
+    // Destroy the Map's Entry List
+    destroy_entry_list(map->entry_list);
     // Free the array
     free(map->array);
     // Free the Map
@@ -53,9 +58,10 @@ bool map_insert(Map map,String word){
     if(inserted==true){
         // Increase the size of the Map if so
         map->size++;
-        // Entry create
-        // Insert at Entry List
-        // map->entry_list
+        // Create an Entry
+        Entry entry=create_entry(word);
+        // Insert at the Map's Entry List
+        add_entry(map->entry_list,entry);
     }
 
     // Find Load Factor
@@ -87,9 +93,15 @@ void map_rehash(Map map){
         map->capacity*=2;
     }
 
+    // Destroy previous Entry List
+    destroy_entry_list(map->entry_list);
+    // Create a new one
+    map->entry_list=create_entry_list();
+
     // Allocate memory for the array
     map->array=malloc(sizeof(*map->array)*map->capacity);
     // Set size to 0
+    map->size=0;
 
     // On each Node
     for(int i=0;i<map->capacity;i++){

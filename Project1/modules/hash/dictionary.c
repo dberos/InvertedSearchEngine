@@ -26,7 +26,7 @@ Dictionary dictionary_create(){
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
         // Create A List
-        dictionary->array[i]=word_list_create();
+        dictionary->array[i]=dictionary_word_list_create();
     }
 
     // Return the dictionary
@@ -37,7 +37,7 @@ void dictionary_destroy(Dictionary dictionary){
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
         // Destroy the List
-        word_list_destroy(dictionary->array[i]);
+        dictionary_word_list_destroy(dictionary->array[i]);
     }
 
     // Free the array
@@ -96,7 +96,7 @@ void dictionary_rehash(Dictionary dictionary){
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
         // Create a New List
-        dictionary->array[i]=word_list_create();
+        dictionary->array[i]=dictionary_word_list_create();
     }
 
     // Insert everything to the new Dicitionary
@@ -106,7 +106,7 @@ void dictionary_rehash(Dictionary dictionary){
                 dictionary_insert(dictionary,node->word);
             }
         }
-        word_list_destroy(old_array[i]);
+        dictionary_word_list_destroy(old_array[i]);
     }
     // Free the old array
     free(old_array);
