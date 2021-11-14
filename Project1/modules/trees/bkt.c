@@ -1,24 +1,41 @@
 #include "../../include/bkt.h"
 
-//Distance Metrics 
-unsigned int HammingDistance(String a, String b){
-
-    int i, min, max, result;
-
-    result=0;
-
-    (strlen(a) < strlen(b)) ? (min=a, max=b) : (min=b, max=a);
-
-    for(i=0 ; i<min ; i++){
-        if(a[i]!=b[i]) result++;
-    }
-
-    return result+max-min;
-
+// Distance Tools
+unsigned int minOfTwo(int x, int y) {
+    return x > y ? y : x;
 }
 
-unsigned int EditDistance(String a, String b){
-    return;
+unsigned int minOfThree(int x, int y, int z) {
+    return minOfTwo(minOfTwo(x, y), z);
+}
+
+// Distance Metrics 
+unsigned int HammingDistance(String str1, String str2) {
+  int count = 0;
+  int minLen = strlen(str1) > strlen(str2) ? strlen(str2) : strlen(str1);
+  
+  for (int i = 0; i < minLen; i++) {
+    if (str1[i] != str2[i]) {
+      count++;
+    }
+  }
+
+  count += abs(strlen(str1) - strlen(str2));
+  return count; 
+}
+
+unsigned int EditDistance(String str1, String str2){
+    if (!strlen(str1)) return strlen(str2);
+    if (!strlen(str2)) return strlen(str1);
+    
+    if (str1[0] == str2[0]) return EditDistance(&str1[1], &str2[1]);
+    
+    return (1 + minOfThree(
+                    EditDistance(&str1[1], str2),
+                    EditDistance(str1, &str2[1]),
+                    EditDistance(&str1[1], &str2[1])
+                )
+            );
 }
 
 
