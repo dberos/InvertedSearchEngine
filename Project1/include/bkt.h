@@ -2,6 +2,8 @@
 
 #include"common_types.h"
 #include"entry.h"
+#include"word_list.h"
+
 
 
 typedef enum{
