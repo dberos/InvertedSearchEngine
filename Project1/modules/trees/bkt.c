@@ -9,19 +9,21 @@ unsigned int minOfThree(int x, int y, int z) {
     return minOfTwo(minOfTwo(x, y), z);
 }
 
-// Distance Metrics 
-unsigned int HammingDistance(String str1, String str2) {
-  int count = 0;
-  int minLen = strlen(str1) > strlen(str2) ? strlen(str2) : strlen(str1);
-  
-  for (int i = 0; i < minLen; i++) {
-    if (str1[i] != str2[i]) {
-      count++;
-    }
-  }
+//Distance Metrics 
+unsigned int HammingDistance(String a, String b){
 
-  count += abs(strlen(str1) - strlen(str2));
-  return count; 
+    int i, min, max, result;
+
+    result=0;
+
+    (strlen(a) < strlen(b)) ? (min=a, max=b) : (min=b, max=a);
+
+    for(i=0 ; i<min ; i++){
+        if(a[i]!=b[i]) result++;
+    }
+
+    return result+max-min;
+
 }
 
 unsigned int EditDistance(String str1, String str2){
@@ -88,7 +90,7 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type){
     unsigned int distance;
 
     if(type==0) distance = HammingDistance(parent->word, newnode->word); // Hamming Distance
-    else if(type==1) distance = HammingDistance(parent->word, newnode->word);  // Edit Distance
+    else if(type==1) distance = EditDistance(parent->word, newnode->word);  // Edit Distance
 
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
     //with the word we want to insert
@@ -149,7 +151,7 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
     unsigned int distance;
 
     if(type==0) distance = HammingDistance(node->word, w); // Hamming Distance
-    else if(type==1) distance = HammingDistance(node->word, w);  // Edit Distance
+    else if(type==1) distance = EditDistance(node->word, w);  // Edit Distance
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){

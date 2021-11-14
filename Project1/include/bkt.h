@@ -30,8 +30,7 @@ typedef struct index{
 typedef index* Index_ptr;
 
 
-
-
+//Distance Metrics & tools
 unsigned int minOfTwo(int x, int y);
 unsigned int minOfThree(int x, int y, int z);
 unsigned int HammingDistance(String str1, String str2);
