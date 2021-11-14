@@ -55,7 +55,7 @@ int deduplication(FILE* document,Map map){
         
         }
     }
-    free(line);
+
 
     free(line);
 
