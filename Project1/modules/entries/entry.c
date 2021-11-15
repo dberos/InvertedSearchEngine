@@ -54,7 +54,7 @@ void add_entry(EntryList el, const Entry e){
         return;
     }
 
-    //if thsi is not the first entry
+    //if this is not the first entry
     el->end->next = e;
     //update end
     el->end = e;
