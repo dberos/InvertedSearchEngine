@@ -66,6 +66,7 @@ Entry get_first(const EntryList el){
 }
 
 Entry get_next(const EntryList el, const Entry e){
+
     if(e->next!=NULL) return e->next;
     else return NULL;
 }
