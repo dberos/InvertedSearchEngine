@@ -73,7 +73,7 @@
     Οι μετρικές του ευρετηρίου είναι το Hamming και Edit distance.
     
 #### Tests
-    cd tests/words
+    cd tests/bkt | cd tests/words
     make
     make run/make valgrind
     make clean

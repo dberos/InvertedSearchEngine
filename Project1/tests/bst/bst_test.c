@@ -91,13 +91,17 @@ void test_remove(void){
     WordList list=dictionary_word_list_create();
     for(int i=0;i<10000;i++){
         String string=create_random_string();
-        word_list_insert_end(list,string);
-        bst_insert(bst,string);
+        bool inserted=bst_insert(bst,string);
+        if(inserted==true){
+            word_list_insert_end(list,string);
+        }
         free(string);
     }
     for(WordListNode node=list->head;node!=NULL;node=node->next){
+        int size=bst->size;
         bool removed=bst_remove(bst,node->word->word);
         TEST_ASSERT(removed==true);
+        TEST_ASSERT(bst->size==size-1);
     }
     bst_destroy(bst);
     dictionary_word_list_destroy(list);

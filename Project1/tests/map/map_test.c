@@ -32,6 +32,9 @@ void test_create(void){
     TEST_ASSERT(map->hash_function==hash_string);
     TEST_ASSERT(map->size==0);
     TEST_ASSERT(map->entry_list!=NULL);
+    for(int i=0;i<map->capacity;i++){
+        TEST_ASSERT(map->array[i].bst!=NULL);
+    }
     map_destroy(map);
 }
 
@@ -78,8 +81,10 @@ void test_remove(void){
         free(string);
     }
     for(Entry entry=map->entry_list->head;entry!=NULL;entry=entry->next){
+        int size=map->size;
         bool removed=map_remove(map,entry->word);
         TEST_ASSERT(removed==true);
+        TEST_ASSERT(map->size==size-1);
     }
     map_destroy(map);
 }
