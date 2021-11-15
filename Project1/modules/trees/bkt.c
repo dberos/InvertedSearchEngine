@@ -77,10 +77,8 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
     next_entry = get_next(el, temp);
     
     while(next_entry!=NULL){
-        printf("%s\n", next_entry->word);
         add_index_node(ix->root, create_index_node(next_entry->word), type);
-        next_entry = get_next(el, next_entry);
-        
+        next_entry = get_next(el, next_entry);        
     }
 
 
