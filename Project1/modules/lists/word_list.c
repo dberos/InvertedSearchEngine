@@ -1,6 +1,7 @@
 #include"../../include/word_list.h"
 #include"../../include/common_types.h"
 
+
 words_list_ptr word_list_create(){
     // Allocate memory for the List
     words_list_ptr list = (words_list_ptr)malloc(sizeof(words_list));
@@ -50,6 +51,8 @@ void add_word_to_list(const String word, words_list_ptr list){
     if(list->head==NULL){
         list->head = new;
         list->end = new;
+        list->size++;
+
         return;
     }
     
@@ -59,6 +62,8 @@ void add_word_to_list(const String word, words_list_ptr list){
     //update end
     list->end = new;
     
+    //update list size
+    list->size++;
 }
 
 String pop_word_list(words_list_ptr list){
