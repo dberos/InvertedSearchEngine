@@ -5,6 +5,7 @@
 
 - [Δημήτριος Μπέρος - 1115201600269](https://github.com/dberos)
 - [Γιώργος Κοκκίνης - 1115201700050](https://github.com/Kokkinis99)
+- [Σταύρος Κωστόπουλος - 1115201700068](https://github.com/stavroskostopoulos)
 
 ## Project1
 
