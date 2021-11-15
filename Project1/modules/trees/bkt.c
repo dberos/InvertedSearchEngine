@@ -52,7 +52,6 @@ index_node_ptr create_index_node(const String word){
     newnode->children = NULL;
 
     return newnode;
-
 }
 
 
@@ -91,7 +90,7 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type){
     unsigned int distance;
 
     if(type==0) distance = HammingDistance(parent->word, newnode->word); // Hamming Distance
-    else if(type==1) distance = EditDistance(parent->word, newnode->word);  // Edit Distance
+    else distance = EditDistance(parent->word, newnode->word);  // Edit Distance
 
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
     //with the word we want to insert
@@ -158,7 +157,7 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
     unsigned int distance;
 
     if(type==0) distance = HammingDistance(node->word, w); // Hamming Distance
-    else if(type==1) distance = EditDistance(node->word, w);  // Edit Distance
+    else distance = EditDistance(node->word, w);  // Edit Distance
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){
