@@ -60,7 +60,19 @@
     το οποίο θα χτιστεί πάνω στα entries που αντιστοιχούν σε αυτό.
 
 #### Tests
-    cd tests/entry_list
+    cd tests/entries
+    make
+    make run/make valgrind
+    make clean
+    
+    
+### Index | BK-tree
+
+    Το ευρετήριο δεδομένων υλοποιήθηκε με την χρήση της δομής BK-tree ακριβώς όπως αυτή περιγράφεται στην εκφώνηση της εργασίας.
+    Οι μετρικές του ευρετηρίου είναι το Hamming και Edit distance.
+    
+#### Tests
+    cd tests/words
     make
     make run/make valgrind
     make clean
