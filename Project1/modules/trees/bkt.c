@@ -16,7 +16,7 @@ unsigned int HammingDistance(String a, String b){
 
     result=0;
 
-    (strlen(a) < strlen(b)) ? (min=a, max=b) : (min=b, max=a);
+    (strlen(a) < strlen(b)) ? (min=strlen(a), max=strlen(b)) : (min=strlen(b), max=strlen(a));
 
     for(i=0 ; i<min ; i++){
         if(a[i]!=b[i]) result++;
@@ -60,11 +60,10 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
 
     if(get_first(el)==NULL){
         perror("Entry list was empty!\nNo index was created!\n");
-        return NULL;
+        return;
     }
 
-    ix = (Index_ptr)malloc(sizeof(index));
-
+    // ix = (Index_ptr)malloc(sizeof(bkindex));
 
     //Create the root of the BK tree
     Entry temp = get_first(el);
@@ -75,11 +74,15 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
 
     //Now we should traverse through the entry list and build the entry index
     Entry next_entry = NULL;
-        
+    next_entry = get_next(el, temp);
     
-    while((next_entry = get_next(el, temp))!=NULL){
+    while(next_entry!=NULL){
+        printf("%s\n", next_entry->word);
         add_index_node(ix->root, create_index_node(next_entry->word), type);
+        next_entry = get_next(el, next_entry);
+        
     }
+
 
     return;
 }
@@ -95,9 +98,13 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type){
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
     //with the word we want to insert
     int i;
+    // printf("\nPARENT %s %d\n", parent->word,parent->parent_distance);
+    // printf("NEWNODE %s %d\n\n", newnode->word, parent->children_number);
 
     for(i=0 ; i<parent->children_number ; i++){
-
+    
+        // printf("forloop %d asdsad\n\n", i);
+        
         //if there is a children node with such distance 
         if(parent->children[i]->parent_distance == distance){
             //recursive function call for this node
@@ -111,9 +118,11 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type){
 
     //create a new slot for the new node
     parent->children = (index_node_ptr*)realloc(parent->children, (parent->children_number + 1)*sizeof(index_node_ptr));
-
+    parent->children[parent->children_number] = newnode;
+    
     //update children numebr of parent
     parent->children_number++;
+    
     
     //update the parent distance of the new node we are adding
     newnode->parent_distance = distance;
@@ -136,11 +145,11 @@ void destroy_index_nodes(index_node_ptr node){
 }
 
 void destroy_entry_index(Index_ptr ix){
-    destroy_entry_index(ix->root);
+    destroy_index_nodes(ix->root);
     free(ix);
 }
 
-void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, words_list_ptr candidates, Metric type){
+void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, Metric type){
 
     //The search algorithm contains 3 steps:
 
@@ -164,9 +173,9 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
     int i;
 
     for( i=0 ; i<node->children_number ; i++ ){
-        if((node->children[i]->parent_distance >= (distance-threshold)) && (node->children[i]->parent_distance =< (distance+threshold))){
+        if((node->children[i]->parent_distance >= (distance-threshold)) && (node->children[i]->parent_distance <= (distance+threshold))){
             //add_word_to_list(node->children[i]->word, candidates);
-            recursive_search(w,node->children[i], threshold, result, candidates, type);
+            recursive_search(w,node->children[i], threshold, result, type);
         }
     }
 
@@ -174,13 +183,5 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 }
 
 void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, Metric type){
-    
-    create_entry_list(result);
-
-    //create word candidates list and add the root word 
-    words_list_ptr candidates = word_list_create();
-    add_word_to_list(ix->root->word, candidates);
-
-    recursive_search(w,ix->root, threshold, result, candidates, type);
-
+    recursive_search(w,ix->root, threshold, result, type);
 }

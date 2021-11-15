@@ -22,12 +22,12 @@ typedef struct index_node{
 
 typedef index_node* index_node_ptr;
 
-typedef struct index{
+typedef struct bkindex{
     index_node_ptr root;
-}index;
+}bkindex;
 
 
-typedef index* Index_ptr;
+typedef bkindex* Index_ptr;
 
 
 //Distance Metrics & tools
@@ -42,4 +42,4 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type);
 void destroy_index_nodes(index_node_ptr node);
 void destroy_entry_index(Index_ptr ix);
 void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, Metric type);
-void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, words_list_ptr candidates, Metric type);
+void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, Metric type);
