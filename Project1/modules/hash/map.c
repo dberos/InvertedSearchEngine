@@ -121,3 +121,28 @@ void map_rehash(Map map){
     // Free the old array
     free(old_array);
 }
+
+bool map_find(Map map,String word){
+    // Find the Hash Position
+    ulong pos=map->hash_function(word)%map->capacity;
+    // Find the Node 
+    MapNode node=&map->array[pos];
+
+    // Check whether word exists at the Bst
+    bool exists=bst_find(node->bst,word);
+    return exists;
+}
+
+bool map_remove(Map map,String word){
+    // Find the Hash Position
+    ulong pos=map->hash_function(word)%map->capacity;
+    // Find the Node 
+    MapNode node=&map->array[pos];
+
+    // Check whether word can be removed, if it exists, to change Map's size
+    bool removed=bst_remove(node->bst,word);
+    if(removed==true){
+        map->size--;
+    }
+    return removed;
+}

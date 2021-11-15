@@ -28,3 +28,9 @@ bool map_insert(Map map,String word);
 
 // Rehashing depending on Load Factor
 void map_rehash(Map map);
+
+// Find whether given word exists at a Map
+bool map_find(Map map,String word);
+
+// Remove given word if it exists at a Map
+bool map_remove(Map map,String word);

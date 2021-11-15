@@ -50,3 +50,18 @@ void bst_node_insert_at_map(BstNode node,Map map);
 
 // Call node_insert_at_map at the root
 void bst_insert_at_map(Bst bst,Map map);
+
+// Find node with given string
+BstNode bst_find_node(BstNode node,String string);
+
+// Call find_node at the root
+bool bst_find(Bst bst,String string);
+
+// Find min node
+BstNode bst_find_min_node(BstNode node);
+
+// Remove node with given string
+BstNode bst_remove_node(BstNode node,String string,bool* removed);
+
+// Call node_remove
+bool bst_remove(Bst bst,String string);

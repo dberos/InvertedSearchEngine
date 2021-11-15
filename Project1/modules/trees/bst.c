@@ -107,3 +107,106 @@ void bst_node_insert_at_map(BstNode node,Map map){
 void bst_insert_at_map(Bst bst,Map map){
     bst_node_insert_at_map(bst->root,map);
 }
+
+BstNode bst_find_node(BstNode node,String string){
+    if(node==NULL){
+        return NULL;
+    }
+    if(strcmp(string,node->word)==0){
+        return node;
+    }
+    else if(strcmp(string,node->word)<0){
+        return bst_find_node(node->left,string);
+    }
+    else{
+        return bst_find_node(node->right,string);
+    }
+}
+
+bool bst_find(Bst bst,String string){
+    BstNode node=bst_find_node(bst->root,string);
+    if(node!=NULL){
+        return true;
+    }
+    return false;
+}
+
+BstNode bst_find_min_node(BstNode node){
+    BstNode temp=node;
+    while(temp->left!=NULL){
+        temp=temp->left;
+    }
+    if(temp!=NULL){
+        return temp;
+    }
+    return NULL;
+}
+
+BstNode bst_remove_node(BstNode node,String string,bool* removed){
+    if(node==NULL){
+        return NULL;
+    }
+    // Recursively find node
+    if(strcmp(string,node->word)<0){
+        node->left=bst_remove_node(node->left,string,removed);
+        *removed=true;
+        return node;
+    }
+    else if(strcmp(string,node->word)>0){
+        node->right=bst_remove_node(node->right,string,removed);
+        *removed=true;
+        return node;
+    }
+    // If left doesn't exist
+    if(node->left==NULL){
+        BstNode right=node->right;
+        free(node->word);
+        free(node);
+        *removed=true;
+        return right;
+    }
+    // If right doesn't exist
+    else if(node->right==NULL){
+        BstNode left=node->left;
+        free(node->word);
+        free(node);
+        *removed=true;
+        return left;
+    }
+    // Both exist
+    else{
+        // Root is the given root
+        BstNode root=node;
+        // And call temp its right
+        BstNode temp=node->right;
+        // Fix pointers while left exists
+        while(temp->left!=NULL){
+            root=temp;
+            temp=temp->left;
+        }
+        if(root!=node){
+            root->left=temp->right;
+        }
+        else{
+            root->right=temp->right;
+        }
+        // Free the old word
+        free(node->word);
+        // Set new one since tree is fixed
+        node->word=strdup(temp->word);
+        // Free temp
+        free(temp->word);
+        free(temp);
+        *removed=true;
+    }
+    return node;
+}
+
+bool bst_remove(Bst bst,String string){
+    bool removed=false;
+    bst->root=bst_remove_node(bst->root,string,&removed);
+    if(removed==true){
+        bst->size--;
+    }
+    return removed;
+}
