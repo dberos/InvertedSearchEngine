@@ -10,7 +10,7 @@ OBJS = main.o \
 $(MODULES)/entries/word.o $(MODULES)/entries/entry.o \
 $(MODULES)/trees/bst.o $(MODULES)/trees/bkt.o $(MODULES)/lists/word_list.o \
 $(MODULES)/hash/hash_functions.o $(MODULES)/hash/dictionary.o $(MODULES)/hash/map.o \
-$(MODULES)/methods/deduplication.o
+$(MODULES)/methods/deduplication.o $(MODULES)/methods/exact_matching.o
 
 # Το εκτελέσιμο πρόγραμμα
 EXEC = main

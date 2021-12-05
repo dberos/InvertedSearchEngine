@@ -10,3 +10,6 @@
 // Parse a .txt file
 // No duplicate words or special characters allowed
 int deduplication(FILE* document,Map map);
+
+// Check whether a word already exists at a Map
+bool exact_matching(Map map,String word);
