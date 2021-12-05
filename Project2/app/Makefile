@@ -12,26 +12,30 @@ $(MODULES)/trees/bst.o $(MODULES)/trees/bkt.o $(MODULES)/lists/word_list.o \
 $(MODULES)/hash/hash_functions.o $(MODULES)/hash/dictionary.o $(MODULES)/hash/map.o \
 $(MODULES)/methods/deduplication.o $(MODULES)/methods/exact_matching.o $(MODULES)/methods/core.o
 
+# Αρχείο .o για δημιουργία της βιβλιοθήκης
+LIB = $(MODULES)/methods/core.o
+
 # Το εκτελέσιμο πρόγραμμα
 EXEC = testdriver
 
-# Το όνομα της βιβλιοθήκης για δημιουργία
-LIB = core
-
 # Η βιβλιοθήκη
-LIBRARY = $(LIB).so
+LIBRARY = libcore.so
 
 $(EXEC): $(OBJS)
-	gcc $(OBJS) -o $(LIBRARY)
+	gcc $(OBJS) -o $(EXEC)
 
 clean:
 	rm -f $(OBJS) $(EXEC) $(LIBRARY)
 
 run: $(EXEC)
-	./$(LIBRARY)
+	./$(EXEC)
 
 valgrind: $(EXEC)
-	valgrind --leak-check=full --show-leak-kinds=all ./$(LIBRARY)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(EXEC)
 
 gdb: $(EXEC)
-	gdb --args ./$(LIBRARY)
+	gdb --args ./$(EXEC)
+
+# make lib για δημιουργία βιβλιοθήκης από το core μας
+lib: $(LIB)
+	gcc -shared -o $(LIBRARY) $(LIB)
