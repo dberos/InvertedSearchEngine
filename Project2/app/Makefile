@@ -3,6 +3,8 @@ MODULES = ../modules
 INCLUDE = ../include
 LIB = ../lib
 
+MAKE += --silent
+
 # compiler
 CC = gcc
 
@@ -13,12 +15,11 @@ LDFLAGS = -lm
 # Η βιβλιοθήκη
 LIBRARY = libcore.so
 
-# Αρχεία .o
+# Αρχείο .o και βιβλιοθήκη
 OBJS = test.o $(LIB)/$(LIBRARY)
 
 # Το εκτελέσιμο πρόγραμμα
 EXEC = testdriver
-
 
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $(EXEC) $(LDFLAGS)
