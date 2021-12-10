@@ -8,3 +8,7 @@ ulong hash_string(String str){
     }
     return hash;
 }
+
+uint hash_id(Pointer value){
+    return *(uint*)value;
+}

@@ -31,6 +31,7 @@
 #include"../include/map.h"
 #include"../include/bkt.h"
 #include"../include/methods.h"
+#include"../include/dictionary.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -291,21 +292,48 @@ int main(int argc, char* argv[])
 	// return 0;
 
 
-	Map map=map_create();
-	FILE* test=fopen("../data/small_test.txt","r");
-	if(deduplication(test,map)==1){
-		map_destroy(map);
+	// Map map=map_create();
+	// FILE* test=fopen("../data/small_test.txt","r");
+	// if(deduplication(test,map)==1){
+	// 	map_destroy(map);
+	// }
+
+	// for(int i=0;i<map->capacity;i++){
+	// 	Bst bst=map->array[i].bst;
+	// 	if(bst->root!=NULL){
+	// 		bst_inorder(bst);
+	// 	}
+	// }
+
+	// fclose(test);
+	// map_destroy(map);
+
+	Dictionary dictionary=dictionary_create();
+	QueryID* ids=malloc(sizeof(*ids)*1000);
+	for(int i=0;i<1000;i++){
+		ids[i]=i;
+		dictionary_insert(dictionary,&ids[i],&ids[i]);
 	}
 
-	for(int i=0;i<map->capacity;i++){
-		Bst bst=map->array[i].bst;
-		if(bst->root!=NULL){
-			bst_inorder(bst);
+	for(int i=1;i<10;i++){
+		dictionary_insert(dictionary,&ids[0],&ids[i]);
+	}
+	for(uint i=0;i<dictionary->capacity;i++){
+		if(dictionary->array[i].value->size!=0){
+			printf("KEY: %d \n",i);
+			for(ListNode node=dictionary->array[i].value->head;node!=NULL;node=node->next){
+				printf("%d VALUE \n",*(int*)node->value);
+			}
 		}
 	}
-
-	fclose(test);
-	map_destroy(map);
+	List list=dictionary_find(dictionary,&ids[0]);
+	if(list->size!=0){
+		for(ListNode node=list->head;node!=NULL;node=node->next){
+			printf("FOUND %d VALUE of %d KEY \n",*(int*)node->value,ids[0]);
+		}
+	}
+	free(ids);
+	dictionary_destroy(dictionary);
 	return 0;
 }
 
