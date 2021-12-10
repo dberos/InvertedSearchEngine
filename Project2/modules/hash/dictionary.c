@@ -114,9 +114,11 @@ void dictionary_rehash(Dictionary dictionary){
 }
 
 List dictionary_find(Dictionary dictionary,Pointer key){
+    // Hash Position
     uint pos=dictionary->hash_function(key)%dictionary->capacity;
-
+    // List of the Hash Position
     List list=dictionary->array[pos].value;
 
+    // Return it if it isn't empty
     return list->size>0 ? list : NULL;
 }

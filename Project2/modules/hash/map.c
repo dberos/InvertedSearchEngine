@@ -74,6 +74,29 @@ bool map_insert(Map map,String word){
     return inserted;
 }
 
+bool map_insert_doc(Map map,String word){
+    // Find the Hash Position
+    ulong pos=map->hash_function(word)%map->capacity;
+    // Find the Node 
+    MapNode node=&map->array[pos];
+
+    // Check whether the word can be inserted on the Node's Bst
+    bool inserted=bst_insert(node->bst,word);
+    if(inserted==true){
+        // Increase the size of the Map if so
+        map->size++;
+    }
+
+    // Find Load Factor
+    float load_factor=(float)map->size/map->capacity;
+    if(load_factor>MAX_LOAD_FACTOR){
+        // If it got increased then rehash
+        map_rehash(map);
+    }
+
+    return inserted;
+}
+
 void map_rehash(Map map){
     // Find the old array
     MapNode old_array=map->array;

@@ -327,13 +327,25 @@ int main(int argc, char* argv[])
 		}
 	}
 	List list=dictionary_find(dictionary,&ids[0]);
-	if(list->size!=0){
+	if(list!=NULL){
 		for(ListNode node=list->head;node!=NULL;node=node->next){
 			printf("FOUND %d VALUE of %d KEY \n",*(int*)node->value,ids[0]);
 		}
 	}
 	free(ids);
 	dictionary_destroy(dictionary);
+
+	Map map=map_create();
+	String line="$hello &world";
+	QueryID id=-1;
+	dedup(line,map,id);
+	for(int i=0;i<map->capacity;i++){
+		Bst bst=map->array[i].bst;
+		if(bst->root!=NULL){
+			bst_inorder(bst);
+		}
+	}
+	map_destroy(map);
 	return 0;
 }
 

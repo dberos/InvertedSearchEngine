@@ -5,8 +5,8 @@ Entry create_entry(const String word){
     Entry entry = malloc(sizeof(*entry));
     // Set word
     entry->word = strdup(word);
-    // Set payload to NULL for Project1
-    entry->payload = NULL;
+    // Create a dictionary for the payload
+    entry->payload=dictionary_create();
     // Set next to NULL (entries also function as Entry List nodes)
     entry->next = NULL;
 
@@ -16,6 +16,8 @@ Entry create_entry(const String word){
 void destroy_entry(Entry entry){
     // Free the word
     free(entry->word);
+    // Destroy the dictionary for the payload
+    dictionary_destroy(entry->payload);
     // Free the entry
     free(entry);
 }

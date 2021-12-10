@@ -26,6 +26,10 @@ void map_destroy(Map map);
 // Inserting a word at a Map
 bool map_insert(Map map,String word);
 
+// Inserting a word at a Map
+// Used for documents
+bool map_insert_doc(Map map,String word);
+
 // Rehashing depending on Load Factor
 void map_rehash(Map map);
 

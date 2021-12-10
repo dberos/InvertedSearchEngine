@@ -61,3 +61,25 @@ int deduplication(FILE* document,Map map){
 
     return 0;
 }
+
+int dedup(String string,Map map,QueryID id){
+    String str=strdup(string);
+    if(id>0){
+        String word=strtok(str," ");
+        while(word!=NULL){
+            remove_special_characters_decapitalize(word);
+            map_insert(map,word);
+            word=strtok(NULL," ");
+        }
+    }
+    else{
+        String word=strtok(str," ");
+        while(word!=NULL){
+            remove_special_characters_decapitalize(word);
+            map_insert_doc(map,word);
+            word=strtok(NULL," ");
+        }
+    }
+    free(str);
+    return 0;
+}

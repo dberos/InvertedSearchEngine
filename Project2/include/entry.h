@@ -1,10 +1,11 @@
 #pragma once
 
 #include"common_types.h"
+#include"dictionary.h"
 
 struct entry{
     String word;
-    String payload;
+    Dictionary payload;
     Entry next;
 } entry;
 
