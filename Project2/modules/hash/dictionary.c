@@ -15,14 +15,14 @@ Dictionary dictionary_create(){
     // Set starting capacity as the first prime from the array
     dictionary->capacity=prime_table_dictionary[0];
     // Set Hash Function
-    dictionary->hash_function=hash_id;
+    dictionary->hash_function=hash_string;
 
     // Allocate memory for the List array
     dictionary->array=malloc(sizeof(*dictionary->array)*dictionary->capacity);
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
-        // Create A List
-        dictionary->array[i].value=list_create();
+        // Create an Entry List
+        dictionary->array[i].entry_list=create_entry_list();
     }
 
     // Return the dictionary
@@ -32,8 +32,8 @@ Dictionary dictionary_create(){
 void dictionary_destroy(Dictionary dictionary){
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
-        // Destroy the List
-        list_destroy(dictionary->array[i].value);
+        // Destroy the Entry List
+        destroy_entry_list(dictionary->array[i].entry_list);
     }
 
     // Free the array
@@ -42,31 +42,25 @@ void dictionary_destroy(Dictionary dictionary){
     free(dictionary);
 }
 
-void dictionary_insert(Dictionary dictionary,Pointer key,Pointer value){
+bool dictionary_insert(Dictionary dictionary,String word,Pointer id){
     // Find the Hash Position
-    uint pos=dictionary->hash_function(key)%dictionary->capacity;
+    ulong pos=dictionary->hash_function(word)%dictionary->capacity;
     // Find the Node
     DictionaryNode node=&dictionary->array[pos];
-    // List of the Node
-    List list=dictionary->array[pos].value;
 
-    // If the list is empty
-    if(list->size==0){
-        // Increase the size of the dictionary
+    // Check whether word can be inserted in the Node's Entry List
+    bool inserted=insert_entry(node->entry_list,word,id);
+    if(inserted==true){
+        // Increase the size if so
         dictionary->size++;
-        // Set key of the node
-        node->key=key;
     }
-
-    // Insert at the List without traverse
-    list_insert_tail(list,value);
 
     // Find Load Factor
     float load_factor=(float)dictionary->size/dictionary->capacity;
     if(load_factor>MAX_DICTIONARY_LOAD_FACTOR){
-        // If it got increased then rehash
         dictionary_rehash(dictionary);
     }
+    return inserted;
 }
 
 void dictionary_rehash(Dictionary dictionary){
@@ -96,29 +90,43 @@ void dictionary_rehash(Dictionary dictionary){
 
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){
-        // Create a New List
-        dictionary->array[i].value=list_create();
+        // Create a new Entry List
+        dictionary->array[i].entry_list=create_entry_list();
     }
 
     // Insert everything to the new Dicitionary
     for(int i=0;i<old_capacity;i++){
-        if(old_array[i].value->head!=NULL){
-            for(ListNode node=old_array[i].value->head;node!=NULL;node=node->next){
-                dictionary_insert(dictionary,old_array[i].key,node->value);
+        if(old_array[i].entry_list->head!=NULL){
+            for(Entry entry=old_array[i].entry_list->head;entry!=NULL;entry=entry->next){
+                Pointer ptr=entry->payload->head->value;
+                QueryID id=*(uint*)ptr;
+                dictionary_insert(dictionary,entry->word,ptr);
+                // Fix payload
+                Entry en=dictionary_find(dictionary,entry->word);
+                for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
+                    if(*(uint*)node->value!=id){
+                        list_insert_tail(en->payload,node->value);
+                    }
+                }
             }
         }
-        list_destroy(old_array[i].value);
+        destroy_entry_list(old_array[i].entry_list);
     }
     // Free the old array
     free(old_array);
 }
 
-List dictionary_find(Dictionary dictionary,Pointer key){
-    // Hash Position
-    uint pos=dictionary->hash_function(key)%dictionary->capacity;
-    // List of the Hash Position
-    List list=dictionary->array[pos].value;
+Entry dictionary_find(Dictionary dictionary,String word){
+    // Find Hash Position
+    ulong pos=dictionary->hash_function(word)%dictionary->capacity;
+    // Node of the position
+    DictionaryNode node=&dictionary->array[pos];
 
-    // Return it if it isn't empty
-    return list->size>0 ? list : NULL;
+    for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
+        if(strcmp(entry->word,word)==0){
+            // Return the entry if its word is the given word
+            return entry;
+        }
+    }
+    return NULL;
 }

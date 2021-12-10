@@ -1,11 +1,12 @@
 #pragma once
 
 #include"common_types.h"
-#include"dictionary.h"
+#include"list.h"
+#include"core.h"
 
 struct entry{
     String word;
-    Dictionary payload;
+    List payload;
     Entry next;
 } entry;
 
@@ -13,13 +14,14 @@ struct entry{
 struct entry_list{
     Entry head;
     Entry end;
+    uint size;
 } entry_list;
 
 // Creating an Entry
 Entry create_entry(String word);
 
 // Destroying an Entry
-void destroy_entry(Entry entry);
+void destroy_entry(Entry entry,EntryList entry_list);
 
 //Creating and entry list
 EntryList create_entry_list();
@@ -37,7 +39,10 @@ Entry get_first(const EntryList el);
 Entry get_next(const EntryList el, const Entry e);
 
 //Destroy entry list
-void destroy_list_nodes(Entry e); //Recursive function used in destroy_entry_list
+void destroy_list_nodes(Entry e,EntryList entry_list); //Recursive function used in destroy_entry_list
 void destroy_entry_list(EntryList el);
 
-
+// Insert a word at an Entry List
+// If it doesnt exist create an entry 
+// Else update the payload
+bool insert_entry(EntryList entry_list,String word,Pointer id);

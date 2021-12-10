@@ -4,10 +4,13 @@
 void test_create_entry(void) {
     Entry entry = create_entry("dberos97");
     TEST_ASSERT(entry->word != NULL);
-    TEST_ASSERT(entry->payload == NULL);
+    TEST_ASSERT(entry->payload != NULL);
     TEST_ASSERT(entry->next == NULL);
 
-    destroy_entry(entry);
+    EntryList entry_list=create_entry_list();
+    TEST_ASSERT(entry_list!=NULL);
+    destroy_entry(entry,entry_list);
+    destroy_entry_list(entry_list);
 }
 
 void test_create_list(void) {

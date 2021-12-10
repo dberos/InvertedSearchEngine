@@ -4,18 +4,18 @@
 #include"hash_functions.h"
 #include"list.h"
 #include"core.h"
+#include"entry.h"
 
 
 struct dictionary_node{
-    Pointer key;
-    List value;
+    EntryList entry_list;
 };
 
 struct dictionary{
     DictionaryNode array;
     int size;
     int capacity;
-    HashFunc hash_function;
+    HashFunction hash_function;
 };
 
 // Creating a Dictionary
@@ -25,10 +25,11 @@ Dictionary dictionary_create();
 void dictionary_destroy(Dictionary dictionary);
 
 // Inserting at a Dictionary
-void dictionary_insert(Dictionary dictionary,Pointer key,Pointer value);
+bool dictionary_insert(Dictionary dictionary,String word,Pointer id);
 
 // Rehashing Depending on Load Factor
 void dictionary_rehash(Dictionary dictionary);
 
-// Find whether a key exists at a dictionary and return the List of the values
-List dictionary_find(Dictionary dictionary,Pointer key);
+// Find whether an entry exists at a dictionary and return it
+Entry dictionary_find(Dictionary dictionary,String word);
+

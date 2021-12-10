@@ -27,6 +27,9 @@
 
 #include"../../include/common_types.h"
 #include"../../include/core.h"
+#include"../../include/methods.h"
+
+Core core=NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

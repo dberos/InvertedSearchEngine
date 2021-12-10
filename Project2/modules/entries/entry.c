@@ -5,21 +5,23 @@ Entry create_entry(const String word){
     Entry entry = malloc(sizeof(*entry));
     // Set word
     entry->word = strdup(word);
-    // Create a dictionary for the payload
-    entry->payload=dictionary_create();
+    // Create a list for the payload
+    entry->payload=list_create();
     // Set next to NULL (entries also function as Entry List nodes)
     entry->next = NULL;
 
     return entry;
 }
 
-void destroy_entry(Entry entry){
+void destroy_entry(Entry entry,EntryList entry_list){
     // Free the word
     free(entry->word);
-    // Destroy the dictionary for the payload
-    dictionary_destroy(entry->payload);
+    // Destroy the list for the payload
+    list_destroy(entry->payload);
     // Free the entry
     free(entry);
+    // Decrease the size of the entry list
+    entry_list->size--;
 }
 
 EntryList create_entry_list(){
@@ -28,23 +30,14 @@ EntryList create_entry_list(){
     
     el->head = NULL;
     el->end = NULL;
+    el->size = 0;
 
     return el;
 
 }
 
 unsigned int get_number_entries(const EntryList el){
-
-    Entry temp = el->head;
-
-    unsigned int number = 0;
-
-    while(temp!=NULL){
-        number++;
-        temp = temp->next;
-    }
-
-    return number;
+    return el->size;
 
 }
 
@@ -53,6 +46,8 @@ void add_entry(EntryList el, const Entry e){
     if(el->head==NULL){
         el->head = e;
         el->end = e;
+        // Update size
+        el->size++;
         return;
     }
 
@@ -60,6 +55,8 @@ void add_entry(EntryList el, const Entry e){
     el->end->next = e;
     //update end
     el->end = e;
+    // Update size
+    el->size++;
 }
 
 Entry get_first(const EntryList el){
@@ -73,13 +70,51 @@ Entry get_next(const EntryList el, const Entry e){
     else return NULL;
 }
 
-void destroy_list_nodes(Entry e){
+void destroy_list_nodes(Entry e,EntryList entry_list){
     if(e==NULL) return;
-    destroy_list_nodes(e->next);
-    destroy_entry(e);
+    destroy_list_nodes(e->next,entry_list);
+    destroy_entry(e,entry_list);
 }
 
 void destroy_entry_list(EntryList el){
-    destroy_list_nodes(get_first(el));
+    destroy_list_nodes(get_first(el),el);
     free(el);
+}
+
+
+
+bool insert_entry(EntryList entry_list,String word,Pointer id){
+    Entry entry=create_entry(word);
+    Entry curr;
+    list_insert_tail(entry->payload,id);
+    if(entry_list->head!=NULL && strcmp(entry_list->head->word,word)==0){
+        destroy_entry(entry,entry_list);
+        // Size shouldn't be affected by decreasing it at destroy_entry
+        entry_list->size++;
+        list_insert_tail(entry_list->head->payload,id);
+        return false;
+    }
+    if(entry_list->head==NULL){
+        entry->next=entry_list->head;
+        entry_list->head=entry;
+    }
+    else{
+        curr=entry_list->head;
+        while(curr->next!=NULL){
+            if(strcmp(curr->next->word,word)!=0){
+                curr=curr->next;
+            }
+            else{
+                destroy_entry(entry,entry_list);
+                // Size shouldn't be affected by decreasing it at destroy_entry
+                entry_list->size++;
+                list_insert_tail(curr->payload,id);
+                return false;
+            }
+        }
+        entry->next=curr->next;
+        curr->next=entry;
+    }
+    entry_list->size++;
+    return true;
 }

@@ -308,44 +308,33 @@ int main(int argc, char* argv[])
 	// fclose(test);
 	// map_destroy(map);
 
-	Dictionary dictionary=dictionary_create();
-	QueryID* ids=malloc(sizeof(*ids)*1000);
-	for(int i=0;i<1000;i++){
-		ids[i]=i;
-		dictionary_insert(dictionary,&ids[i],&ids[i]);
-	}
 
-	for(int i=1;i<10;i++){
-		dictionary_insert(dictionary,&ids[0],&ids[i]);
-	}
-	for(uint i=0;i<dictionary->capacity;i++){
-		if(dictionary->array[i].value->size!=0){
-			printf("KEY: %d \n",i);
-			for(ListNode node=dictionary->array[i].value->head;node!=NULL;node=node->next){
-				printf("%d VALUE \n",*(int*)node->value);
+	Dictionary dictionary=dictionary_create();
+	QueryID id1=1;
+	QueryID id2=2;
+	QueryID id3=3;
+	QueryID id4=4;
+	QueryID id5=5;
+	dictionary_insert(dictionary,"HELLO",&id1);
+	dictionary_insert(dictionary,"HELLO",&id2);
+	dictionary_insert(dictionary,"WORLD!",&id3);
+	dictionary_insert(dictionary,"WORLD!",&id4);
+	dictionary_insert(dictionary,"WORLD!",&id5);
+	dictionary_rehash(dictionary);
+	for(int i=0;i<dictionary->capacity;i++){
+		if(dictionary->array[i].entry_list->size!=0){
+			for(Entry entry=dictionary->array[i].entry_list->head;entry!=NULL;entry=entry->next){
+				printf("NODE: %d WORD: %s \n",i,entry->word);
+				for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
+					printf("PAYLOAD: %d \n",*(uint*)node->value);
+				}
+				printf("ENTRY LIST SIZE: %d \n",dictionary->array[i].entry_list->size);
+				printf("PAYLOAD SIZE: %d \n",entry->payload->size);
 			}
 		}
 	}
-	List list=dictionary_find(dictionary,&ids[0]);
-	if(list!=NULL){
-		for(ListNode node=list->head;node!=NULL;node=node->next){
-			printf("FOUND %d VALUE of %d KEY \n",*(int*)node->value,ids[0]);
-		}
-	}
-	free(ids);
 	dictionary_destroy(dictionary);
 
-	Map map=map_create();
-	String line="$hello &world";
-	QueryID id=-1;
-	dedup(line,map,id);
-	for(int i=0;i<map->capacity;i++){
-		Bst bst=map->array[i].bst;
-		if(bst->root!=NULL){
-			bst_inorder(bst);
-		}
-	}
-	map_destroy(map);
 	return 0;
 }
 

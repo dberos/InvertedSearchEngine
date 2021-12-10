@@ -8,6 +8,17 @@
 #include"hash_functions.h"
 #include"core.h"
 
+struct core{
+    Map document;
+    Dictionary queries;
+};
+
+// Global struct to store all the needed structs
+Core core_create();
+
+// Destroy the global struct
+void core_destroy(Core core);
+
 // Parse a .txt file
 // No duplicate words or special characters allowed
 int deduplication(FILE* document,Map map);
