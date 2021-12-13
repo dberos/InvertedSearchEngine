@@ -62,21 +62,25 @@ int deduplication(FILE* document,Map map){
     return 0;
 }
 
-int dedup(String string,Map map,QueryID id){
+int dedup(String string, Core core, QueryID id, MatchType match_type){
     String str=strdup(string);
-    if(id>0){
+    
+    if(id>0){   //if this is about a query deduplication
         String word=strtok(str," ");
         while(word!=NULL){
             remove_special_characters_decapitalize(word);
-            map_insert(map,word);
+            //check methods.h for the core struct
+            if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word, (uint*)id); 
+            else if(match_type==MT_EDIT_DIST) dictionary_insert(core->edit_queries, word, (uint*)id);
+            else dictionary_insert(core->hamming_queries, word, (uint*)id);
             word=strtok(NULL," ");
         }
     }
-    else{
+    else{   //if this is a document deduplication
         String word=strtok(str," ");
         while(word!=NULL){
             remove_special_characters_decapitalize(word);
-            map_insert_doc(map,word);
+            map_insert_doc(core->document,word);
             word=strtok(NULL," ");
         }
     }

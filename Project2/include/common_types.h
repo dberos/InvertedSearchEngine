@@ -31,4 +31,5 @@ typedef struct map_node* MapNode;
 typedef struct map* Map;
 typedef struct list_node* ListNode;
 typedef struct list* List;
+typedef struct query* Query;
 typedef struct core* Core;
