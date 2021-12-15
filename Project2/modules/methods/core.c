@@ -112,6 +112,7 @@ ErrorCode EndQuery(QueryID query_id){
 	else{
 		dictionary_remove(core->hamming_queries,core->query_map,&query_id);
 	}
+	query_map_remove(core->query_map,&query_id);
 	return EC_SUCCESS;
 }
 
