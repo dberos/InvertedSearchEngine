@@ -7,14 +7,15 @@
 #include"dictionary.h"
 #include"hash_functions.h"
 #include"core.h"
+#include"query_map.h"
 
 struct core{
     Map document;
     Dictionary exact_queries; //A hashtable that stores the queries with exact match type( buckets are entry lists)
     Dictionary edit_queries; //A hashtable that stores the queries with edit match type( buckets are entry lists)
     Dictionary hamming_queries; //A hashtable that stores the queries with hamming match type( buckets are entry lists)
-    // struct Query* active_queries;   // Sigmod's Query struct(should be a vector of the whole query strings)
     uint active_queries_number;
+    QueryMap query_map;         // Active Query Set
 };
 
 // Global struct to store all the needed structs

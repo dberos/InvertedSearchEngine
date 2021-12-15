@@ -13,7 +13,6 @@ typedef char* String;
 typedef unsigned long ulong;
 typedef unsigned int uint;
 
-
 typedef ulong (*HashFunction)(String);
 typedef uint (*HashFunc)(Pointer);
 
@@ -32,3 +31,8 @@ typedef struct map* Map;
 typedef struct list_node* ListNode;
 typedef struct list* List;
 typedef struct core* Core;
+typedef struct Query* Query;
+typedef struct query_map_node* QueryMapNode;
+typedef struct query_map* QueryMap;
+typedef struct query_list_node* QueryListNode;
+typedef struct query_list* QueryList;

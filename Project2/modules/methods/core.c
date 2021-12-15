@@ -49,16 +49,16 @@ Core core=NULL;
 // 	return EC_SUCCESS;
 // }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////
 
-// Keeps all information related to an active query
-struct Query
-{
-	QueryID query_id;
-	char str[MAX_QUERY_LENGTH];
-	MatchType match_type;
-	unsigned int match_dist;
-};
+// // Keeps all information related to an active query
+// struct Query
+// {
+// 	QueryID query_id;
+// 	char str[MAX_QUERY_LENGTH];
+// 	MatchType match_type;
+// 	unsigned int match_dist;
+// };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,14 +87,31 @@ ErrorCode DestroyIndex(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist){return EC_SUCCESS;}
+ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist){
+	// Need cast to String to not disqualify const expression
+	query_map_insert(core->query_map,&query_id,(String)query_str,match_type,match_dist);
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode EndQuery(QueryID query_id){
-	dictionary_remove(core->exact_queries,&query_id);
-	dictionary_remove(core->edit_queries,&query_id);
-	dictionary_remove(core->hamming_queries,&query_id);
+	// Find Query from active query set
+	Query query=query_map_find(core->query_map,&query_id);
+	if(query==NULL){
+		return EC_FAIL;
+	}
+	// Find MATCH TYPE to remove from the correct dictionary
+	// from each Query's words's payload, only this query_id
+	if(query->match_type==MT_EXACT_MATCH){
+		dictionary_remove(core->exact_queries,core->query_map,&query_id);
+	}
+	else if(query->match_type==MT_EDIT_DIST){
+		dictionary_remove(core->edit_queries,core->query_map,&query_id);
+	}
+	else{
+		dictionary_remove(core->hamming_queries,core->query_map,&query_id);
+	}
 	return EC_SUCCESS;
 }
 

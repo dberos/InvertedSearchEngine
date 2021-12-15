@@ -5,6 +5,7 @@
 #include"list.h"
 #include"core.h"
 #include"entry.h"
+#include"query_map.h"
 
 
 struct dictionary_node{
@@ -34,4 +35,4 @@ void dictionary_rehash(Dictionary dictionary);
 Entry dictionary_find(Dictionary dictionary,String word);
 
 // Remove a QueryID from the payload of an Entry
-void dictionary_remove(Dictionary dictionary,Pointer id);
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id);

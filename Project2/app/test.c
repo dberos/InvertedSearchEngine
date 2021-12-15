@@ -32,6 +32,8 @@
 #include"../include/bkt.h"
 #include"../include/methods.h"
 #include"../include/dictionary.h"
+#include"../include/query.h"
+#include"../include/query_map.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -308,32 +310,16 @@ int main(int argc, char* argv[])
 	// fclose(test);
 	// map_destroy(map);
 
-
 	Dictionary dictionary=dictionary_create();
-	QueryID id1=1;
+	QueryMap query_map=query_map_create();
+	QueryID id=1;
 	QueryID id2=2;
-	QueryID id3=3;
-	QueryID id4=4;
-	QueryID id5=5;
-	dictionary_insert(dictionary,"HELLO",&id1);
+	query_map_insert(query_map,&id,"HELLO WORLD!",MT_EXACT_MATCH,0);
+	dictionary_insert(dictionary,"HELLO",&id);
+	dictionary_insert(dictionary,"WORLD!",&id);
 	dictionary_insert(dictionary,"HELLO",&id2);
-	dictionary_insert(dictionary,"WORLD!",&id3);
-	dictionary_insert(dictionary,"WORLD!",&id4);
-	dictionary_insert(dictionary,"WORLD!",&id5);
-	dictionary_rehash(dictionary);
-	
-	printf("REMOVING ID5 FROM WORLD!'S PAYLOAD \n");
-	dictionary_remove(dictionary,&id5);
-	Entry entry=dictionary_find(dictionary,"HELLO");
-	for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
-		printf("PAYLOAD: %d \n",*(uint*)node->value);
-	}
-	printf("PAYLOAD SIZE: %d \n",entry->payload->size);
-	entry=dictionary_find(dictionary,"WORLD!");
-	for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
-		printf("PAYLOAD: %d \n",*(uint*)node->value);
-	}
-	printf("PAYLOAD SIZE: %d \n",entry->payload->size);
+	dictionary_remove(dictionary,query_map,&id);
+	query_map_destroy(query_map);
 	dictionary_destroy(dictionary);
 
 	return 0;

@@ -131,15 +131,17 @@ Entry dictionary_find(Dictionary dictionary,String word){
     return NULL;
 }
 
-void dictionary_remove(Dictionary dictionary,Pointer id){
-    // Without tokenize each word of a whole query and dictionary_find of an Entry
-    // Will be changed with a vector to keep queries strings
-    for(uint i=0;i<dictionary->capacity;i++){
-        EntryList entry_list=dictionary->array[i].entry_list;
-        if(entry_list->size>0){
-            for(Entry entry=entry_list->head;entry!=NULL;entry=entry->next){
-                list_remove(entry->payload,id);
-            }
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id){
+    // Find the query from the query map with this id
+    Query query=query_map_find(query_map,id);
+    if(query!=NULL){
+        String str=strdup(query->str);
+        String word=strtok(str," ");
+        while(word!=NULL){
+            Entry entry=dictionary_find(dictionary,word);
+            list_remove(entry->payload,id);
+            word=strtok(NULL," ");
         }
+        free(str);
     }
 }

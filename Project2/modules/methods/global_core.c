@@ -13,6 +13,8 @@ Core core_create(){
     core->hamming_queries=dictionary_create();
     // Set 0 the number of active queries
     core->active_queries_number=0;
+    // Create the active Query Set
+    core->query_map=query_map_create();
     return core;
 }
 
@@ -21,5 +23,7 @@ void core_destroy(Core core){
     dictionary_destroy(core->exact_queries);
     dictionary_destroy(core->edit_queries);
     dictionary_destroy(core->hamming_queries);
+    // Destroy active Query Set
+    query_map_destroy(core->query_map);
     free(core);
 }
