@@ -8,26 +8,12 @@
 #include"hash_functions.h"
 #include"core.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-// Keeps all information related to an active query
-struct Query
-{
-	QueryID query_id;
-	char str[MAX_QUERY_LENGTH];
-	MatchType match_type;
-	unsigned int match_dist;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-
 struct core{
     Map document;
     Dictionary exact_queries; //A hashtable that stores the queries with exact match type( buckets are entry lists)
     Dictionary edit_queries; //A hashtable that stores the queries with edit match type( buckets are entry lists)
     Dictionary hamming_queries; //A hashtable that stores the queries with hamming match type( buckets are entry lists)
-    Query active_queries;
+    // struct Query* active_queries;   // Sigmod's Query struct(should be a vector of the whole query strings)
     uint active_queries_number;
 };
 
