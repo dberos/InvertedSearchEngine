@@ -50,3 +50,34 @@ void list_insert_tail(List list,Pointer value){
     list->tail=node;
     list->size++;
 }
+
+bool list_remove(List list,Pointer value){
+    ListNode node;
+    ListNode curr=list->head;
+    ListNode prev=NULL;
+    bool exists=false;
+    for(ListNode lnode=list->head;lnode!=NULL;lnode=lnode->next){
+        if(lnode->value==value){
+            node=lnode;
+            exists=true;
+            break;
+        }
+    }
+    if(exists==false){
+        return false;
+    }
+    if(list->head==node){
+        list->head=list->head->next;
+        free(node);
+    }
+    else{
+        while(curr!=node){
+            prev=curr;
+            curr=curr->next;
+        }
+        prev->next=curr->next;
+        free(node);
+    }
+    list->size--;
+    return true;
+}

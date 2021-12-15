@@ -130,3 +130,16 @@ Entry dictionary_find(Dictionary dictionary,String word){
     }
     return NULL;
 }
+
+void dictionary_remove(Dictionary dictionary,Pointer id){
+    // Without tokenize each word of a whole query and dictionary_find of an Entry
+    // Will be changed with a vector to keep queries strings
+    for(uint i=0;i<dictionary->capacity;i++){
+        EntryList entry_list=dictionary->array[i].entry_list;
+        if(entry_list->size>0){
+            for(Entry entry=entry_list->head;entry!=NULL;entry=entry->next){
+                list_remove(entry->payload,id);
+            }
+        }
+    }
+}

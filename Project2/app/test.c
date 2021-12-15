@@ -321,18 +321,19 @@ int main(int argc, char* argv[])
 	dictionary_insert(dictionary,"WORLD!",&id4);
 	dictionary_insert(dictionary,"WORLD!",&id5);
 	dictionary_rehash(dictionary);
-	for(int i=0;i<dictionary->capacity;i++){
-		if(dictionary->array[i].entry_list->size!=0){
-			for(Entry entry=dictionary->array[i].entry_list->head;entry!=NULL;entry=entry->next){
-				printf("NODE: %d WORD: %s \n",i,entry->word);
-				for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
-					printf("PAYLOAD: %d \n",*(uint*)node->value);
-				}
-				printf("ENTRY LIST SIZE: %d \n",dictionary->array[i].entry_list->size);
-				printf("PAYLOAD SIZE: %d \n",entry->payload->size);
-			}
-		}
+	
+	printf("REMOVING ID5 FROM WORLD!'S PAYLOAD \n");
+	dictionary_remove(dictionary,&id5);
+	Entry entry=dictionary_find(dictionary,"HELLO");
+	for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
+		printf("PAYLOAD: %d \n",*(uint*)node->value);
 	}
+	printf("PAYLOAD SIZE: %d \n",entry->payload->size);
+	entry=dictionary_find(dictionary,"WORLD!");
+	for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
+		printf("PAYLOAD: %d \n",*(uint*)node->value);
+	}
+	printf("PAYLOAD SIZE: %d \n",entry->payload->size);
 	dictionary_destroy(dictionary);
 
 	return 0;

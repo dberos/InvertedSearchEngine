@@ -70,9 +70,9 @@ int dedup(String string, Core core, QueryID id, MatchType match_type){
         while(word!=NULL){
             remove_special_characters_decapitalize(word);
             //check methods.h for the core struct
-            if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word, (uint*)id); 
-            else if(match_type==MT_EDIT_DIST) dictionary_insert(core->edit_queries, word, (uint*)id);
-            else dictionary_insert(core->hamming_queries, word, (uint*)id);
+            if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word,&id); 
+            else if(match_type==MT_EDIT_DIST) dictionary_insert(core->edit_queries, word,&id);
+            else dictionary_insert(core->hamming_queries, word,&id);
             word=strtok(NULL," ");
         }
     }

@@ -25,3 +25,6 @@ void list_insert_head(List list,Pointer value);
 
 // Inserting at the tail of a List without traverse
 void list_insert_tail(List list,Pointer value);
+
+// Remove a QueryID from the payload
+bool list_remove(List list,Pointer value);

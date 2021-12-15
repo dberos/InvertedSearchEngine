@@ -80,7 +80,10 @@ ErrorCode InitializeIndex(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode DestroyIndex(){return EC_SUCCESS;}
+ErrorCode DestroyIndex(){
+	core_destroy(core);
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +91,12 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode EndQuery(QueryID query_id){return EC_SUCCESS;}
+ErrorCode EndQuery(QueryID query_id){
+	dictionary_remove(core->exact_queries,&query_id);
+	dictionary_remove(core->edit_queries,&query_id);
+	dictionary_remove(core->hamming_queries,&query_id);
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

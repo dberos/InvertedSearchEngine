@@ -33,3 +33,5 @@ void dictionary_rehash(Dictionary dictionary);
 // Find whether an entry exists at a dictionary and return it
 Entry dictionary_find(Dictionary dictionary,String word);
 
+// Remove a QueryID from the payload of an Entry
+void dictionary_remove(Dictionary dictionary,Pointer id);
