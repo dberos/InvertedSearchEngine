@@ -15,7 +15,7 @@ struct core{
     Dictionary edit_queries; //A hashtable that stores the queries with edit match type( buckets are entry lists)
     Dictionary hamming_queries; //A hashtable that stores the queries with hamming match type( buckets are entry lists)
     uint active_queries_number;
-    QueryMap query_map;         // Active Query Set | Here we store the active queries so their info (struct query) is more easily accessible
+    QueryMap query_map;         // Active Query Set
 };
 
 // Global struct to store all the needed structs
@@ -29,7 +29,9 @@ void core_destroy(Core core);
 int deduplication(FILE* document,Map map);
 
 // Tokenize a String and don't allow duplicates to be inserted at the Map
-int dedup(String string, Core core);
+int dedup(String string, Core core, QueryID id, MatchType match_type);
 
 // Check whether a word already exists at a Map
 bool exact_matching(Map map,String word);
+
+void remove_special_characters_decapitalize(String word);

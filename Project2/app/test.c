@@ -322,6 +322,7 @@ int main(int argc, char* argv[])
 	query_map_destroy(query_map);
 	dictionary_destroy(dictionary);
 
+
 	return 0;
 }
 
