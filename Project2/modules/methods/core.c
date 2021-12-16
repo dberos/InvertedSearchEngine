@@ -88,9 +88,40 @@ ErrorCode DestroyIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist){
+
+	// Create a Query
+    Query query=query_create(*(uint*)query_id, match_type,match_dist);
+
+
+
+	//Tokenize query words and add them to the Match_Type map or update the payload (if the word already exists in that map)
+    String str=strdup(query_str);
+	
+	String word=strtok(str," ");
+	while(word!=NULL){
+		remove_special_characters_decapitalize(word);
+
+		//check methods.h for the core struct
+
+		//insert in the Match_Type map
+		if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word,&query_id); 
+		else if(match_type==MT_EDIT_DIST) dictionary_insert(core->edit_queries, word,&query_id);
+		else dictionary_insert(core->hamming_queries, word,&query_id);
+
+		//add the word we jst tokenized in the query's info
+		addWord_to_query(query, word);
+
+		word=strtok(NULL," ");
+	}
+
+	free(str);
+	
+
 	// Need cast to String to not disqualify const expression
-	query_map_insert(core->query_map,&query_id,(String)query_str,match_type,match_dist);
+	query_map_insert(core->query_map, query);
+
 	return EC_SUCCESS;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

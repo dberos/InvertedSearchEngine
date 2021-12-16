@@ -39,9 +39,9 @@ void query_map_destroy(QueryMap query_map){
     free(query_map);
 }
 
-void query_map_insert(QueryMap query_map,Pointer id,String str,MatchType match_type,uint match_dist){
-    // Create a Query
-    Query query=query_create(*(uint*)id,str,match_type,match_dist);
+void query_map_insert(QueryMap query_map, Query query){
+   
+
     // Create the QueryID as a String
     String string_id=malloc(10);
     sprintf(string_id,"%d",query->query_id);
@@ -103,7 +103,7 @@ void query_map_rehash(QueryMap query_map){
         if(query_list->size>0){
             for(QueryListNode node=query_list->head;node!=NULL;node=node->next){
                 Query query=node->query;
-                query_map_insert(query_map,&query->query_id,query->str,query->match_type,query->match_dist);
+                query_map_insert(query_map, query);
             }
         }
         // Free the old list
