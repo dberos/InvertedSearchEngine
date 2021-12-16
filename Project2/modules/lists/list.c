@@ -52,6 +52,7 @@ void list_insert_tail(List list,Pointer value){
 }
 
 bool list_remove(List list,Pointer value){
+
     ListNode node;
     ListNode curr=list->head;
     ListNode prev=NULL;
@@ -63,12 +64,14 @@ bool list_remove(List list,Pointer value){
             break;
         }
     }
+
     if(exists==false){
         return false;
     }
     if(list->head==node){
         list->head=list->head->next;
         free(node);
+
     }
     else{
         while(curr!=node){

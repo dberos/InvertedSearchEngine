@@ -28,7 +28,7 @@ QueryMap query_map_create();
 void query_map_destroy(QueryMap query_map);
 
 // Inserting a Query at an active Query Set
-void query_map_insert(QueryMap query_map,Pointer id,String str,MatchType match_type,uint match_dist);
+void query_map_insert(QueryMap query_map, Query query);
 
 // Rehashing depending on Load Factor
 void query_map_rehash(QueryMap query_map);
