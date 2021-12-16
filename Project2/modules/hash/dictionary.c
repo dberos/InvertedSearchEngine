@@ -122,6 +122,11 @@ Entry dictionary_find(Dictionary dictionary,String word){
     // Node of the position
     DictionaryNode node=&dictionary->array[pos];
 
+
+
+
+
+
     for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
         if(strcmp(entry->word,word)==0){
             // Return the entry if its word is the given word
@@ -131,17 +136,72 @@ Entry dictionary_find(Dictionary dictionary,String word){
     return NULL;
 }
 
-void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id){
-    // Find the query from the query map with this id
-    Query query=query_map_find(query_map,id);
-    if(query!=NULL){
-        String str=strdup(query->str);
-        String word=strtok(str," ");
-        while(word!=NULL){
-            Entry entry=dictionary_find(dictionary,word);
-            list_remove(entry->payload,id);
-            word=strtok(NULL," ");
+
+void remove_entry_from_list(Dictionary dictionary, String word){
+    // Find Hash Position
+    ulong pos=dictionary->hash_function(word)%dictionary->capacity;
+    // Node of the position
+    DictionaryNode node=&dictionary->array[pos];
+    
+    Entry previous=NULL;
+
+    for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
+
+        if(strcmp(entry->word, word)==0){
+            
+            //if it is also the head of the entry list
+            if(entry==node->entry_list->head){
+                node->entry_list->head = entry->next;
+                node->entry_list->size--;
+                destroy_entry(entry, node->entry_list);
+                return;
+            }
+
+            //if it's not the head (also means that previous is != NULL)
+            previous->next=entry->next;
+
+            node->entry_list->size--;
+
+
+            destroy_entry(entry, node->entry_list);
+            return;
+
         }
-        free(str);
+
+        previous=entry;
+    }
+
+}
+
+
+
+
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id){
+    // Find the query from the query map with this id so we can find its words and remove them
+
+    Query query=query_map_find(query_map,id);
+
+    //if there is such query
+    if(query!=NULL){
+
+        //for each query word
+        for(int i=0; i<query->query_words_num ; i++){
+            //find this word of the query
+            Entry entry=dictionary_find(dictionary, query->words[i]);
+
+            //remove the query id from its payload
+            list_remove(entry->payload,id);
+
+
+            //if this was the last id of this payload!
+            //we need to remove the Entry from this EntryList 
+            if(entry->payload->size==0){
+                remove_entry_from_list(dictionary, query->words[i]);
+            }
+                
+        }
+
+
+        
     }
 }
