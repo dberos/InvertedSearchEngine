@@ -84,3 +84,34 @@ bool query_list_remove(QueryList query_list,Pointer id){
     query_list->size--;
     return true;
 }
+
+bool query_list_detach(QueryList query_list,Pointer id){
+    QueryListNode node;
+    QueryListNode curr=query_list->head;
+    QueryListNode prev=NULL;
+    bool exists=false;
+    for(QueryListNode lnode=query_list->head;lnode!=NULL;lnode=lnode->next){
+        if(lnode->query->query_id==*(uint*)id){
+            node=lnode;
+            exists=true;
+            break;
+        }
+    }
+    if(exists==false){
+        return false;
+    }
+    if(query_list->head==node){
+        query_list->head=query_list->head->next;
+        free(node);
+    }
+    else{
+        while(curr!=node){
+            prev=curr;
+            curr=curr->next;
+        }
+        prev->next=curr->next;
+        free(node);
+    }
+    query_list->size--;
+    return true;
+}

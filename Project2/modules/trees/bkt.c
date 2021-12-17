@@ -42,11 +42,17 @@ unsigned int EditDistance(String str1, String str2){
 
 
 
-index_node_ptr create_index_node(const String word){
+index_node_ptr create_index_node(const String word, List payload){
 
     index_node_ptr newnode = (index_node_ptr)malloc(sizeof(index_node));
     
     newnode->word = strdup(word);
+
+    newnode->payload = list_create();
+    for(ListNode temp=payload->head ; temp!=NULL ; temp=temp->next){
+        list_insert_tail(newnode->payload, temp->value);
+    }
+
     newnode->parent_distance = 0;
     newnode->children_number = 0;
     newnode->children = NULL;
@@ -55,7 +61,7 @@ index_node_ptr create_index_node(const String word){
 }
 
 
-void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
+void build_entry_index(const EntryList el, MatchType type, Index_ptr ix){
 
     if(get_first(el)==NULL){
         perror("Entry list was empty!\nNo index was created!\n");
@@ -67,7 +73,7 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
     //Create the root of the BK tree
     Entry temp = get_first(el);
 
-    ix->root = create_index_node(temp->word);
+    ix->root = create_index_node(temp->word, temp->payload);
     
 
 
@@ -76,7 +82,7 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
     next_entry = get_next(el, temp);
     
     while(next_entry!=NULL){
-        add_index_node(ix->root, create_index_node(next_entry->word), type);
+        add_index_node(ix->root, create_index_node(next_entry->word, next_entry->payload), type);
         next_entry = get_next(el, next_entry);        
     }
 
@@ -84,12 +90,74 @@ void build_entry_index(const EntryList el, Metric type, Index_ptr ix){
     return;
 }
 
+void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, Index_ptr ix){
 
-void add_index_node(index_node_ptr parent, index_node_ptr newnode, Metric type){
+    int root_flag=0;
+
+    for(int i=0;i<dictionary->capacity;i++){
+        if(dictionary->array[i].entry_list->size!=0){
+            for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
+                
+                //if this is the first entry we are seeing, then create the root
+                if(!(root_flag++)){
+                    ix->root = create_index_node(entry->word, entry->payload);
+                    continue;   
+                }
+
+                add_index_node(ix->root, create_index_node(entry->word, entry->payload), type);
+                
+
+            }
+        }
+    }
+
+
+    if(!root_flag){
+        perror("Entry list was empty!\nNo index was created!\n");
+        
+    }
+
+    return;
+
+}
+
+void fill_hamming_ix_array(Index_ptr* array, Dictionary dictionary, MatchType type){
+
+    //MIN_WORD_LENGTH 4 | MAX_WORD_LENGTH 31 so we'll need 28 cells
+    for(int i=0 ; i<28 ; i++){
+        array[i]=NULL;
+    }
+
+    //Iterate through haming dictionary
+    for(int i=0;i<dictionary->capacity;i++){
+        if(dictionary->array[i].entry_list->size!=0){
+            for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
+                
+                //if this is the first entry we are seeing, with thsi word length
+                if( array[ strlen(entry->word) ] == NULL ){
+                    array[ strlen(entry->word) ]->root = create_index_node(entry->word, entry->payload);
+                    continue;   
+                }
+
+                //if there is already a word with such length
+                add_index_node(array[ strlen(entry->word) ]->root, create_index_node(entry->word, entry->payload), type);
+                
+
+            }
+        }
+    }
+
+    return;
+
+}
+
+
+
+void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType type){
     
     unsigned int distance;
 
-    if(type==0) distance = HammingDistance(parent->word, newnode->word); // Hamming Distance
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, newnode->word); // Hamming Distance
     else distance = EditDistance(parent->word, newnode->word);  // Edit Distance
 
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
@@ -137,6 +205,7 @@ void destroy_index_nodes(index_node_ptr node){
     if(node->children != NULL) free(node->children);
     
     free(node->word);
+    list_destroy(node->payload);
     free(node);
 
 }
@@ -146,7 +215,7 @@ void destroy_entry_index(Index_ptr ix){
     free(ix);
 }
 
-void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, Metric type){
+void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, MatchType type){
 
     //The search algorithm contains 3 steps:
 
@@ -156,12 +225,12 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 
     unsigned int distance;
 
-    if(type==0) distance = HammingDistance(node->word, w); // Hamming Distance
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, w); // Hamming Distance
     else distance = EditDistance(node->word, w);  // Edit Distance
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){
-        add_entry(result, create_entry(node->word));
+        add_entry(result, create_entry_with_payload(node->word, node->payload));
     }
     
     //free(cand_word);
@@ -179,6 +248,16 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
     
 }
 
-void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, Metric type){
+void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, MatchType type){
     recursive_search(w,ix->root, threshold, result, type);
+}
+
+void destroy_hamming_array(Index_ptr* array){
+
+    for(int i=0 ; i<28 ; i++){
+        destroy_entry_index(array[i]);
+    }
+
+    free(array);
+    
 }

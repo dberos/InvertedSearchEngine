@@ -36,3 +36,5 @@ typedef struct query_map_node* QueryMapNode;
 typedef struct query_map* QueryMap;
 typedef struct query_list_node* QueryListNode;
 typedef struct query_list* QueryList;
+typedef struct Document* DocumentPtr;
+

@@ -15,6 +15,14 @@ Core core_create(){
     core->active_queries_number=0;
     // Create the active Query Set
     core->query_map=query_map_create();
+    //Number of documents saved in Document array
+    core->document_number=0;
+    core->docs=NULL;
+
+    for(int i=0 ; i<4 ; i++){
+        core->th_boxes[i]=query_list_create();
+    }
+    
     return core;
 }
 
@@ -25,5 +33,6 @@ void core_destroy(Core core){
     dictionary_destroy(core->hamming_queries);
     // Destroy active Query Set
     query_map_destroy(core->query_map);
+    destroyDocumentsArray(core->docs, core->document_number);
     free(core);
 }

@@ -19,6 +19,7 @@ struct entry_list{
 
 // Creating an Entry
 Entry create_entry(String word);
+Entry create_entry_with_payload(const String word, List payload);
 
 // Destroying an Entry
 void destroy_entry(Entry entry,EntryList entry_list);

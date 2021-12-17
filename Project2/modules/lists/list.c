@@ -51,6 +51,18 @@ void list_insert_tail(List list,Pointer value){
     list->size++;
 }
 
+
+bool check_list_existence(List list, Pointer value){
+    for(ListNode lnode=list->head;lnode!=NULL;lnode=lnode->next){
+        if(lnode->value==value){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 bool list_remove(List list,Pointer value){
 
     ListNode node;
@@ -84,3 +96,4 @@ bool list_remove(List list,Pointer value){
     list->size--;
     return true;
 }
+
