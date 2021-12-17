@@ -124,7 +124,7 @@ bool insert_entry(EntryList entry_list,String word,Pointer id){
                 destroy_entry(entry,entry_list);
                 // Size shouldn't be affected by decreasing it at destroy_entry
                 entry_list->size++;
-                list_insert_tail(curr->payload,id);
+                list_insert_tail(curr->next->payload,id);
                 return false;
             }
         }
