@@ -16,7 +16,7 @@ $(MODULES)/lists/word_list.o $(MODULES)/lists/list.o $(MODULES)/lists/query_list
 $(MODULES)/hash/hash_functions.o $(MODULES)/hash/dictionary.o \
 $(MODULES)/hash/map.o $(MODULES)/hash/query_map.o \
 $(MODULES)/methods/deduplication.o $(MODULES)/methods/exact_matching.o \
-$(MODULES)/methods/core.o $(MODULES)/methods/global_core.o $(MODULES)/methods/query.o
+$(MODULES)/methods/core.o $(MODULES)/methods/global_core.o $(MODULES)/methods/query.o $(MODULES)/methods/matchquery.o $(MODULES)/methods/documents.o
 
 
 # Η βιβλιοθήκη

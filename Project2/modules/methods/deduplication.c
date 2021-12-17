@@ -62,13 +62,13 @@ int deduplication(FILE* document,Map map){
     return 0;
 }
 
-int dedup(String string, Core core){
+int dedup(const char* string, Core core){
     String str=strdup(string);
     
     String word=strtok(str," ");
     while(word!=NULL){
         remove_special_characters_decapitalize(word);
-        map_insert_doc(core->document,word);
+        map_insert(core->document,word);
         word=strtok(NULL," ");
     }
 

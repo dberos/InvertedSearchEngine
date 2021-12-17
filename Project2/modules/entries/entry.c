@@ -13,6 +13,22 @@ Entry create_entry(const String word){
     return entry;
 }
 
+Entry create_entry_with_payload(const String word, List payload){
+    // Allocate memory for the entry
+    Entry entry = malloc(sizeof(*entry));
+    // Set word
+    entry->word = strdup(word);
+    // Create a list for the payload
+    entry->payload=list_create();
+    for(ListNode temp=payload->head ; temp!=NULL ; temp=temp->next){
+        list_insert_tail(entry->payload, temp->value);
+    }
+    // Set next to NULL (entries also function as Entry List nodes)
+    entry->next = NULL;
+
+    return entry;
+}
+
 void destroy_entry(Entry entry,EntryList entry_list){
     // Free the word
     free(entry->word);

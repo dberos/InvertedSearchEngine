@@ -29,3 +29,6 @@ void query_list_insert_tail(QueryList query_list,Query query);
 
 // Remove a Query from the List based on its id
 bool query_list_remove(QueryList list,Pointer id);
+
+// Detach a query from a query list without destroying the query itself
+bool query_list_detach(QueryList query_list,Pointer id);

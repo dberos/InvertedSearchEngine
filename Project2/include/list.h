@@ -28,3 +28,6 @@ void list_insert_tail(List list,Pointer value);
 
 // Remove a QueryID from the payload
 bool list_remove(List list,Pointer value);
+
+// Check the existence of a value in a list
+bool check_list_existence(List list, Pointer value);
