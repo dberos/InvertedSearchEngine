@@ -115,3 +115,12 @@ bool query_list_detach(QueryList query_list,Pointer id){
     query_list->size--;
     return true;
 }
+
+Query query_list_find(QueryList query_list,Pointer id){
+    for(QueryListNode node=query_list->head;node!=NULL;node=node->next){
+        if(node->query->query_id==*(uint*)id){
+            return node->query;
+        }
+    }
+    return NULL;
+}

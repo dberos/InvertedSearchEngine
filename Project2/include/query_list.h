@@ -32,3 +32,6 @@ bool query_list_remove(QueryList list,Pointer id);
 
 // Detach a query from a query list without destroying the query itself
 bool query_list_detach(QueryList query_list,Pointer id);
+
+// Find and return the Query of given id;
+Query query_list_find(QueryList query_list,Pointer id);
