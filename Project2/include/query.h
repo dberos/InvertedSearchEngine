@@ -12,9 +12,9 @@ struct Query
 	MatchType match_type;
 	unsigned int match_dist;
 	
-	String words[MAX_QUERY_LENGTH];
+	String* words;
 	unsigned int query_words_num;
-	String matched_words[MAX_QUERY_LENGTH];
+	String* matched_words;
 	unsigned int matched_words_num;
 };
 

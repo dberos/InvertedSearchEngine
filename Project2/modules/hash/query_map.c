@@ -102,9 +102,17 @@ void query_map_rehash(QueryMap query_map){
         QueryList query_list=old_array[i].query_list;
         if(query_list->size>0){
             for(QueryListNode node=query_list->head;node!=NULL;node=node->next){
-                Query query=node->query;
-                passWords_to_query(query, node->query);
-                query_map_insert(query_map, query);
+                Query old_query=node->query;
+                Query new_query=query_create(old_query->query_id,old_query->match_type,old_query->match_dist);
+                for(int i=0;i<old_query->matched_words_num;i++){
+                    new_query->matched_words[i]=strdup(old_query->matched_words[i]);
+                }
+                new_query->matched_words_num=old_query->matched_words_num;
+                new_query->query_words_num=old_query->query_words_num;
+                for(int i=0;i<old_query->query_words_num;i++){
+                    new_query->words[i]=strdup(old_query->words[i]);
+                }
+                query_map_insert(query_map,new_query);
             }
         }
         // Free the old list

@@ -8,11 +8,18 @@ Query query_create(QueryID id, MatchType match_type, uint match_dist){
     query->match_dist=match_dist; //the threshold
     query->matched_words_num=0;
     query->query_words_num=0;
+    query->words=malloc(sizeof(*query->words)*MAX_QUERY_WORDS);
+    query->matched_words=malloc(sizeof(*query->matched_words)*MAX_QUERY_WORDS);
+    // for(int i=0;i<MAX_QUERY_WORDS;i++){
+    //     query->words[i]=malloc(MAX_QUERY_LENGTH); // possible only 1 word exists with MAX_LENGTH
+    //     query->matched_words=malloc(MAX_QUERY_LENGTH);
+    // }
     return query;
 }
 
 void addWord_to_query(Query query, String word){
-    query->words[query->query_words_num++] = strdup(word);
+    query->words[query->query_words_num] = strdup(word);
+    query->query_words_num++;
 }
 
 void passWords_to_query(Query new_query, Query old_query){
@@ -31,6 +38,8 @@ void query_destroy(Query query){
     for(i=0 ; i<query->matched_words_num ; i++){
         free(query->matched_words[i]);
     }
+    free(query->words);
+    free(query->matched_words);
     
     free(query);
 }
