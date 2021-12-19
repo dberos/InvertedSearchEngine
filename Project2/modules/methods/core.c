@@ -97,7 +97,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 
 	//Tokenize query words and add them to the Match_Type map or update the payload (if the word already exists in that map)
-    String str=strdup(query_str);
+    String str=strdup((String)query_str);
 	
 	String word=strtok(str," ");
 	while(word!=NULL){
@@ -163,7 +163,6 @@ ErrorCode EndQuery(QueryID query_id){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
-	printf("DOCUMENT %u\n", doc_id);
 	core->document = map_create();
 	DocumentPtr doc = addDocument(core, doc_id);
 
@@ -186,7 +185,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 
 	//For every word of this -deduplicated- document
     for(Entry entry=core->document->entry_list->head;entry!=NULL;entry=entry->next){
-		// printf("----------------------------------\Word %s\n--------------------------------------\n", entry->word);
         
 		//we will lookup this word for every possible threshold ( th_box of core struct ) check methods.h for definition & explanation
 		for (int threshold=0 ; threshold<4 ; threshold++){
@@ -266,7 +264,6 @@ int comparator (const void * p1, const void * p2)
 
 
 ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_query_ids){
-	printf("GETNEXTAVAILABLE____________________________________________\n");
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
 
 	if(core->document_number==0) return EC_NO_AVAIL_RES;
@@ -278,7 +275,6 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	*p_query_ids = core->docs[core->last_result_index]->query_ids;
 
 	core->last_result_index++;
-	printf("PHRA NEXT__________________________________________________\n");
 	
 	return EC_SUCCESS;
 }

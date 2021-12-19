@@ -1,46 +1,113 @@
 #include "../../include/bkt.h"
 
-// Distance Tools
-unsigned int minOfTwo(int x, int y) {
-    return x > y ? y : x;
-}
+// // Distance Tools
+// unsigned int minOfTwo(int x, int y) {
+//     return x > y ? y : x;
+// }
 
-unsigned int minOfThree(int x, int y, int z) {
-    return minOfTwo(minOfTwo(x, y), z);
-}
+// unsigned int minOfThree(int x, int y, int z) {
+//     return minOfTwo(minOfTwo(x, y), z);
+// }
 
-//Distance Metrics 
-unsigned int HammingDistance(String a, String b){
+// //Distance Metrics 
+// unsigned int HammingDistance(String a, String b){
 
-    int i, min, max, result;
+//     int i, min, max, result;
 
-    result=0;
+//     result=0;
 
-    (strlen(a) < strlen(b)) ? (min=strlen(a), max=strlen(b)) : (min=strlen(b), max=strlen(a));
+//     (strlen(a) < strlen(b)) ? (min=strlen(a), max=strlen(b)) : (min=strlen(b), max=strlen(a));
 
-    for(i=0 ; i<min ; i++){
-        if(a[i]!=b[i]) result++;
-    }
+//     for(i=0 ; i<min ; i++){
+//         if(a[i]!=b[i]) result++;
+//     }
 
-    return result+max-min;
+//     return result+max-min;
 
-}
+// }
 
-unsigned int EditDistance(String str1, String str2){
-    if (!strlen(str1)) return strlen(str2);
-    if (!strlen(str2)) return strlen(str1);
+// unsigned int EditDistance(String str1, String str2){
+//     if (!strlen(str1)) return strlen(str2);
+//     if (!strlen(str2)) return strlen(str1);
     
-    if (str1[0] == str2[0]) return EditDistance(&str1[1], &str2[1]);
+//     if (str1[0] == str2[0]) return EditDistance(&str1[1], &str2[1]);
     
-    return (1 + minOfThree(
-                    EditDistance(&str1[1], str2),
-                    EditDistance(str1, &str2[1]),
-                    EditDistance(&str1[1], &str2[1])
-                )
-            );
+//     return (1 + minOfThree(
+//                     EditDistance(&str1[1], str2),
+//                     EditDistance(str1, &str2[1]),
+//                     EditDistance(&str1[1], &str2[1])
+//                 )
+//             );
+// }
+
+// Computes edit distance between a null-terminated string "a" with length "na"
+//  and a null-terminated string "b" with length "nb" 
+int EditDistance(String a, int na, String b, int nb)
+{
+	int oo=0x7FFFFFFF;
+
+	static int T[2][MAX_WORD_LENGTH+1];
+
+	int ia, ib;
+
+	int cur=0;
+	ia=0;
+
+	for(ib=0;ib<=nb;ib++)
+		T[cur][ib]=ib;
+
+	cur=1-cur;
+
+	for(ia=1;ia<=na;ia++)
+	{
+		for(ib=0;ib<=nb;ib++)
+			T[cur][ib]=oo;
+
+		int ib_st=0;
+		int ib_en=nb;
+
+		if(ib_st==0)
+		{
+			ib=0;
+			T[cur][ib]=ia;
+			ib_st++;
+		}
+
+		for(ib=ib_st;ib<=ib_en;ib++)
+		{
+			int ret=oo;
+
+			int d1=T[1-cur][ib]+1;
+			int d2=T[cur][ib-1]+1;
+			int d3=T[1-cur][ib-1]; if(a[ia-1]!=b[ib-1]) d3++;
+
+			if(d1<ret) ret=d1;
+			if(d2<ret) ret=d2;
+			if(d3<ret) ret=d3;
+
+			T[cur][ib]=ret;
+		}
+
+		cur=1-cur;
+	}
+
+	int ret=T[1-cur][nb];
+
+	return ret;
 }
 
-
+// Computes Hamming distance between a null-terminated string "a" with length "na"
+//  and a null-terminated string "b" with length "nb" 
+unsigned int HammingDistance(String a, int na, String b, int nb)
+{
+	int j, oo=0x7FFFFFFF;
+	if(na!=nb) return oo;
+	
+	unsigned int num_mismatches=0;
+	for(j=0;j<na;j++) if(a[j]!=b[j]) num_mismatches++;
+	
+	return num_mismatches;
+}
 
 index_node_ptr create_index_node(const String word, List payload){
 
@@ -157,8 +224,8 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType typ
     
     unsigned int distance;
 
-    if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, newnode->word); // Hamming Distance
-    else distance = EditDistance(parent->word, newnode->word);  // Edit Distance
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, strlen(parent->word),newnode->word,strlen(newnode->word)); // Hamming Distance
+    else distance = EditDistance(parent->word, strlen(parent->word),newnode->word,strlen(newnode->word));  // Edit Distance
 
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
     //with the word we want to insert
@@ -224,8 +291,8 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 
     unsigned int distance;
 
-    if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, w); // Hamming Distance
-    else distance = EditDistance(node->word, w);  // Edit Distance
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, strlen(node->word),w,strlen(w)); // Hamming Distance
+    else distance = EditDistance(node->word, strlen(node->word),w,strlen(w));  // Edit Distance
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){
