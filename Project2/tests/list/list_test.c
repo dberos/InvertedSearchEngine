@@ -18,14 +18,14 @@ void test_insert(void){
         // Duplicates allowed since there is no iteration to insert
         head[i]=rand()%10000;
         int size=list->size;
-        list_insert_head(list,&head[i]);
+        list_insert_head(list,head[i]);
         TEST_ASSERT(list->size==size+1);
-        TEST_ASSERT(list->head->value==&head[i]);
+        TEST_ASSERT(list->head->value==head[i]);
     }
     
     int count=9999;
     for(ListNode node=list->head;node!=NULL;node=node->next){
-        TEST_ASSERT(node->value==&head[count]);
+        TEST_ASSERT(node->value==head[count]);
         count--;
     }
     list_destroy(list);
@@ -37,14 +37,14 @@ void test_insert(void){
         // Duplicates allowed since there is no iteration to insert
         tail[i]=rand()%10000;
         int size=list1->size;
-        list_insert_tail(list1,&tail[i]);
+        list_insert_tail(list1,tail[i]);
         TEST_ASSERT(list1->size==size+1);
-        TEST_ASSERT(list1->tail->value==&tail[i]);
+        TEST_ASSERT(list1->tail->value==tail[i]);
     }
     
     count=0;
     for(ListNode node=list1->head;node!=NULL;node=node->next){
-        TEST_ASSERT(node->value==&tail[count]);
+        TEST_ASSERT(node->value==tail[count]);
         count++;
     }
     list_destroy(list1);
@@ -54,10 +54,10 @@ void test_insert(void){
 void test_find(void){
     List list=list_create();
     for(int i=0;i<10000;i++){
-        list_insert_tail(list,&i);
+        list_insert_tail(list,i);
     }
     for(int i=0;i<10000;i++){
-        bool exists=check_list_existence(list,&i);
+        bool exists=check_list_existence(list,i);
         TEST_ASSERT(exists==true);
     }
     list_destroy(list);
@@ -66,11 +66,11 @@ void test_find(void){
 void test_remove(void){
     List list=list_create();
     for(int i=0;i<10000;i++){
-        list_insert_tail(list,&i);
+        list_insert_tail(list,i);
     }
     for(int i=0;i<10000;i++){
         int size=list->size;
-        bool removed=list_remove(list,&i);
+        bool removed=list_remove(list,i);
         TEST_ASSERT(removed==true);
         TEST_ASSERT(list->size==size-1);
     }
@@ -83,14 +83,14 @@ void test_iterate(void){
     int* values=malloc(sizeof(*values)*10000);
     for(int i=0;i<10000;i++){
         values[i]=rand()%10000;
-        list_insert_tail(list,&values[i]);
+        list_insert_tail(list,values[i]);
     }
-    TEST_ASSERT(list->tail->value==&values[9999]);
-    TEST_ASSERT(list->head->value==&values[0]);
+    TEST_ASSERT(list->tail->value==values[9999]);
+    TEST_ASSERT(list->head->value==values[0]);
 
     int i=0;
     for(ListNode node=list->head;node!=NULL;node=node->next){
-        TEST_ASSERT(node->value==&values[i]);
+        TEST_ASSERT(node->value==values[i]);
         i++;
     }
     free(values);

@@ -43,7 +43,7 @@ void test_insert(void){
         ids[i]=rand()%10000;
         String string=create_random_string();
         int size=dictionary->size;   
-        bool new_word=dictionary_insert(dictionary,string,&ids[i]);     
+        bool new_word=dictionary_insert(dictionary,string,ids[i]);     
         if(new_word==true){
             TEST_ASSERT(dictionary->size==size+1);
         }
@@ -64,7 +64,7 @@ void test_find(void){
     for(int i=0;i<10000;i++){
         ids[i]=rand()%10000;
         strings[i]=create_random_string();
-        dictionary_insert(dictionary,strings[i],&ids[i]);
+        dictionary_insert(dictionary,strings[i],ids[i]);
     }
     for(int i=0;i<10000;i++){
         Entry entry=dictionary_find(dictionary,strings[i]);
@@ -93,7 +93,7 @@ void test_remove(void){
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
-        dictionary_insert(dictionary,strings[i],&i);
+        dictionary_insert(dictionary,strings[i],i);
         remove_entry_from_list(dictionary,strings[i]);
         bool exists=dictionary_find(dictionary,strings[i]);
         TEST_ASSERT(exists==false);

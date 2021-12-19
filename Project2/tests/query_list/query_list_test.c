@@ -92,7 +92,7 @@ void test_find(void){
         query_list_insert_tail(list,queries[i]);
     }
     for(int i=0;i<10000;i++){
-        Query query=query_list_find(list,&i);
+        Query query=query_list_find(list,i);
         TEST_ASSERT(query!=NULL);
         TEST_ASSERT(strcmp(query->words[0],strings[i])==0);
     }
@@ -116,7 +116,7 @@ void test_remove(void){
     }
     for(int i=0;i<10000;i++){
         int size=list->size;
-        bool removed=query_list_remove(list,&i);
+        bool removed=query_list_remove(list,i);
         TEST_ASSERT(removed==true);
         TEST_ASSERT(list->size==size-1);
     }

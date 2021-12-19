@@ -68,9 +68,9 @@ void test_remove(void){
     }
     for(int i=0;i<10000;i++){
         int size=map->size;
-        query_map_remove(map,&i);
+        query_map_remove(map,i);
         TEST_ASSERT(map->size==size-1);
-        Query query=query_map_find(map,&i);
+        Query query=query_map_find(map,i);
         TEST_ASSERT(query==NULL);
     }
     for(int i=0;i<10000;i++){
@@ -97,7 +97,7 @@ void test_find(void){
         query_map_insert(map,queries[i]);
     }
     for(int i=0;i<10000;i++){
-        Query query=query_map_find(map,&i);
+        Query query=query_map_find(map,i);
         TEST_ASSERT(query!=NULL);
         TEST_ASSERT(strcmp(queries2[i]->words[0],query->words[0])==0);
         TEST_ASSERT(query->match_dist==queries2[i]->match_dist);

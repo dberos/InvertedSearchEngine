@@ -88,23 +88,25 @@ void test_find(void){
 void test_remove(void){
     srand(time(0));
     Bst bst=bst_create();
-    WordList list=dictionary_word_list_create();
+    // WordList list=dictionary_word_list_create();
+    words_list_ptr list=word_list_create();
     for(int i=0;i<10000;i++){
         String string=create_random_string();
         bool inserted=bst_insert(bst,string);
         if(inserted==true){
-            word_list_insert_end(list,string);
+            add_word_to_list(string,list);
         }
         free(string);
     }
-    for(WordListNode node=list->head;node!=NULL;node=node->next){
+    for(word_node_ptr node=list->head;node!=NULL;node=node->next){
         int size=bst->size;
-        bool removed=bst_remove(bst,node->word->word);
+        bool removed=bst_remove(bst,node->word);
         TEST_ASSERT(removed==true);
         TEST_ASSERT(bst->size==size-1);
     }
     bst_destroy(bst);
-    dictionary_word_list_destroy(list);
+    // dictionary_word_list_destroy(list);
+    word_list_destroy(list);
 }
 
 TEST_LIST = {
