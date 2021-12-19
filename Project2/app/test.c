@@ -35,6 +35,8 @@
 #include"../include/query.h"
 #include"../include/query_map.h"
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <sys/time.h>
@@ -292,48 +294,6 @@ int main(int argc, char* argv[])
 	if(argc<=1) TestSigmod("../data/small_test.txt");
 	else TestSigmod(argv[1]);
 	return 0;
-
-
-	// Map map=map_create();
-	// FILE* test=fopen("../data/small_test.txt","r");
-	// if(deduplication(test,map)==1){
-	// 	map_destroy(map);
-	// }
-
-	// for(int i=0;i<map->capacity;i++){
-	// 	Bst bst=map->array[i].bst;
-	// 	if(bst->root!=NULL){
-	// 		bst_inorder(bst);
-	// 	}
-	// }
-
-	// fclose(test);
-	// map_destroy(map);
-
-	// Dictionary dictionary=dictionary_create();
-	// QueryMap query_map=query_map_create();
-	// QueryID id=1;
-	// // QueryID id2=2;
-    // Query query=query_create(id, MT_EXACT_MATCH,0);
-	// addWord_to_query(query, "HELLO");
-	// addWord_to_query(query, "MEANINGFUL");
-	// addWord_to_query(query, "WORLD!");
-	
-	// for(int i=0 ; i<query->query_words_num ; i++){
-	// 	printf("%s sdasad\n", query->words[i]);
-
-	// }
-	
-	// query_map_insert(query_map,query);
-	// dictionary_insert(dictionary,"HELLO",&id);
-	// dictionary_insert(dictionary,"WORLD!",&id);
-	// dictionary_insert(dictionary,"MEANINGFUL",&id);
-
-	// dictionary_remove(dictionary,query_map,&id);
-	// // query_map_destroy(query_map);
-	// // dictionary_destroy(dictionary);
-
-	// return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

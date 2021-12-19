@@ -6,6 +6,7 @@ Query query_create(QueryID id, MatchType match_type, uint match_dist){
 
     query->match_type=match_type;
     query->match_dist=match_dist; //the threshold
+    query->lock=false;
     query->matched_words_num=0;
     query->query_words_num=0;
     query->words=malloc(sizeof(*query->words)*MAX_QUERY_WORDS);

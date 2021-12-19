@@ -34,7 +34,7 @@ void query_map_insert(QueryMap query_map, Query query);
 void query_map_rehash(QueryMap query_map);
 
 // Remove a Query from the active query set based on its id
-void query_map_remove(QueryMap query_map,Pointer id);
+void query_map_remove(QueryMap query_map,uint id);
 
 // Find the Query of given id
-Query query_map_find(QueryMap query_map,Pointer id);
+Query query_map_find(QueryMap query_map,uint id);

@@ -28,7 +28,7 @@ void list_destroy(List list){
     free(list);
 }
 
-void list_insert_head(List list,Pointer value){
+void list_insert_head(List list,uint value){
     ListNode node=malloc(sizeof(*node));
     node->value=value;
     node->next=list->head;
@@ -36,7 +36,7 @@ void list_insert_head(List list,Pointer value){
     list->size++;
 }
 
-void list_insert_tail(List list,Pointer value){
+void list_insert_tail(List list,uint value){
     ListNode node=malloc(sizeof(*node));
     node->next=NULL;
     node->value=value;
@@ -52,18 +52,17 @@ void list_insert_tail(List list,Pointer value){
 }
 
 
-bool check_list_existence(List list, Pointer value){
+bool check_list_existence(List list, uint value){
     for(ListNode lnode=list->head;lnode!=NULL;lnode=lnode->next){
         if(lnode->value==value){
             return true;
         }
     }
-
     return false;
 }
 
 
-bool list_remove(List list,Pointer value){
+bool list_remove(List list,uint value){
 
     ListNode node;
     ListNode curr=list->head;

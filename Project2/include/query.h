@@ -11,7 +11,8 @@ struct Query
 	QueryID query_id;
 	MatchType match_type;
 	unsigned int match_dist;
-	
+	bool lock;
+
 	String* words;
 	unsigned int query_words_num;
 	String* matched_words;

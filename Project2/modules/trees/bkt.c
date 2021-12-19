@@ -95,9 +95,9 @@ void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, In
     int root_flag=0;
 
     for(int i=0;i<dictionary->capacity;i++){
+
         if(dictionary->array[i].entry_list->size!=0){
             for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
-                
                 //if this is the first entry we are seeing, then create the root
                 if(!(root_flag++)){
                     ix->root = create_index_node(entry->word, entry->payload);
@@ -132,15 +132,15 @@ void fill_hamming_ix_array(Index_ptr* array, Dictionary dictionary, MatchType ty
     for(int i=0;i<dictionary->capacity;i++){
         if(dictionary->array[i].entry_list->size!=0){
             for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
-                
                 //if this is the first entry we are seeing, with thsi word length
-                if( array[ strlen(entry->word) ] == NULL ){
-                    array[ strlen(entry->word) ]->root = create_index_node(entry->word, entry->payload);
+                if( array[ strlen(entry->word)-4 ] == NULL ){
+                    array[ strlen(entry->word)-4 ] = (Index_ptr)malloc(sizeof(bkindex));
+                    array[ strlen(entry->word)-4 ]->root = create_index_node(entry->word, entry->payload);
                     continue;   
                 }
 
                 //if there is already a word with such length
-                add_index_node(array[ strlen(entry->word) ]->root, create_index_node(entry->word, entry->payload), type);
+                add_index_node(array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
                 
 
             }
@@ -168,7 +168,6 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType typ
 
     for(i=0 ; i<parent->children_number ; i++){
     
-        // printf("forloop %d asdsad\n\n", i);
         
         //if there is a children node with such distance 
         if(parent->children[i]->parent_distance == distance){
@@ -249,15 +248,36 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 }
 
 void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, MatchType type){
+
+    //we might come here by a hamming match type and there is high possibility that there is no BK tree with such word length
+    if(ix==NULL){
+        //so,set the result entry list empty, and return
+        result->head=NULL;
+        return;
+    }
     recursive_search(w,ix->root, threshold, result, type);
 }
 
 void destroy_hamming_array(Index_ptr* array){
 
     for(int i=0 ; i<28 ; i++){
-        destroy_entry_index(array[i]);
+        if(array[i]!=NULL){
+            destroy_entry_index(array[i]);
+        }
     }
 
     free(array);
     
+}
+
+
+void printbk(index_node_ptr root){
+    if(root==NULL){
+        return;
+    }
+
+    printf("%s\n", root->word);
+    for(int i=0 ; i<root->children_number ; i++ ){
+        printbk(root->children[i]);
+    }
 }

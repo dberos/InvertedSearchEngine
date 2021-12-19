@@ -1,14 +1,14 @@
 #include"../../include/documents.h"
 
 
-DocumentPtr addDocument(Core core, DocumentPtr* array, DocID doc_id){
+DocumentPtr addDocument(Core core, DocID doc_id){
     
-    array = (DocumentPtr*) realloc(array, (core->document_number + 1) * sizeof(DocumentPtr));
+    core->docs = (DocumentPtr*) realloc(core->docs, (core->document_number + 1) * sizeof(DocumentPtr));
     
-    core->docs[core->document_number++] = createDoc(doc_id);
+    core->docs[core->document_number] = createDoc(doc_id);
     
 
-    return core->docs[core->document_number];
+    return core->docs[core->document_number++];
 
 }
 
@@ -52,7 +52,7 @@ void clear_matchedInfo(Core core){
             }
 
             node->query->matched_words_num = 0;
-
+            node->query->lock = false;
         }
     }
 }
