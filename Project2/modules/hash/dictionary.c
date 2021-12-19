@@ -42,7 +42,7 @@ void dictionary_destroy(Dictionary dictionary){
     free(dictionary);
 }
 
-bool dictionary_insert(Dictionary dictionary,String word,Pointer id){
+bool dictionary_insert(Dictionary dictionary,String word,uint id){
     // Find the Hash Position
     ulong pos=dictionary->hash_function(word)%dictionary->capacity;
     // Find the Node
@@ -98,13 +98,13 @@ void dictionary_rehash(Dictionary dictionary){
     for(int i=0;i<old_capacity;i++){
         if(old_array[i].entry_list->head!=NULL){
             for(Entry entry=old_array[i].entry_list->head;entry!=NULL;entry=entry->next){
-                Pointer ptr=entry->payload->head->value;
-                QueryID id=*(uint*)ptr;
+                uint ptr=entry->payload->head->value;
+                QueryID id=ptr;
                 dictionary_insert(dictionary,entry->word,ptr);
                 // Fix payload
                 Entry en=dictionary_find(dictionary,entry->word);
                 for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
-                    if(*(uint*)node->value!=id){
+                    if(node->value!=id){
                         list_insert_tail(en->payload,node->value);
                     }
                 }
@@ -121,11 +121,6 @@ Entry dictionary_find(Dictionary dictionary,String word){
     ulong pos=dictionary->hash_function(word)%dictionary->capacity;
     // Node of the position
     DictionaryNode node=&dictionary->array[pos];
-
-
-
-
-
 
     for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
         if(strcmp(entry->word,word)==0){
@@ -176,7 +171,7 @@ void remove_entry_from_list(Dictionary dictionary, String word){
 
 
 
-void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id){
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id){
     // Find the query from the query map with this id so we can find its words and remove them
 
     Query query=query_map_find(query_map,id);
@@ -203,5 +198,22 @@ void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id){
 
 
         
+    }
+}
+
+
+void printDictionary(Dictionary dictionary){
+
+    for(int i=0;i<dictionary->capacity;i++){
+
+        if(dictionary->array[i].entry_list->size!=0){
+            for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
+                printf("%d %s\n", i, entry->word);
+                //if this is the first entry we are seeing, then create the root
+                
+                
+
+            }
+        }
     }
 }

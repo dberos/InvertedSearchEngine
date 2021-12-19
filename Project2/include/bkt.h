@@ -51,3 +51,4 @@ void destroy_entry_index(Index_ptr ix);
 void destroy_hamming_array(Index_ptr* array);
 void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, MatchType type);
 void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, MatchType type);
+void printbk(index_node_ptr root);

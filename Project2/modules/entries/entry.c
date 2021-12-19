@@ -97,9 +97,18 @@ void destroy_entry_list(EntryList el){
     free(el);
 }
 
+void print_payload(List payload){
+    printf("payload: \n");
+    for(ListNode node=payload->head;node!=NULL;node=node->next){
+            printf("%u ", node->value);
+    }
+    printf("\n");
+
+}
 
 
-bool insert_entry(EntryList entry_list,String word,Pointer id){
+
+bool insert_entry(EntryList entry_list,String word,uint id){
     Entry entry=create_entry(word);
     Entry curr;
     list_insert_tail(entry->payload,id);

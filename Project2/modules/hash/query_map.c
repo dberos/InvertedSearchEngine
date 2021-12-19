@@ -58,12 +58,14 @@ void query_map_insert(QueryMap query_map, Query query){
     // Free the id
     free(string_id);
 
+
+    //Rehash if needed 
     // Find Load Factor
-    float load_factor=(float)query_map->size/query_map->capacity;
-    if(load_factor>MAX_QUERY_MAP_LOAD_FACTOR){
-        // If it got increased then rehash
-        query_map_rehash(query_map);
-    }
+    // float load_factor=(float)query_map->size/query_map->capacity;
+    // if(load_factor>MAX_QUERY_MAP_LOAD_FACTOR){
+    //     // If it got increased then rehash
+    //     query_map_rehash(query_map);
+    // }
 }
 
 void query_map_rehash(QueryMap query_map){
@@ -122,10 +124,10 @@ void query_map_rehash(QueryMap query_map){
     free(old_array);
 }
 
-void query_map_remove(QueryMap query_map,Pointer id){
+void query_map_remove(QueryMap query_map,uint id){
     // Create QueryID as a String
     String string_id=malloc(10);
-    sprintf(string_id,"%d",*(uint*)id);
+    sprintf(string_id,"%d",id);
     // Find Hash Position
     ulong pos=query_map->hash_function(string_id)%query_map->capacity;
     // Find Node of Hash Position
@@ -141,10 +143,10 @@ void query_map_remove(QueryMap query_map,Pointer id){
     free(string_id);
 }
 
-Query query_map_find(QueryMap query_map,Pointer id){
+Query query_map_find(QueryMap query_map,uint id){
     // Create QueryID as a String
     String string_id=malloc(10);
-    sprintf(string_id,"%d",*(uint*)id);
+    sprintf(string_id,"%d",id);
     // Find Hash Position
     ulong pos=query_map->hash_function(string_id)%query_map->capacity;
     // Find Node of Hash Position
@@ -153,7 +155,7 @@ Query query_map_find(QueryMap query_map,Pointer id){
     QueryList query_list=node->query_list;
     // Traverse the List and Find the Query with given id
     for(QueryListNode lnode=query_list->head;lnode!=NULL;lnode=lnode->next){
-        if(lnode->query->query_id==*(uint*)id){
+        if(lnode->query->query_id==id){
             free(string_id);
             return lnode->query;
         }

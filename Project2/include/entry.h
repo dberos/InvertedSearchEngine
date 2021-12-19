@@ -46,4 +46,7 @@ void destroy_entry_list(EntryList el);
 // Insert a word at an Entry List
 // If it doesnt exist create an entry 
 // Else update the payload
-bool insert_entry(EntryList entry_list,String word,Pointer id);
+bool insert_entry(EntryList entry_list,String word,uint id);
+
+
+void print_payload(List payload);

@@ -26,7 +26,7 @@ Dictionary dictionary_create();
 void dictionary_destroy(Dictionary dictionary);
 
 // Inserting at a Dictionary
-bool dictionary_insert(Dictionary dictionary,String word,Pointer id);
+bool dictionary_insert(Dictionary dictionary,String word,uint id);
 
 // Rehashing Depending on Load Factor
 void dictionary_rehash(Dictionary dictionary);
@@ -38,5 +38,7 @@ Entry dictionary_find(Dictionary dictionary,String word);
 void remove_entry_from_list(Dictionary dictionary, String word);
 
 // Remove a QueryID from the payload of an Entry
-void dictionary_remove(Dictionary dictionary,QueryMap query_map,Pointer id);
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id);
 
+// Print the dictionary
+void printDictionary(Dictionary dictionary);

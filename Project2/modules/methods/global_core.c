@@ -18,6 +18,7 @@ Core core_create(){
     //Number of documents saved in Document array
     core->document_number=0;
     core->docs=NULL;
+    core->last_result_index=0;
 
     for(int i=0 ; i<4 ; i++){
         core->th_boxes[i]=query_list_create();
