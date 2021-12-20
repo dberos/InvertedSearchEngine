@@ -30,7 +30,8 @@ void addDocumentResult(DocumentPtr doc, QueryID id){
 }
 
 void destroyDocument(DocumentPtr doc){
-    free(doc->query_ids);
+    //THIS WILL BE UNCOMMENTED WHEN @RED CREATES THE QSORT FUNCTION
+    // free(doc->query_ids);
     free(doc);
 }
 

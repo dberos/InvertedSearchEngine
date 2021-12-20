@@ -38,3 +38,6 @@ bool map_find(Map map,String word);
 
 // Remove given word if it exists at a Map
 bool map_remove(Map map,String word);
+
+// Print the map contains
+void map_print(Map map);

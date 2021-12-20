@@ -47,6 +47,7 @@ void query_list_insert_tail(QueryList list,Query query){
         list->size++;
         return;
     }
+   
     list->tail->next=node;
     list->tail=node;
     list->size++;
@@ -71,6 +72,20 @@ bool query_list_remove(QueryList query_list,uint id){
         query_list->head=query_list->head->next;
         query_destroy(node->query);
         free(node);
+    }else
+    if(query_list->tail==node){
+        QueryListNode previous=NULL;
+        for(QueryListNode lnode=query_list->head;lnode!=NULL;lnode=lnode->next){
+            if(lnode==query_list->tail){
+                query_list->tail=previous;
+                previous->next=NULL;
+                query_destroy(lnode->query);
+                free(lnode);
+                break;
+            }
+            previous=lnode;
+
+        }
     }
     else{
         while(curr!=node){
@@ -103,6 +118,20 @@ bool query_list_detach(QueryList query_list,uint id){
     if(query_list->head==node){
         query_list->head=query_list->head->next;
         free(node);
+    }else
+    if(query_list->tail==node){
+        QueryListNode previous=NULL;
+        for(QueryListNode lnode=query_list->head;lnode!=NULL;lnode=lnode->next){
+            if(lnode==query_list->tail){
+                query_list->tail=previous;
+                previous->next=NULL;
+                query_destroy(lnode->query);
+                free(lnode);
+                break;
+            }
+            previous=lnode;
+
+        }
     }
     else{
         while(curr!=node){

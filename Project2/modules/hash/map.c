@@ -169,3 +169,10 @@ bool map_remove(Map map,String word){
     }
     return removed;
 }
+
+void map_print(Map map){
+    for(int i=0;i<map->capacity;i++){
+        // Create a Binary Search Tree
+        bst_node_inorder(map->array[i].bst->root);
+    }
+}

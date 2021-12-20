@@ -32,3 +32,7 @@ void passWords_to_query(Query new_query, Query old_query);
 
 // Destroying a Query
 void query_destroy(Query query);
+
+// Print a query's words
+void printQuery(Query query);
+
