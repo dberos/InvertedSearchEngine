@@ -34,6 +34,14 @@ void core_destroy(Core core){
     dictionary_destroy(core->hamming_queries);
     // Destroy active Query Set
     query_map_destroy(core->query_map);
+
+    //Destroy th_boxes
+    for(int i=0 ; i<4 ; i++){
+        query_list_destroy(core->th_boxes[i]);
+    }
+    
+    
+    
     destroyDocumentsArray(core->docs, core->document_number);
     free(core);
 }

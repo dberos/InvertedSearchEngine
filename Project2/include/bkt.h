@@ -33,13 +33,20 @@ typedef struct bkindex{
 typedef bkindex* Index_ptr;
 
 
-int EditDistance(String a, int na, String b, int nb);
+//Distance Metrics & tools
+// unsigned int minOfTwo(int x, int y);
+// unsigned int minOfThree(int x, int y, int z);
+// unsigned int HammingDistance(String str1, String str2);
+// unsigned int EditDistance(String str1, String str2);
+unsigned int EditDistance(String a, int na, String b, int nb);
 unsigned int HammingDistance(String a, int na, String b, int nb);
+
 
 index_node_ptr create_index_node(const String word, List payload);
 void build_entry_index(const EntryList el, MatchType type, Index_ptr ix);
 void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, Index_ptr ix);
-void fill_hamming_ix_array(Index_ptr* array, Dictionary dictionary, MatchType type);
+void fill_hamming_ix_array_from_dictionary(Index_ptr* array, Dictionary dictionary, MatchType type);
+void fill_hamming_ix_array(Index_ptr* array, EntryList el, MatchType type);
 
 
 void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType type);

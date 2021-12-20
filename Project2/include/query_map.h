@@ -38,3 +38,6 @@ void query_map_remove(QueryMap query_map,uint id);
 
 // Find the Query of given id
 Query query_map_find(QueryMap query_map,uint id);
+
+void print_query_map(QueryMap map);
+

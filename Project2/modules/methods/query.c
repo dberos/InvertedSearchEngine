@@ -26,6 +26,7 @@ void addWord_to_query(Query query, String word){
 void passWords_to_query(Query new_query, Query old_query){
     for(int i=0 ; i<old_query->query_words_num ; i++){
         new_query->words[i] = strdup(old_query->words[i]);
+        new_query->query_words_num++;
     }
 }
 
@@ -43,4 +44,12 @@ void query_destroy(Query query){
     free(query->matched_words);
     
     free(query);
+}
+
+void printQuery(Query query){
+    printf("queryprint id %u: ", query->query_id);
+    for(int i=0 ; i<query->query_words_num ; i++){
+        printf(" %s", query->words[i]);
+    }
+    printf("\n");
 }

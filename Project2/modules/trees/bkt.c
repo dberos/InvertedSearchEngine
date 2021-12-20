@@ -40,9 +40,7 @@
 //             );
 // }
 
-// Computes edit distance between a null-terminated string "a" with length "na"
-//  and a null-terminated string "b" with length "nb" 
-int EditDistance(String a, int na, String b, int nb)
+unsigned int EditDistance(String a, int na, String b, int nb)
 {
 	int oo=0x7FFFFFFF;
 
@@ -96,6 +94,8 @@ int EditDistance(String a, int na, String b, int nb)
 	return ret;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 // Computes Hamming distance between a null-terminated string "a" with length "na"
 //  and a null-terminated string "b" with length "nb" 
 unsigned int HammingDistance(String a, int na, String b, int nb)
@@ -108,6 +108,7 @@ unsigned int HammingDistance(String a, int na, String b, int nb)
 	
 	return num_mismatches;
 }
+
 
 index_node_ptr create_index_node(const String word, List payload){
 
@@ -147,8 +148,9 @@ void build_entry_index(const EntryList el, MatchType type, Index_ptr ix){
     //Now we should traverse through the entry list and build the entry index
     Entry next_entry = NULL;
     next_entry = get_next(el, temp);
-    
+    // int i=0;
     while(next_entry!=NULL){
+        // printf("for build %d\n", i++);
         add_index_node(ix->root, create_index_node(next_entry->word, next_entry->payload), type);
         next_entry = get_next(el, next_entry);        
     }
@@ -188,7 +190,7 @@ void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, In
 
 }
 
-void fill_hamming_ix_array(Index_ptr* array, Dictionary dictionary, MatchType type){
+void fill_hamming_ix_array_from_dictionary(Index_ptr* array, Dictionary dictionary, MatchType type){
 
     //MIN_WORD_LENGTH 4 | MAX_WORD_LENGTH 31 so we'll need 28 cells
     for(int i=0 ; i<28 ; i++){
@@ -219,31 +221,62 @@ void fill_hamming_ix_array(Index_ptr* array, Dictionary dictionary, MatchType ty
 }
 
 
+void fill_hamming_ix_array(Index_ptr* array, EntryList el, MatchType type){
+
+    //MIN_WORD_LENGTH 4 | MAX_WORD_LENGTH 31 so we'll need 28 cells
+    for(int i=0 ; i<28 ; i++){
+        array[i]=NULL;
+    }
+    if(el->size!=0){
+        for(Entry entry=el->head ; entry!=NULL ; entry=entry->next){
+                //if this is the first entry we are seeing, with such word length
+                if( array[ strlen(entry->word)-4 ] == NULL ){
+                    array[ strlen(entry->word)-4 ] = (Index_ptr)malloc(sizeof(bkindex));
+                    array[ strlen(entry->word)-4 ]->root = create_index_node(entry->word, entry->payload);
+                    continue;   
+                }
+
+                //if there is already a word with such length
+                add_index_node(array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
+                
+
+            }
+    }
+
+}
+
+
 
 void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType type){
-    
+    // printf("add_index\n");
     unsigned int distance;
 
-    if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, strlen(parent->word),newnode->word,strlen(newnode->word)); // Hamming Distance
-    else distance = EditDistance(parent->word, strlen(parent->word),newnode->word,strlen(newnode->word));  // Edit Distance
+    // printf("pro dist\n");
+
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, strlen(parent->word), newnode->word, strlen(newnode->word)); // Hamming Distance
+    else distance = EditDistance(parent->word, strlen(parent->word), newnode->word, strlen(newnode->word));  // Edit Distance
+    // printf("after dist\n");
+    
+
 
     //Iterate through children o this bk tree node and check whether there exists a kid with the same metric distance 
     //with the word we want to insert
     int i;
     // printf("\nPARENT %s %d\n", parent->word,parent->parent_distance);
     // printf("NEWNODE %s %d\n\n", newnode->word, parent->children_number);
-
+    // int j=0;
     for(i=0 ; i<parent->children_number ; i++){
     
         
         //if there is a children node with such distance 
         if(parent->children[i]->parent_distance == distance){
+            // printf("palevw %d\n", j++);
             //recursive function call for this node
             add_index_node(parent->children[i], newnode, type);
             return;
         }
     }
-    
+    // printf("neo length\n ");
     //if no node with such metric distance was found:
     //add new node to parent
 
@@ -291,8 +324,8 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 
     unsigned int distance;
 
-    if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, strlen(node->word),w,strlen(w)); // Hamming Distance
-    else distance = EditDistance(node->word, strlen(node->word),w,strlen(w));  // Edit Distance
+    if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, strlen(node->word), w, strlen(w)); // Hamming Distance
+    else distance = EditDistance(node->word, strlen(node->word), w, strlen(w));  // Edit Distance
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){

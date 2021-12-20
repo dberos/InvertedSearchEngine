@@ -53,6 +53,7 @@ void query_map_insert(QueryMap query_map, Query query){
 
     // Insert the Query at the list
     query_list_insert_tail(node->query_list,query);
+    
     // Increase the size
     query_map->size++;
     // Free the id
@@ -135,7 +136,7 @@ void query_map_remove(QueryMap query_map,uint id){
     // Query List of the Node
     QueryList query_list=node->query_list;
     // Remove the id
-    bool removed=query_list_remove(query_list,id);
+    bool removed=query_list_detach(query_list,id);
     if(removed==true){
         query_map->size--;
     }
@@ -162,4 +163,13 @@ Query query_map_find(QueryMap query_map,uint id){
     }
     free(string_id);
     return NULL;
+}
+
+void print_query_map(QueryMap map){
+    for(int i=0;i<map->capacity;i++){
+        for(QueryListNode lnode=map->array[i].query_list->head;lnode!=NULL;lnode=lnode->next){
+            printQuery(lnode->query);
+        }
+    }
+
 }
