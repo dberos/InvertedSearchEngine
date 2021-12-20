@@ -458,68 +458,49 @@ int comparator (const void * p1, const void * p2)
   return (*(int*)p1 - *(int*)p2);
 }
 
-void merge(QueryID arr[], int l, int m, int r)
-{
-    int i, j, k;
-    int n1 = m - l + 1;
-    int n2 = r - m;
+void merge(QueryID queryId[], int left, int mid, int right) {
+    int lsubLen = mid - left + 1;
+    int rsubLen = right - mid;
   
-    /* create temp arrays */
-    int L[n1], R[n2];
+	/* Create sub arrays where:
+		leftSub = queryId[0, mid] 
+		rightSub = queryId[mid + 1, right] */
+    int leftSub[lsubLen], rightSub[rsubLen];
+    for (int i = 0; i < lsubLen; i++) leftSub[i] = queryId[left + i];
+    for (int j = 0; j < rsubLen; j++) rightSub[j] = queryId[mid + 1 + j];
   
-    /* Copy data to temp arrays L[] and R[] */
-    for (i = 0; i < n1; i++)
-        L[i] = arr[l + i];
-    for (j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
-  
-    /* Merge the temp arrays back into arr[l..r]*/
-    i = 0; // Initial index of first subarray
-    j = 0; // Initial index of second subarray
-    k = l; // Initial index of merged subarray
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
+	// Merge array back until we reach the end of at least one array
+    int i = 0;
+    int j = 0;
+    int k = left;
+    while (i < lsubLen && j < rsubLen) {
+        if (leftSub[i] <= rightSub[j]) {
+            queryId[k] = leftSub[i];
             i++;
         }
         else {
-            arr[k] = R[j];
+            queryId[k] = rightSub[j];
             j++;
         }
         k++;
     }
   
-    /* Copy the remaining elements of L[], if there
-    are any */
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-  
-    /* Copy the remaining elements of R[], if there
-    are any */
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
+	// Finally if one of the two arrays has remaining
+	// queries add them to the original
+    while (i < lsubLen) queryId[k++] = leftSub[i++];
+    while (j < rsubLen) queryId[k++] = rightSub[j++];
 }
   
-/* l is for left index and r is right index of the
-sub-array of arr to be sorted */
-void mergeSort(QueryID arr[], int l, int r)
-{
-    if (l < r) {
-        // Same as (l+r)/2, but avoids overflow for
-        // large l and h
-        int m = l + (r - l) / 2;
+// Mergesort breaks each given array into 2 parts (in the middle)
+// sorting the children, and then "merging" the sorted arrays back up
+void mergeSort(QueryID queryId[], int left, int right) {
+    if (left < right) {
+        int m = left + (right - left) / 2;
   
-        // Sort first and second halves
-        mergeSort(arr, l, m);
-        mergeSort(arr, m + 1, r);
+        mergeSort(queryId, left, m);
+        mergeSort(queryId, m + 1, right);
   
-        merge(arr, l, m, r);
+        merge(queryId, left, m, right);
     }
 }
 
