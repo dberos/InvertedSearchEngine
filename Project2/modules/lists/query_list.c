@@ -117,6 +117,7 @@ bool query_list_detach(QueryList query_list,uint id){
     }
     if(query_list->head==node){
         query_list->head=query_list->head->next;
+        query_destroy(node->query);
         free(node);
     }else
     if(query_list->tail==node){
@@ -139,6 +140,7 @@ bool query_list_detach(QueryList query_list,uint id){
             curr=curr->next;
         }
         prev->next=curr->next;
+        query_destroy(node->query);
         free(node);
     }
     query_list->size--;
