@@ -144,3 +144,15 @@
     make run/make valgrind
     make clean
 
+### MatchDocument
+
+#### Διαδικασία
+    Η διαδικασία που εκτελείται για την εύρεση των επιτυχόντων queries για κάθε κείμενο είναι η εξής:
+    -για κάθε πιθανό threshold TH ( [0,3] )
+        -για κάθε Entry e του κάθε πιθανού MatchType x (δηλαδή για κάθε Dictionary)
+            -lookup το κατάλληλο-αντίστοιχο ευρετήριο για την λέξη του Entry (e->word)
+            -αν το αποτέλεσμα της loοkup δεν είναι κενό
+                -βρες τα queries της QueryList του th_box στο κελί για το threshold TH
+                 όπου έχουν MatchType==x και ανήκουν στο payload του Entry (e->payload)
+                -για τα queries αυτά θέσε την λέξη του Εntry αυτού, ως "matched"
+            
