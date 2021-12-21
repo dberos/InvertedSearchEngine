@@ -12,7 +12,7 @@ struct Document
 {
 	DocID doc_id;
 	unsigned int num_res;
-	QueryID* query_ids;
+	QueryID query_ids[2000];
 };
 
 

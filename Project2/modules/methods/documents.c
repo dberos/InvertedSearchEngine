@@ -3,7 +3,7 @@
 
 DocumentPtr addDocument(Core core, DocID doc_id){
     
-    core->docs = (DocumentPtr*) realloc(core->docs, (core->document_number + 1) * sizeof(DocumentPtr));
+    core->docs = realloc(core->docs, (core->document_number + 1) * sizeof(*core->docs));
     
     core->docs[core->document_number] = createDoc(doc_id);
     
@@ -13,25 +13,22 @@ DocumentPtr addDocument(Core core, DocID doc_id){
 }
 
 DocumentPtr createDoc(DocID doc_id){
-    DocumentPtr doc = (DocumentPtr)malloc(sizeof(struct Document));
+    DocumentPtr doc = malloc(sizeof(*doc));
     doc->doc_id = doc_id;
     doc->num_res = 0;
-    doc->query_ids = NULL;
 
     return doc;
 }
 
 
 void addDocumentResult(DocumentPtr doc, QueryID id){
-    doc->query_ids = (QueryID*) realloc(doc->query_ids, (doc->num_res + 1) * sizeof(QueryID));
-    doc->query_ids[doc->num_res++] = id;
+    memcpy(&doc->query_ids[doc->num_res],&id,sizeof(id));
+    doc->num_res++;
     return;
 
 }
 
 void destroyDocument(DocumentPtr doc){
-    //THIS WILL BE UNCOMMENTED WHEN @RED CREATES THE QSORT FUNCTION
-    // free(doc->query_ids);
     free(doc);
 }
 

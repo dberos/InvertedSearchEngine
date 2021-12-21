@@ -171,17 +171,19 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	DocumentPtr doc = addDocument(core, doc_id);
 
 	//deduplicate text
-	dedup(doc_str, core);
+	String str=strdup((String)doc_str);
+	dedup(str, core);
+	free(str);
 
 	//build indexes (exact match index is a map  that is already filled and up to date :) - core->document (MAP)
 	
 	//Create edit distance BK-Tree 
-    Index_ptr edit_tree = (Index_ptr)malloc(sizeof(bkindex));
+    Index_ptr edit_tree = malloc(sizeof(*edit_tree));
     build_entry_index(core->document->entry_list, MT_EDIT_DIST, edit_tree);
 
 	//Create hamming distance BK-Trees [ one for each possible word length]
 	//created an array of index trees hamming_array[num] is for the bk tree of words with num letters
-	Index_ptr* hamming_array = (Index_ptr*)malloc(28*sizeof(Index_ptr));
+	Index_ptr* hamming_array = malloc(28*sizeof(*hamming_array));
 	fill_hamming_ix_array(hamming_array, core->document->entry_list, MT_HAMMING_DIST);
 	
 

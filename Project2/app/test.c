@@ -165,7 +165,7 @@ void TestSigmod(const char* test_file_str)
 				}
 
 				cur_results_ret[doc_id-first_result]=true;
-				if(num_res && query_ids) free(query_ids);
+				// if(num_res && query_ids) free(query_ids);
 			}
 
 			for(i=0;i<num_cur_results;i++) {free(cur_results[i]); cur_results[i]=0; cur_results_size[i]=0; cur_results_ret[i]=false;}
@@ -280,6 +280,10 @@ void TestSigmod(const char* test_file_str)
 	v=GetClockTimeInMilliSec()-v;
 
 	DestroyIndex();
+
+	for(int i=0;i<num_cur_results;i++){
+        free(cur_results[i]);
+    }
 
 	fclose(test_file);
 

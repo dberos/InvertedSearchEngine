@@ -38,7 +38,7 @@ void remove_special_characters_decapitalize(String word);
 int deduplication(FILE* document,Map map);
 
 // Tokenize a String and don't allow duplicates to be inserted at the Map
-int dedup(const char* string, Core core);
+int dedup(String string, Core core);
 
 // Check whether a word already exists at a Map
 bool exact_matching(Map map,String word);

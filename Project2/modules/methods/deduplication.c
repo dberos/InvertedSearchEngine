@@ -62,7 +62,7 @@ int deduplication(FILE* document,Map map){
     return 0;
 }
 
-int dedup(const char* string, Core core){
+int dedup(String string, Core core){
     String str=strdup(string);
     
     String word=strtok(str," ");
