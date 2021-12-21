@@ -81,15 +81,17 @@
 
 ## Project2
 
-cd app
+Η βιβλιοθήκη φτιάχνεται τρέχοντας το Make στο lib directory με --silent στο Makefile του /app
+
+Η υλοποίηση μας περνάει όλα τα test και χωρίς leaks, όμως χρειάστηκαν 2 μικρές αλλαγές στο testdriver
+
+~~if(num_res && query_ids) free(query_ids);~~
+
+**Προσθήκη _for(int i=0;i<num_cur_results;i++){free(cur_results[i]);}_ στο τέλος**
+    
+    cd app
     make
     make run | make valgrind
-
-    Η βιβλιοθήκη φτιάχνεται τρέχοντας το Make στο lib directory με --silent στο Makefile του /app
-    Η υλοποίηση μας περνάει όλα τα test και χωρίς leaks
-    Για να μην υπάρχουν leaks χρειάστηκαν 2 μικρές αλλαγές στο testdriver
-    Η γραμμή: if(num_res && query_ids) free(query_ids); έπρεπε να φύγει
-    Προσθήκη: for(int i=0;i<num_cur_results;i++){free(cur_results[i]);} στο τέλος
 
 ### Map
     Το Map χρησιμοποιείται πλέον μόνο για κάθε Document 
