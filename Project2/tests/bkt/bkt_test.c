@@ -26,7 +26,7 @@ void test_build_entry_index(void) {
     // Create a Bst
     Map map=map_create();
 
-    FILE* doc=fopen("../../data/map_testing_acutest.txt","r");
+    FILE* doc=fopen("../../data/queryekf.txt","r");
     if(deduplication(doc,map)==1){
         map_destroy(map);
     }
@@ -37,6 +37,23 @@ void test_build_entry_index(void) {
     build_entry_index(map->entry_list, hamming, test_tree);
     // TEST_ASSERT everything from bst_create
     TEST_ASSERT(test_tree->root!=NULL);
+    TEST_ASSERT(!strcmp(test_tree->root->word, "hell"));
+    TEST_ASSERT(test_tree->root->children_number==3);
+    for(int i=0 ; i<test_tree->root->children_number ; i++){
+        if(test_tree->root->children[i]->parent_distance==1) TEST_ASSERT(!strcmp(test_tree->root->children[i]->word, "help"));
+        if(test_tree->root->children[i]->parent_distance==2) TEST_ASSERT(!strcmp(test_tree->root->children[i]->word, "fall"));
+        if(test_tree->root->children[i]->parent_distance==3) TEST_ASSERT(!strcmp(test_tree->root->children[i]->word, "small"));
+
+    }
+
+    TEST_ASSERT(test_tree->root->children[0]->children[0]->parent_distance==2);
+    TEST_ASSERT(!strcmp(test_tree->root->children[0]->children[0]->word, "fell"));
+
+    TEST_ASSERT(test_tree->root->children[1]->children[0]->parent_distance==2);
+    TEST_ASSERT(!strcmp(test_tree->root->children[1]->children[0]->word, "felt"));
+
+    TEST_ASSERT(test_tree->root->children[1]->children[1]->parent_distance==3);
+    TEST_ASSERT(!strcmp(test_tree->root->children[1]->children[1]->word, "melt"));
 
     // Destroy the Bst
     map_destroy(map);
@@ -78,8 +95,8 @@ void test_lookup(void){
 
     TEST_ASSERT(results->size==2);
     TEST_ASSERT(!strcmp(results->head->word,"hell"));
-    // Entry entry=results->head->next;
-    // TEST_ASSERT(strcmp(entry->word,"help"));
+    Entry entry=results->head->next;
+    TEST_ASSERT(!strcmp(entry->word,"help"));
 
 
     map_destroy(map);
