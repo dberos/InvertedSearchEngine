@@ -40,8 +40,6 @@ void core_destroy(Core core){
         query_list_destroy(core->th_boxes[i]);
     }
     
-    
-    
     destroyDocumentsArray(core->docs, core->document_number);
     free(core);
 }

@@ -32,47 +32,6 @@
 
 
 Core core=NULL;
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-// Computes edit distance between a null-terminated string "a" with length "na"
-//  and a null-terminated string "b" with length "nb" 
-// int EditDistance(char* a, int na, char* b, int nb)
-// {
-// 	return EC_SUCCESS;
-// }
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-// Computes Hamming distance between a null-terminated string "a" with length "na"
-//  and a null-terminated string "b" with length "nb" 
-// unsigned int HammingDistance(char* a, int na, char* b, int nb)
-// {
-// 	return EC_SUCCESS;
-// }
-
-// ///////////////////////////////////////////////////////////////////////////////////////////////
-
-// // Keeps all information related to an active query
-// struct Query
-// {
-// 	QueryID query_id;
-// 	char str[MAX_QUERY_LENGTH];
-// 	MatchType match_type;
-// 	unsigned int match_dist;
-// };
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-// Keeps all query ID results associated with a dcoument
-// struct Document
-// {
-// 	DocID doc_id;
-// 	unsigned int num_res;
-// 	QueryID* query_ids;
-// };
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode InitializeIndex(){
@@ -94,16 +53,12 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	// Create a Query
     Query query=query_create(query_id, match_type,match_dist);
 
-
-
 	//Tokenize query words and add them to the Match_Type map or update the payload (if the word already exists in that map)
     String str=strdup(query_str);
 	
 	String word=strtok(str," ");
 	while(word!=NULL){
 		remove_special_characters_decapitalize(word);
-
-		//check methods.h for the core struct
 
 		//insert in the Match_Type map
 		if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word,query_id); 
@@ -119,7 +74,6 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	free(str);
 	
 	
-	// Need cast to String to not disqualify const expression
 	query_map_insert(core->query_map, query);
 	
 	
@@ -155,9 +109,6 @@ ErrorCode EndQuery(QueryID query_id){
 	else{
 		dictionary_remove(core->hamming_queries,core->query_map,query_id);
 	}
-
-	// Remove this query from core->th_box[] ( check methods.h in core struct for explanation )
-	// query_list_detach(core->th_boxes[query->match_dist], query_id);
     
 	query_map_remove(core->query_map,query_id);
 	return EC_SUCCESS;
@@ -297,17 +248,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 				}
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
 	}
 
 	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
@@ -319,139 +259,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	map_destroy(core->document);
 
 	return EC_SUCCESS;
-
-
-
-//--------------------------------WAY 2--------------------------------------------
-
-	//for every active query
-    // for(int i=0;i<core->query_map->capacity;i++){
-
-	// 	for(QueryListNode lnode=core->query_map->array[i].query_list->head; lnode!=NULL ; lnode=lnode->next){
-
-
-	// 		bool matched_query = true;
-
-	// 		//for every query word
-	// 		for(int j=0 ; j<lnode->query->query_words_num  ; j++){
-
-	// 			EntryList results = create_entry_list();
-
-	// 			if(lnode->query->match_type==MT_EDIT_DIST){
-	// 				lookup_entry_index(lnode->query->words[j], edit_tree, lnode->query->match_dist, results, MT_EDIT_DIST);
-	// 			}else if(lnode->query->match_type==MT_HAMMING_DIST){
-	// 				lookup_entry_index(lnode->query->words[j], hamming_array[ strlen(lnode->query->words[j])-4 ], lnode->query->match_dist, results, MT_HAMMING_DIST);
-	// 			}else{
-	// 				bool result = map_find(core->document, lnode->query->words[j]);
-	// 				if(result!=false){ //If there was such word in exact dictionary, there can be only one by the way
-	// 					add_entry(results, create_entry("exactresult"));
-	// 				}
-
-	// 			}
-
-	// 			//if for a query word there was no result:
-	// 			if(results->size==0){
-	// 				matched_query = false;
-	// 			} 
-
-	// 			destroy_entry_list(results);
-	// 		}
-
-	// 		//if matched query is still true, then all query words had a match
-	// 		if(matched_query==true){
-    // 			addDocumentResult(doc, lnode->query->query_id);
-	// 		}
-			
-
-	// 	}
-	// }
-
-	
-	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
-	// //clear_matchedInfo(core);
-
-	// destroy_entry_index(edit_tree);
-	// destroy_hamming_array(hamming_array);
-
-	// map_destroy(core->document);
-
-	// return EC_SUCCESS;
-
-//--------------------------------WAY 3--------------------------------------------
-
-
-	// //For every word of this -deduplicated- document
-    // for(Entry entry=core->document->entry_list->head;entry!=NULL;entry=entry->next){
-	// 	// printf("----------------------------------\Word %s\n--------------------------------------\n", entry->word);
-        
-	// 	//we will lookup this word for every possible threshold ( th_box of core struct ) check methods.h for definition & explanation
-	// 	for (int threshold=0 ; threshold<4 ; threshold++){
-	// 		EntryList exact_result = create_entry_list();
-	// 		EntryList edit_result = create_entry_list();
-	// 		EntryList hamming_result = create_entry_list();
-
-	// 		//do the lookups for every matcing type
-	// 		lookup_entry_index(entry->word, edit_tree, threshold, edit_result, MT_EDIT_DIST);
-	// 		lookup_entry_index(entry->word, hamming_array[strlen(entry->word)-4], threshold, hamming_result, MT_HAMMING_DIST);
-	// 		Entry exact_entry = dictionary_find(core->exact_queries, entry->word);
-	// 		if(exact_entry!=NULL){ //If there was such word in exact dictionary, there can be only one by the way
-	// 			add_entry(exact_result, create_entry_with_payload(exact_entry->word, exact_entry->payload));
-	// 		}
-
-
-	// 		//For every query having this threshold
-	// 		for(QueryListNode th_query=core->th_boxes[threshold]->head ; th_query!=NULL ; th_query=th_query->next){
-
-	// 			QueryID qid = th_query->query->query_id;
-				
-	// 			//if we have already matched this query, just move on to the next one
-	// 			if(th_query->query->lock==true){
-	// 				continue;
-	// 			}
-	// 			//now depending on the match type of this query, check the results of this index
-	// 			EntryList results;
-	// 			if(th_query->query->match_type == MT_EXACT_MATCH)	results = exact_result;
-	// 			else if(th_query->query->match_type == MT_EDIT_DIST)	results = edit_result;
-	// 			else results = hamming_result;
-				 
-	// 			//for every word in our look up results
-	// 			for(Entry resultNode=results->head; resultNode!=NULL ; resultNode=resultNode->next){
-	// 				//check if this result word has th_query's id in its payload
-	// 				if( check_list_existence(resultNode->payload, qid)==false ){
-	// 					continue;
-	// 				}else{
-	// 					// (check modules/methods/matchquery.c)
-	// 					matchQuery(th_query->query, resultNode->word, doc);
-	// 				}
-
-	// 			}
-
-	// 		}
-
-
-
-	// 		//destroy results from lookups for this document word and threshold move on to the next one
-
-	// 		destroy_entry_list(exact_result);
-	// 		destroy_entry_list(edit_result);
-	// 		destroy_entry_list(hamming_result);
-
-	// 	}
-
-
-
-    // }
-
-	
-	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
-	// clear_matchedInfo(core);
-
-	// destroy_entry_index(edit_tree);
-	// destroy_hamming_array(hamming_array);
-
-	// map_destroy(core->document);
-	
-	// return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -507,19 +314,16 @@ void mergeSort(QueryID queryId[], int left, int right) {
 }
 
 ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_query_ids){
-	// printf("GETNEXTAVAILABLE____________________________________________\n");
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
 
 	if(core->document_number==0) return EC_NO_AVAIL_RES;
 
 	*p_doc_id = core->docs[core->last_result_index]->doc_id;
 	*p_num_res = core->docs[core->last_result_index]->num_res;
-	// qsort(core->docs[core->last_result_index]->query_ids, core->docs[core->last_result_index]->num_res, sizeof(uint), comparator);
 	mergeSort(core->docs[core->last_result_index]->query_ids, 0, core->docs[core->last_result_index]->num_res-1);
 	*p_query_ids = core->docs[core->last_result_index]->query_ids;
 
 	core->last_result_index++;
-	// printf("GOT NEXT__________________________________________________\n");
 	
 	return EC_SUCCESS;
 }

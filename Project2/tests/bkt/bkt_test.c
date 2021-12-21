@@ -56,6 +56,7 @@ void test_create_index_node(void) {
     TEST_ASSERT(testNode->children == NULL);
     
     destroy_index_nodes(testNode);
+    list_destroy(payload);
 }
 
 
@@ -63,7 +64,7 @@ void test_lookup(void){
     Map map=map_create();
 
 
-    FILE* doc=fopen("../../data/queryekf","r");
+    FILE* doc=fopen("../../data/queryekf.txt","r");
     if(deduplication(doc,map)==1){
         map_destroy(map);
     }
