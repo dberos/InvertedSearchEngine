@@ -77,3 +77,57 @@
     make
     make run/make valgrind
     make clean
+
+
+## Project2
+
+### Map
+    Το Map χρησιμοποιείται πλέον μόνο για κάθε Document 
+    Δεν έχει αλλάξει κάτι στην υλοποίηση του
+
+### Dictionary 
+
+    Το dictionary είναι το Hash Table για τα entries
+    Κάθε bucket αναπαρίσταται από μία entry list
+    Το deduplication για τα entries γίνεται στο dictionary
+    Αν υπάρχει ήδη η λέξη, απλώς μπαίνει ένα νέο QueryID στο payload του entry
+
+#### Tests
+    cd tests/dictionary
+    make
+    make run/make valgrind
+    make clean
+
+### List
+
+    Μια απλή συνδεδεμένη λίστα που χρησιμοποιείται για το payload των entries
+
+#### Tests
+    cd tests/list
+    make
+    make run/make valgrind
+    make clean
+
+### QueryMap
+
+    Σε αυτό το σημείο χρειαζόμασταν μια δομή που θα βοηθούσε στο EndQuery
+    Ένα Vector δε θα ήταν αποδοτικό σε περίπτωση που έρχονταν QueryIDs σε λάθος σειρά
+    Είναι ένα Hash Table που γίνεται hash το QueryID σαν String
+    Κάθε bucket αναπαρίσταται από μια QueryList
+
+#### Tests
+    cd tests/query_map
+    make
+    make run/make valgrind
+    make clean
+
+### QueryList
+
+    Μια απλή συνδεδεμένη λίστα που χρησιμοποιείται σε κάθε bucket του QueryMap
+
+#### Tests
+    cd tests/query_list
+    make
+    make run/make valgrind
+    make clean
+

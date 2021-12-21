@@ -28,14 +28,6 @@
 
 #include"../include/common_types.h"
 #include"../include/core.h"
-#include"../include/map.h"
-#include"../include/bkt.h"
-#include"../include/methods.h"
-#include"../include/dictionary.h"
-#include"../include/query.h"
-#include"../include/query_map.h"
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
