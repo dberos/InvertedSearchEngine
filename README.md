@@ -92,6 +92,7 @@
     cd app
     make
     make run | make valgrind
+    make clean
 
 ### Map
     Το Map χρησιμοποιείται πλέον μόνο για κάθε Document 
