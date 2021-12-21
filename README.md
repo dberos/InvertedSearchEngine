@@ -144,7 +144,7 @@
     make run/make valgrind
     make clean
 
-### MatchDocument
+### MatchDocument()
 
 #### Διαδικασία
     Η διαδικασία που εκτελείται για την εύρεση των επιτυχόντων queries για κάθε κείμενο είναι η εξής:
