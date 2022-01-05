@@ -37,34 +37,27 @@ void test_create(void){
 void test_insert(void){
     srand(time(0));
     QueryMap map=query_map_create();
-    Query* queries=malloc(sizeof(*queries)*10000);
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
-        queries[i]=query_create(i,0,0);
-        addWord_to_query(queries[i],strings[i]);
         int size=map->size;
-        query_map_insert(map,queries[i]);
+        query_map_insert(map,i,strings[i],MT_EXACT_MATCH,0);
         TEST_ASSERT(map->size==size+1);
     }
     for(int i=0;i<10000;i++){
         free(strings[i]);
     }
     free(strings);
-    free(queries);
     query_map_destroy(map);
 }
 
 void test_remove(void){
     srand(time(0));
     QueryMap map=query_map_create();
-    Query* queries=malloc(sizeof(*queries)*10000);
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
-        queries[i]=query_create(i,0,0);
-        addWord_to_query(queries[i],strings[i]);
-        query_map_insert(map,queries[i]);
+        query_map_insert(map,i,strings[i],MT_EXACT_MATCH,0);
     }
     for(int i=0;i<10000;i++){
         int size=map->size;
@@ -77,42 +70,31 @@ void test_remove(void){
         free(strings[i]);
     }
     free(strings);
-    free(queries);
     query_map_destroy(map);
 }
 
 void test_find(void){
     srand(time(0));
     QueryMap map=query_map_create();
-    Query* queries=malloc(sizeof(*queries)*10000);
-    // Queries will be destroyed on rehash so i need another to check 
-    Query* queries2=malloc(sizeof(*queries)*10000);
     String* strings=malloc(sizeof(*strings)*10000);
+    int* match_dist=malloc(sizeof(*match_dist)*100000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
-        queries[i]=query_create(i,0,0); 
-        queries2[i]=query_create(i,0,0); 
-        addWord_to_query(queries[i],strings[i]);
-        addWord_to_query(queries2[i],strings[i]);
-        query_map_insert(map,queries[i]);
+        match_dist[i]=rand()%4;
+        query_map_insert(map,i,strings[i],MT_EDIT_DIST,match_dist[i]);
     }
     for(int i=0;i<10000;i++){
         Query query=query_map_find(map,i);
         TEST_ASSERT(query!=NULL);
-        TEST_ASSERT(strcmp(queries2[i]->words[0],query->words[0])==0);
-        TEST_ASSERT(query->match_dist==queries2[i]->match_dist);
-        TEST_ASSERT(query->match_type==queries2[i]->match_type);
-        TEST_ASSERT(query->matched_words_num==queries2[i]->matched_words_num);
-        TEST_ASSERT(query->query_id==queries2[i]->query_id);
-        TEST_ASSERT(query->query_words_num==queries2[i]->query_words_num);
+        TEST_ASSERT(query->query_id==i);
+        TEST_ASSERT(strcmp(query->words[0],strings[i])==0);
+        TEST_ASSERT(query->match_dist==match_dist[i]);
     }
     for(int i=0;i<10000;i++){
         free(strings[i]);
-        query_destroy(queries2[i]);
     }
     free(strings);
-    free(queries);
-    free(queries2);
+    free(match_dist);
     query_map_destroy(map);
     
 }
