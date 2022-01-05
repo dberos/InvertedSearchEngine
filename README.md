@@ -156,6 +156,6 @@
                  όπου έχουν MatchType==x και ανήκουν στο payload του Entry (e->payload)
                 -για τα queries αυτά θέσε την λέξη του Εntry αυτού, ως "matched"
                 
-![Screenshot](data/DCIM/JPGs/EntryListVisual.png)
-![Screenshot](data/DCIM/JPGs/TH_boxVisual.png)
+![Screenshot](data/DCIM/EntryListVisual.png)
+![Screenshot](data/DCIM/TH_boxVisual.png)
 
