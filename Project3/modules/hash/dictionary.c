@@ -58,6 +58,7 @@ bool dictionary_insert(Dictionary dictionary,String word,uint id){
     // Find Load Factor
     float load_factor=(float)dictionary->size/dictionary->capacity;
     if(load_factor>MAX_DICTIONARY_LOAD_FACTOR){
+        // Rehash if it got increased
         dictionary_rehash(dictionary);
     }
     return inserted;
@@ -132,88 +133,52 @@ Entry dictionary_find(Dictionary dictionary,String word){
 }
 
 
+void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id){
+    // Find the query from the query map with this id so we can find its words and remove them
+    Query query=query_map_find(query_map,id);
+
+    // If there is such query
+    if(query!=NULL){
+        // For each of querys's words
+        for(int i=0; i<query->query_words_num ; i++){
+            // Find each Entry
+            Entry entry=dictionary_find(dictionary, query->words[i]);
+            // Remove the query id from its payload
+            list_remove(entry->payload,id);
+
+            // If this was the last id of this payload!
+            // We need to remove the Entry from this EntryList 
+            if(entry->payload->size==0){
+                remove_entry_from_list(dictionary, query->words[i]);
+            }  
+        }
+    }
+}
+
 void remove_entry_from_list(Dictionary dictionary, String word){
     // Find Hash Position
     ulong pos=dictionary->hash_function(word)%dictionary->capacity;
     // Node of the position
     DictionaryNode node=&dictionary->array[pos];
-    
+    // Previous Entry
     Entry previous=NULL;
 
+    // For each Entry
     for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
-
         if(strcmp(entry->word, word)==0){
-            
-            //if it is also the head of the entry list
+            // If it is also the head of the entry list
             if(entry==node->entry_list->head){
                 node->entry_list->head = entry->next;
                 node->entry_list->size--;
                 destroy_entry(entry, node->entry_list);
                 return;
             }
-
-            //if it's not the head (also means that previous is != NULL)
+            // If it's not the head (also means that previous is != NULL)
             previous->next=entry->next;
-
             node->entry_list->size--;
-
-
             destroy_entry(entry, node->entry_list);
             return;
-
         }
-
         previous=entry;
-    }
-
-}
-
-
-
-
-void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id){
-    // Find the query from the query map with this id so we can find its words and remove them
-
-    Query query=query_map_find(query_map,id);
-
-    //if there is such query
-    if(query!=NULL){
-
-        //for each query word
-        for(int i=0; i<query->query_words_num ; i++){
-            //find this word of the query
-            Entry entry=dictionary_find(dictionary, query->words[i]);
-
-            //remove the query id from its payload
-            list_remove(entry->payload,id);
-
-
-            //if this was the last id of this payload!
-            //we need to remove the Entry from this EntryList 
-            if(entry->payload->size==0){
-                remove_entry_from_list(dictionary, query->words[i]);
-            }
-                
-        }
-
-
-        
-    }
-}
-
-
-void printDictionary(Dictionary dictionary){
-
-    for(int i=0;i<dictionary->capacity;i++){
-
-        if(dictionary->array[i].entry_list->size!=0){
-            for(Entry entry=dictionary->array[i].entry_list->head ; entry!=NULL ; entry=entry->next){
-                printf("%d %s\n", i, entry->word);
-                //if this is the first entry we are seeing, then create the root
-                
-                
-
-            }
-        }
     }
 }

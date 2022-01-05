@@ -14,7 +14,14 @@ Core core_create(){
     // Set 0 the number of active queries
     core->active_queries_number=0;
     // Create the active Query Set
-    core->query_map=query_map_create();
+    // core->query_map=query_map_create();
+    core->query_exact_map=query_map_create();
+    core->query_edit_map=malloc(sizeof(*core->query_edit_map)*4);
+    core->query_hamming_map=malloc(sizeof(*core->query_hamming_map)*4);
+    for(int i=0;i<4;i++){
+        core->query_edit_map[i]=query_map_create();
+        core->query_hamming_map[i]=query_map_create();
+    }
     //Number of documents saved in Document array
     core->document_number=0;
     core->docs=NULL;
@@ -33,7 +40,14 @@ void core_destroy(Core core){
     dictionary_destroy(core->edit_queries);
     dictionary_destroy(core->hamming_queries);
     // Destroy active Query Set
-    query_map_destroy(core->query_map);
+    // query_map_destroy(core->query_map);
+    query_map_destroy(core->query_exact_map);
+    for(int i=0;i<4;i++){
+        query_map_destroy(core->query_edit_map[i]);
+        query_map_destroy(core->query_hamming_map[i]);
+    }
+    free(core->query_edit_map);
+    free(core->query_hamming_map);
 
     //Destroy th_boxes
     for(int i=0 ; i<4 ; i++){

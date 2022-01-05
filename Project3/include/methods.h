@@ -17,7 +17,10 @@ struct core{
     Dictionary edit_queries; //A hashtable that stores the queries with edit match type( buckets are entry lists)
     Dictionary hamming_queries; //A hashtable that stores the queries with hamming match type( buckets are entry lists)
     uint active_queries_number;
-    QueryMap query_map;         //Active Query Set | Here we store the active queries so their info (struct query) is more easily accessible
+    // QueryMap query_map;         //Active Query Set | Here we store the active queries so their info (struct query) is more easily accessible
+    QueryMap query_exact_map;
+    QueryMap* query_edit_map;
+    QueryMap* query_hamming_map;
     QueryList th_boxes[4];      //This is an array that holds a list of queries for every possible match_dist (0,1,2,3)
     DocumentPtr* docs;          //This is an array of Document structs that we store our results in
     uint document_number;       //This is the size of the document struct array

@@ -34,11 +34,9 @@ void dictionary_rehash(Dictionary dictionary);
 // Find whether an entry exists at a dictionary and return it
 Entry dictionary_find(Dictionary dictionary,String word);
 
-// Remove an entry from the EntryList of a dictionary node
-void remove_entry_from_list(Dictionary dictionary, String word);
-
 // Remove a QueryID from the payload of an Entry
 void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id);
 
-// Print the dictionary
-void printDictionary(Dictionary dictionary);
+// Remove an entry from the EntryList of a dictionary node
+void remove_entry_from_list(Dictionary dictionary, String word);
+

@@ -28,7 +28,7 @@
 #include"../../include/common_types.h"
 #include"../../include/core.h"
 #include"../../include/methods.h"
-#include"../include/bkt.h"
+#include"../../include/bkt.h"
 
 
 Core core=NULL;
@@ -49,75 +49,88 @@ ErrorCode DestroyIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist){
-	
-	// Create a Query
-    Query query=query_create(query_id, match_type,match_dist);
-
-	//Tokenize query words and add them to the Match_Type map or update the payload (if the word already exists in that map)
-    String str=strdup(query_str);
-	
+	// Cast to String to not disqualify const expression
+    String str=strdup((String)query_str);
+	// Each word of the String
 	String word=strtok(str," ");
+	// Get each word
 	while(word!=NULL){
+		// Clean each word
 		remove_special_characters_decapitalize(word);
-
-		//insert in the Match_Type map
-		if(match_type==MT_EXACT_MATCH) dictionary_insert(core->exact_queries, word,query_id); 
-		else if(match_type==MT_EDIT_DIST) dictionary_insert(core->edit_queries, word,query_id);
-		else dictionary_insert(core->hamming_queries, word,query_id);
-
-		//add the word we jst tokenized in the query's info
-		addWord_to_query(query, word);
+		// Insert at the MatchType Dictionary
+		if(match_type==MT_EXACT_MATCH){
+			dictionary_insert(core->exact_queries, word,query_id); 
+		} 
+		else if(match_type==MT_EDIT_DIST){
+			dictionary_insert(core->edit_queries, word,query_id);
+		} 
+		else{
+			dictionary_insert(core->hamming_queries, word,query_id);
+		}
 
 		word=strtok(NULL," ");
 	}
-
 	free(str);
 	
-	
-	query_map_insert(core->query_map, query);
-	
-	
-	Query query_copy = query_create(query->query_id,query->match_type, query->match_dist);
-	passWords_to_query(query_copy, query);
-	// Insert this query in core->th_box in the right shell ( check methods.h in core struct for explanation )
-	if(core->th_boxes[match_dist]->size==0){
-		query_list_insert_tail(core->th_boxes[match_dist], query_copy);
-	}else{
-		query_list_insert_tail(core->th_boxes[match_dist], query_copy);
-	}	
+	// Insert at the MatchType[match_dist] QueryMap
+	// The cleaning of each word of the whole query happens at QueryMap
+	if(match_type==MT_EXACT_MATCH){
+		query_map_insert(core->query_exact_map,query_id,(String)query_str,match_type,match_dist);
+	}
+	else if(match_type==MT_EDIT_DIST){
+
+		query_map_insert(core->query_edit_map[match_dist],query_id,(String)query_str,match_type,match_dist);
+	}
+	else{
+		query_map_insert(core->query_hamming_map[match_dist],query_id,(String)query_str,match_type,match_dist);
+	}
 
 	return EC_SUCCESS;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode EndQuery(QueryID query_id){
-	// Find Query from active query set
-	Query query=query_map_find(core->query_map,query_id);
-	if(query==NULL){
-		return EC_FAIL;
-	}
-	// Find MATCH TYPE to remove from the correct dictionary
-	// from each Query's words's payload, only this query_id
-	if(query->match_type==MT_EXACT_MATCH){
-		dictionary_remove(core->exact_queries,core->query_map,query_id);
-	}
-	else if(query->match_type==MT_EDIT_DIST){
-		dictionary_remove(core->edit_queries,core->query_map,query_id);
+	Query query=NULL;
+	// Start from the only EXACT MATCH QueryMap
+	query=query_map_find(core->query_exact_map,query_id);
+	// If Query was at EXACT MATCH QueryMap
+	if(query!=NULL){
+		// Remove the Entries
+		dictionary_remove(core->exact_queries,core->query_exact_map,query_id);
+		// Remove the Query
+		query_map_remove(core->query_exact_map,query_id);
+		return EC_SUCCESS;
 	}
 	else{
-		dictionary_remove(core->hamming_queries,core->query_map,query_id);
+		// Find Query from the MatchType[match_dist] active Query set
+		for(int i=0;i<4;i++){
+			// Check whether Query is active at Edit Distance QueryMap[i]
+			query=query_map_find(core->query_edit_map[i],query_id);
+			if(query!=NULL){
+				// Remove the Entries
+				dictionary_remove(core->edit_queries,core->query_edit_map[i],query_id);
+				// Remove the Query
+				query_map_remove(core->query_edit_map[i],query_id);
+				return EC_SUCCESS;
+			}
+			// Check whether Query is active at Hamming Distance QueryMap[i]
+			query=query_map_find(core->query_hamming_map[i],query_id);
+			if(query!=NULL){
+				// Remove the Entries
+				dictionary_remove(core->hamming_queries,core->query_hamming_map[i],query_id);
+				// Remove the Query
+				query_map_remove(core->query_hamming_map[i],query_id);
+				return EC_SUCCESS;
+			}
+		}
 	}
-    
-	query_map_remove(core->query_map,query_id);
-	return EC_SUCCESS;
+	return EC_FAIL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
-	// printf("DOCUMENT %u\n", doc_id);
 	core->document = map_create();
 	DocumentPtr doc = addDocument(core, doc_id);
 
@@ -157,23 +170,20 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 					//  2) has match type edit
 					//  3) belongs to the payload of the word wwe just checked
 					
-					//so, for every query of this threshold
-					for(QueryListNode th_query=core->th_boxes[threshold]->head ; th_query!=NULL ; th_query=th_query->next){
-						//if it has edit distance as MatchType and belongs to the payload of the word we just checked
-						if( (th_query->query->match_type==MT_EDIT_DIST) && check_list_existence(edit_entry->payload, th_query->query->query_id) ){
-							// (check modules/methods/matchquery.c)
-							matchQuery(th_query->query, edit_entry->word, doc);
+					for(int j=0;j<core->query_edit_map[threshold]->capacity;j++){
+						QueryMapNode node=&core->query_edit_map[threshold]->array[j];
+						if(node->query_list->size>0){
+							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+								if(check_list_existence(edit_entry->payload,lnode->query->query_id)){
+									matchQuery(lnode->query,edit_entry->word,doc);
+								}
+							}
 						}
-
 					}
-				
 				}
-
 				destroy_entry_list(results);
-
 			}
     	} 
-
 
 		//Now the same for every word of the hammign dictionary
 		//for every word of the hamming dictionary
@@ -190,23 +200,19 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 					//  1) a query belongs to the th_box of the current threshold ) th_box[threshold]
 					//  2) has match type hamming
 					//  3) belongs to the payload of the word wwe just checked
-					
-					//so, for every query of this threshold
-					for(QueryListNode th_query=core->th_boxes[threshold]->head ; th_query!=NULL ; th_query=th_query->next){
 
-						//if it has edit distance as MatchType and belongs to the payload of the word we just checked
-						if( (th_query->query->match_type==MT_HAMMING_DIST) && check_list_existence(hamming_entry->payload, th_query->query->query_id) ){
-							
-							// (check modules/methods/matchquery.c)
-							matchQuery(th_query->query, hamming_entry->word, doc);
+					for(int j=0;j<core->query_hamming_map[threshold]->capacity;j++){
+						QueryMapNode node=&core->query_hamming_map[threshold]->array[j];
+						if(node->query_list->size>0){
+							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+								if(check_list_existence(hamming_entry->payload,lnode->query->query_id)){
+									matchQuery(lnode->query,hamming_entry->word,doc);
+								}
+							}
 						}
-
 					}
-				
 				}
-
 				destroy_entry_list(results);
-
 			}
     	} 
 
@@ -229,22 +235,19 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 						//  1) a query belongs to the th_box of the current threshold ) th_box[threshold]
 						//  2) has match type exact
 						//  3) belongs to the payload of the word wwe just checked
-						
-						//so, for every query of this threshold
-						for(QueryListNode th_query=core->th_boxes[0]->head ; th_query!=NULL ; th_query=th_query->next){
 
-							//if it has edit distance as MatchType and belongs to the payload of the word we just checked
-							if( (th_query->query->match_type==MT_EXACT_MATCH) && check_list_existence(exact_entry->payload, th_query->query->query_id) ){
-								// (check modules/methods/matchquery.c)
-								matchQuery(th_query->query, exact_entry->word, doc);
+						for(int j=0;j<core->query_exact_map->capacity;j++){
+							QueryMapNode node=&core->query_exact_map->array[j];
+							if(node->query_list->size>0){
+								for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+									if(check_list_existence(exact_entry->payload,lnode->query->query_id)){
+										matchQuery(lnode->query,exact_entry->word,doc);
+									}
+								}
 							}
-
 						}
-					
 					}
-
 					destroy_entry_list(results);
-
 				}
 			}
 		}

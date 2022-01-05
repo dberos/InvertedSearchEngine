@@ -21,6 +21,5 @@ void matchQuery(Query query, String word, DocumentPtr doc){
 }
 
 void add_query_to_doc_results(QueryID query_id, DocumentPtr doc){
-    // printf("DOC %u result %u\n", doc->doc_id, query_id);
     addDocumentResult(doc, query_id);
 }

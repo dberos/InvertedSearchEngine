@@ -2,6 +2,7 @@
 
 #include"common_types.h"
 #include"core.h"
+#include"methods.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,5 @@ void passWords_to_query(Query new_query, Query old_query);
 // Destroying a Query
 void query_destroy(Query query);
 
-// Print a query's words
-void printQuery(Query query);
-
+// Cleanup each of Querys's words and add them to its array
+void query_cleanup(Query query,String query_str);

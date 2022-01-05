@@ -1,4 +1,5 @@
 #include"../../include/query_map.h"
+#include"../../include/methods.h"
 
 #define MAX_QUERY_MAP_LOAD_FACTOR 0.9
 
@@ -39,8 +40,11 @@ void query_map_destroy(QueryMap query_map){
     free(query_map);
 }
 
-void query_map_insert(QueryMap query_map, Query query){
-   
+void query_map_insert(QueryMap query_map,QueryID query_id,String query_str,MatchType match_type,uint match_dist){
+    // Create the Query
+    Query query=query_create(query_id,match_type,match_dist);
+    // Cleanup of each word and insert it at its word array
+    query_cleanup(query,query_str);
 
     // Create the QueryID as a String
     String string_id=malloc(10);
@@ -53,20 +57,18 @@ void query_map_insert(QueryMap query_map, Query query){
 
     // Insert the Query at the list
     query_list_insert_tail(node->query_list,query);
-    
+
     // Increase the size
     query_map->size++;
     // Free the id
     free(string_id);
 
-
-    //Rehash if needed 
     // Find Load Factor
-    // float load_factor=(float)query_map->size/query_map->capacity;
-    // if(load_factor>MAX_QUERY_MAP_LOAD_FACTOR){
-    //     // If it got increased then rehash
-    //     query_map_rehash(query_map);
-    // }
+    float load_factor=(float)query_map->size/query_map->capacity;
+    if(load_factor>MAX_QUERY_MAP_LOAD_FACTOR){
+        // Rehash if it got increased
+        query_map_rehash(query_map);
+    }
 }
 
 void query_map_rehash(QueryMap query_map){
@@ -105,17 +107,20 @@ void query_map_rehash(QueryMap query_map){
         QueryList query_list=old_array[i].query_list;
         if(query_list->size>0){
             for(QueryListNode node=query_list->head;node!=NULL;node=node->next){
-                Query old_query=node->query;
-                Query new_query=query_create(old_query->query_id,old_query->match_type,old_query->match_dist);
-                for(int i=0;i<old_query->matched_words_num;i++){
-                    new_query->matched_words[i]=strdup(old_query->matched_words[i]);
+                // Allocate memory for the query_str
+                String str=malloc(MAX_QUERY_LENGTH);
+                memset(str,0,MAX_QUERY_LENGTH);
+                // For each of Node's Query's words
+                for(int j=0;j<node->query->query_words_num;j++){
+                    // Copy the word to the query_str
+                    strcat(str,node->query->words[j]);
+                    // And a blank space
+                    strcat(str," ");
                 }
-                new_query->matched_words_num=old_query->matched_words_num;
-                new_query->query_words_num=old_query->query_words_num;
-                for(int i=0;i<old_query->query_words_num;i++){
-                    new_query->words[i]=strdup(old_query->words[i]);
-                }
-                query_map_insert(query_map,new_query);
+                // Insert at the QueryMap
+                query_map_insert(query_map,node->query->query_id,str,node->query->match_type,node->query->match_dist);
+                // Free query_str
+                free(str);
             }
         }
         // Free the old list
@@ -163,13 +168,4 @@ Query query_map_find(QueryMap query_map,uint id){
     }
     free(string_id);
     return NULL;
-}
-
-void print_query_map(QueryMap map){
-    for(int i=0;i<map->capacity;i++){
-        for(QueryListNode lnode=map->array[i].query_list->head;lnode!=NULL;lnode=lnode->next){
-            printQuery(lnode->query);
-        }
-    }
-
 }

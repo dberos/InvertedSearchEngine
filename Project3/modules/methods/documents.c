@@ -42,15 +42,58 @@ void destroyDocumentsArray(DocumentPtr* array, uint doc_number){
 }
 
 void clear_matchedInfo(Core core){
-    for(int i=0 ; i<4 ; i++){
-        for(QueryListNode node=core->th_boxes[i]->head ; node!=NULL ; node=node->next){
-            
-            for(int j=0 ; j<node->query->matched_words_num ; j++){
-                free(node->query->matched_words[j]);
+    // Start with the only Exact QueryMap
+    for(int j=0;j<core->query_exact_map->capacity;j++){
+        // Find the Node
+        QueryMapNode node=&core->query_exact_map->array[j];
+        // If its list isn't empty
+        if(node->query_list->size>0){
+            // Traverse it
+            for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+                // And clean matched info
+                for(int m=0;m<lnode->query->matched_words_num;m++){
+                    free(lnode->query->matched_words[m]);
+                }
+                lnode->query->matched_words_num=0;
+                lnode->query->lock=false;
             }
-
-            node->query->matched_words_num = 0;
-            node->query->lock = false;
+        }
+    }
+    // Continue with the Edit and Hamming QueryMaps
+    for(int i=0;i<4;i++){
+        // Edit QueryMap[i]
+        for(int j=0;j<core->query_edit_map[i]->capacity;j++){
+            // Find the Node
+            QueryMapNode node=&core->query_edit_map[i]->array[j];
+            // If its list isn't empty
+            if(node->query_list->size>0){
+                // Traverse it
+                for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+                    // And clean matched info
+                    for(int m=0;m<lnode->query->matched_words_num;m++){
+                        free(lnode->query->matched_words[m]);
+                    }
+                    lnode->query->matched_words_num=0;
+                    lnode->query->lock=false;
+                }
+            }
+        }
+        // Hamming QueryMap[i]
+        for(int j=0;j<core->query_hamming_map[i]->capacity;j++){
+            // Find the Node
+            QueryMapNode node=&core->query_hamming_map[i]->array[j];
+            // If its list isn't empty
+            if(node->query_list->size>0){
+                // Traverse it
+                for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
+                    // And clean matched info
+                    for(int m=0;m<lnode->query->matched_words_num;m++){
+                        free(lnode->query->matched_words[m]);
+                    }
+                    lnode->query->matched_words_num=0;
+                    lnode->query->lock=false;
+                }
+            }
         }
     }
 }
