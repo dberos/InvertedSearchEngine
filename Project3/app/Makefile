@@ -25,7 +25,7 @@ $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $(EXEC) $(LDFLAGS)
 
 # Για να φτιάξουμε το libcore.so, τρέχουμε το make στο lib directory.
-$(LIB)/$(LIBRARY) :
+$(LIB)/$(LIBRARY):
 	$(MAKE) -C $(LIB) $(LIBRARY)
 
 clean:

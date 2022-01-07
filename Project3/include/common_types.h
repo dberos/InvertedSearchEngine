@@ -16,13 +16,19 @@
 #include<sys/time.h>
 #include<pthread.h>
 
+#define BLOOMBYTES (uint)1e5
+#define BLOOMBITS (uint)8e5
+#define BLOOMK 16
+
 typedef void* Pointer;
 typedef char* String;
 typedef unsigned long ulong;
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
 typedef ulong (*HashFunction)(String);
 typedef uint (*HashFunc)(Pointer);
+typedef ulong (*HashBloom)(uchar*,uint);
 
 typedef struct word* Word;
 typedef struct entry* Entry;
@@ -45,4 +51,4 @@ typedef struct query_map* QueryMap;
 typedef struct query_list_node* QueryListNode;
 typedef struct query_list* QueryList;
 typedef struct Document* DocumentPtr;
-
+typedef struct bloom_filter* BloomFilter;
