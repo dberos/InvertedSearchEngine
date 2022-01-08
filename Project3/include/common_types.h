@@ -17,7 +17,6 @@
 #include<pthread.h>
 
 #define BLOOMBYTES (uint)1e5
-#define BLOOMBITS (uint)8e5
 #define BLOOMK 16
 
 typedef void* Pointer;

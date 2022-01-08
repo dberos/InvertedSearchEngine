@@ -26,7 +26,7 @@ void test_create(void){
     BloomFilter bloom=bloom_create(BLOOMBYTES);
     TEST_ASSERT(bloom->size==0);
     TEST_ASSERT(bloom->bytes==BLOOMBYTES);
-    TEST_ASSERT(bloom->bits==BLOOMBITS);
+    TEST_ASSERT(bloom->bits==BLOOMBYTES*8);
     TEST_ASSERT(bloom->k==BLOOMK);
     TEST_ASSERT(bloom->hash_function==hash_i);
     TEST_ASSERT(bloom->array!=NULL);
@@ -80,16 +80,21 @@ void test_check(void){
     }
     bloom_destroy(bloom);
 
-    // Can't really test with random strings because they can reappear and some can be inserted at !mod2
-    String strings[4]={"this","is","a","test"};
-    BloomFilter bloom1=bloom_create(BLOOMBYTES);
-    for(int i=0;i<4;i++){
+    String* strings=malloc(sizeof(*strings)*1000);
+    BloomFilter bloom1=bloom_create((uint)1e7);
+    for(int i=0;i<1000;i++){
+        strings[i]=create_random_string();
         bloom_insert(bloom1,strings[i]);
+        // Can't check for random strings not inserted because they can reappear and have already been inserted
     }
-    for(int i=0;i<4;i++){
+    for(int i=0;i<1000;i++){
         bool exists=bloom_check(bloom1,strings[i]);
         TEST_ASSERT(exists==true);
     }
+    for(int i=0;i<1000;i++){
+        free(strings[i]);
+    }
+    free(strings);
     bloom_destroy(bloom1);
 }
 

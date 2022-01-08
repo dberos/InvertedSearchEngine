@@ -9,7 +9,7 @@ BloomFilter bloom_create(uint bytes){
     // Set size in bytes
     bloom->bytes=bytes;
     // Set size in bits
-    bloom->bits=bytes==BLOOMBYTES ? BLOOMBITS : bytes*8;
+    bloom->bits=bytes*8;
     // Set k number of hash functions
     bloom->k=BLOOMK;
     // Set hash function
