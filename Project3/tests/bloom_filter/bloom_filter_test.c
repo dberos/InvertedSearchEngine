@@ -23,7 +23,7 @@ static String create_random_string(){
 }
 
 void test_create(void){
-    BloomFilter bloom=bloom_create();
+    BloomFilter bloom=bloom_create(BLOOMBYTES);
     TEST_ASSERT(bloom->size==0);
     TEST_ASSERT(bloom->bytes==BLOOMBYTES);
     TEST_ASSERT(bloom->bits==BLOOMBITS);
@@ -38,7 +38,7 @@ void test_create(void){
 
 // Trivial test_insert
 void test_insert(void){
-    BloomFilter bloom=bloom_create();
+    BloomFilter bloom=bloom_create(BLOOMBYTES);
     for(int i=0;i<10000;i++){
         int size=bloom->size;
         bloom_insert(bloom,&i);
@@ -47,7 +47,7 @@ void test_insert(void){
     TEST_ASSERT(bloom->size==10000);
     bloom_destroy(bloom);
 
-    BloomFilter bloom1=bloom_create();
+    BloomFilter bloom1=bloom_create(BLOOMBYTES);
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
@@ -62,54 +62,35 @@ void test_insert(void){
 }
 
 void test_check(void){
-    BloomFilter bloom=bloom_create();
+    BloomFilter bloom=bloom_create((uint)1e7);
     for(int i=0;i<10000;i++){
         if(i%2==0){
             bloom_insert(bloom,&i);
         }
     }
     for(int i=0;i<10000;i++){
-        if(i%2!=0){
-            // Big numbers can return false positive(size of Bloom Filter is 100000)
+        if(i%2==0){
             bool exists=bloom_check(bloom,&i);
-            TEST_ASSERT(exists==false);
-        }
-        // else{
-        //     // checked with 1e7 bytes and 8e7 bits and works but pc will explode when doing testdriver
-        // }
-    }
-    bloom_destroy(bloom);
-
-    // Smaller Bloom Filter
-    BloomFilter bloom1=bloom_create();
-    for(int i=0;i<100;i++){
-        if(i%2==0){
-            bloom_insert(bloom1,&i);
-        }
-    }
-    for(int i=0;i<100;i++){
-        if(i%2==0){
-            bool exists=bloom_check(bloom1,&i);
             TEST_ASSERT(exists==true);
         }
         else{
-            bool exists=bloom_check(bloom1,&i);
+            bool exists=bloom_check(bloom,&i);
             TEST_ASSERT(exists==false);
         }
     }
-    bloom_destroy(bloom1);
+    bloom_destroy(bloom);
 
     // Can't really test with random strings because they can reappear and some can be inserted at !mod2
     String strings[4]={"this","is","a","test"};
-    BloomFilter bloom2=bloom_create();
+    BloomFilter bloom1=bloom_create(BLOOMBYTES);
     for(int i=0;i<4;i++){
-        bloom_insert(bloom2,strings[i]);
+        bloom_insert(bloom1,strings[i]);
     }
     for(int i=0;i<4;i++){
-        bool exists=bloom_check(bloom2,strings[i]);
+        bool exists=bloom_check(bloom1,strings[i]);
         TEST_ASSERT(exists==true);
     }
-    bloom_destroy(bloom2);
+    bloom_destroy(bloom1);
 }
 
 

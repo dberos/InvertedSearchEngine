@@ -1,15 +1,15 @@
 #include"../../include/bloom_filter.h"
 
-BloomFilter bloom_create(){
+BloomFilter bloom_create(uint bytes){
     // Allocate memory for the Bloom Filter
     BloomFilter bloom=malloc(sizeof(*bloom));
 
     // Set starting total inserted values
     bloom->size=0;
     // Set size in bytes
-    bloom->bytes=BLOOMBYTES;
+    bloom->bytes=bytes;
     // Set size in bits
-    bloom->bits=BLOOMBITS;
+    bloom->bits=bytes==BLOOMBYTES ? BLOOMBITS : bytes*8;
     // Set k number of hash functions
     bloom->k=BLOOMK;
     // Set hash function

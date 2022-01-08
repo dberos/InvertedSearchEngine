@@ -13,7 +13,7 @@ struct bloom_filter{
 };
 
 // Creating a Bloom Filter
-BloomFilter bloom_create();
+BloomFilter bloom_create(uint bytes);
 
 // Destroying a Bloom Filter
 void bloom_destroy(BloomFilter bloom);
