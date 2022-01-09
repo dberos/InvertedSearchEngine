@@ -23,7 +23,7 @@ static String create_random_string(){
 }
 
 void test_create(void){
-    BloomFilter bloom=bloom_create(BLOOMBYTES);
+    BloomFilter bloom=bloom_create();
     TEST_ASSERT(bloom->size==0);
     TEST_ASSERT(bloom->bytes==BLOOMBYTES);
     TEST_ASSERT(bloom->bits==BLOOMBYTES*8);
@@ -38,7 +38,7 @@ void test_create(void){
 
 // Trivial test_insert
 void test_insert(void){
-    BloomFilter bloom=bloom_create(BLOOMBYTES);
+    BloomFilter bloom=bloom_create();
     for(int i=0;i<10000;i++){
         int size=bloom->size;
         bloom_insert(bloom,&i);
@@ -47,7 +47,7 @@ void test_insert(void){
     TEST_ASSERT(bloom->size==10000);
     bloom_destroy(bloom);
 
-    BloomFilter bloom1=bloom_create(BLOOMBYTES);
+    BloomFilter bloom1=bloom_create();
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
@@ -62,7 +62,7 @@ void test_insert(void){
 }
 
 void test_check(void){
-    BloomFilter bloom=bloom_create((uint)1e7);
+    BloomFilter bloom=bloom_create();
     for(int i=0;i<10000;i++){
         if(i%2==0){
             bloom_insert(bloom,&i);
@@ -80,18 +80,18 @@ void test_check(void){
     }
     bloom_destroy(bloom);
 
-    String* strings=malloc(sizeof(*strings)*1000);
-    BloomFilter bloom1=bloom_create((uint)1e7);
-    for(int i=0;i<1000;i++){
+    String* strings=malloc(sizeof(*strings)*10000);
+    BloomFilter bloom1=bloom_create();
+    for(int i=0;i<10000;i++){
         strings[i]=create_random_string();
         bloom_insert(bloom1,strings[i]);
         // Can't check for random strings not inserted because they can reappear and have already been inserted
     }
-    for(int i=0;i<1000;i++){
+    for(int i=0;i<10000;i++){
         bool exists=bloom_check(bloom1,strings[i]);
         TEST_ASSERT(exists==true);
     }
-    for(int i=0;i<1000;i++){
+    for(int i=0;i<10000;i++){
         free(strings[i]);
     }
     free(strings);
