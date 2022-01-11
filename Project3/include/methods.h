@@ -9,6 +9,7 @@
 #include"core.h"
 #include"query_map.h"
 #include"documents.h"
+#include"job_scheduler.h"
 
 
 struct core{
@@ -25,6 +26,7 @@ struct core{
     DocumentPtr* docs;          //This is an array of Document structs that we store our results in
     uint document_number;       //This is the size of the document struct array
     uint last_result_index;     //Just a counter to keep track of the index of the results we have returned
+    JobScheduler job_scheduler; // The Job Scheduler
 };
 
 // Global struct to store all the needed structs

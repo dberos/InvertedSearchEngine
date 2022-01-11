@@ -34,8 +34,26 @@
 Core core=NULL;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+// This is a Test
+int four=1;
+static Pointer trial(Core core){
+	pthread_mutex_lock(&core->job_scheduler->mutex);
+	printf("I am the newly created thread %ld \n",(long)pthread_self());
+	printf("NUM: %d \n",four);
+	four++;
+	pthread_mutex_unlock(&core->job_scheduler->mutex);
+	return 0;
+}
+
 ErrorCode InitializeIndex(){
 	core=core_create();
+	
+	// Initialize any thread at any given time
+	// Not necessary here
+	// This is a test
+	for(int i=0;i<core->job_scheduler->num_threads;i++){
+		thread_init(core->job_scheduler->threads[i],trial);
+	}
 	return EC_SUCCESS;
 }
 
