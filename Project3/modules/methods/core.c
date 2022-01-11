@@ -52,7 +52,7 @@ ErrorCode InitializeIndex(){
 	// Not necessary here
 	// This is a test
 	for(int i=0;i<core->job_scheduler->num_threads;i++){
-		thread_init(core->job_scheduler->threads[i],trial);
+		thread_init(&core->job_scheduler->threads[i],trial);
 	}
 	return EC_SUCCESS;
 }
