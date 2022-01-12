@@ -23,6 +23,10 @@ struct job_scheduler{
     //Job FIFO Queue
     FiFoQueue q;
 
+    //Mutexes
+    pthread_mutex_t queue_consume;
+
+
     // This is a test
     pthread_mutex_t mutex;
     pthread_cond_t cond;

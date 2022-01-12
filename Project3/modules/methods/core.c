@@ -29,6 +29,8 @@
 #include"../../include/core.h"
 #include"../../include/methods.h"
 #include"../../include/bkt.h"
+#include"../../include/fifoqueue.h"
+
 
 
 Core core=NULL;
@@ -37,11 +39,45 @@ Core core=NULL;
 // This is a Test
 int four=1;
 static Pointer trial(Core core){
-	pthread_mutex_lock(&core->job_scheduler->mutex);
-	printf("I am the newly created thread %ld \n",(long)pthread_self());
-	printf("NUM: %d \n",four);
-	four++;
-	pthread_mutex_unlock(&core->job_scheduler->mutex);
+
+
+
+	// pthread_mutex_lock(&core->job_scheduler->mutex);
+
+	while(1){
+
+		//Safely grab a job from the Queue!!!
+		pthread_mutex_lock(&core->job_scheduler->queue_consume);
+
+		QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
+		
+		//if the queue is empty, try again later
+		if(job_node==NULL){
+			pthread_mutex_unlock(&core->job_scheduler->queue_consume);
+			continue;
+		}
+
+		//else grab the job
+		Job current_job = job_node->job;
+
+		//Now another thread can grab a job from the queue
+		pthread_mutex_unlock(&core->job_scheduler->queue_consume);
+
+		int waitingfor = rand()%3;
+		printf("I am the newly created thread %ld and I'l lwait for %d\nAnd i Have the job edit: %d hamming %d exact: %d theshold: %d\n",(long)pthread_self(), waitingfor, current_job->edit_job, current_job->hamming_job, current_job->exact_job, current_job->treshold);
+		
+		//This is just to wait for random seconds( like executing the job ) 
+		sleep(waitingfor);
+
+
+	}
+
+
+	// printf("I am the newly created thread %ld \n",(long)pthread_self());
+	// printf("NUM: %d \n",four);
+
+	// four++;
+	// pthread_mutex_unlock(&core->job_scheduler->mutex);
 	return 0;
 }
 
@@ -54,12 +90,38 @@ ErrorCode InitializeIndex(){
 	for(int i=0;i<core->job_scheduler->num_threads;i++){
 		thread_init(&core->job_scheduler->threads[i],trial);
 	}
+
+	//THIS WILL BE PUT AT THE BEGINNING OF THE MATCH DOCUMENT FUNCTION()
+	//(fill job queue with jobs)
+
+	//Edit distance queries
+	submit_job(core->job_scheduler, create_job(true, false, false, 0));	// threshold 0
+	submit_job(core->job_scheduler, create_job(true, false, false, 1));	// threshold 1
+	submit_job(core->job_scheduler, create_job(true, false, false, 2));	// threshold 2
+	submit_job(core->job_scheduler, create_job(true, false, false, 3));	// threshold 3
+
+	//Hamming distance queries
+	submit_job(core->job_scheduler, create_job(false, true, false, 0));	// threshold 0
+	submit_job(core->job_scheduler, create_job(false, true, false, 1));	// threshold 1
+	submit_job(core->job_scheduler, create_job(false, true, false, 2));	// threshold 2
+	submit_job(core->job_scheduler, create_job(false, true, false, 3));	// threshold 3
+
+	//Exact match queries
+	submit_job(core->job_scheduler, create_job(false, false, true, 0));	// threshold 0
+
+
+
+
 	return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+	//THIS WILL SOON GO
+	sleep(2);
+
+	printf("Destroy!\n");
 	core_destroy(core);
 	return EC_SUCCESS;
 }

@@ -12,7 +12,7 @@ void thread_destroy(pthread_t* thread){
     // Tell the OS to release resources
     // __Maybe it will cause problems__
     // This is a test
-    pthread_detach(*thread);
+    // pthread_detach(*thread);
 
     // Wait for a thread to finish
     pthread_join(*thread,0);
@@ -30,9 +30,13 @@ JobScheduler job_scheduler_create(int num_threads){
     //Create the FIFO Queue that will hold our Jobs
     job_scheduler->q = fifoqueue_create();
 
+    //Initialize mutexes
+    pthread_mutex_init(&job_scheduler->queue_consume,0);
+
     // This is a test
-    pthread_mutex_init(&job_scheduler->mutex,0);
-    pthread_cond_init(&job_scheduler->cond,0);
+    // pthread_mutex_init(&job_scheduler->mutex,0);
+
+    // pthread_cond_init(&job_scheduler->cond,0);
 
     return job_scheduler;
 }
@@ -46,8 +50,9 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     fifoqueue_destroy(job_scheduler->q);
 
     // This is a test
-    pthread_mutex_destroy(&job_scheduler->mutex);
-    pthread_cond_destroy(&job_scheduler->cond);
+    pthread_mutex_destroy(&job_scheduler->queue_consume);
+    // pthread_mutex_destroy(&job_scheduler->mutex);
+    // pthread_cond_destroy(&job_scheduler->cond);
     
     free(job_scheduler->threads);
     free(job_scheduler);
