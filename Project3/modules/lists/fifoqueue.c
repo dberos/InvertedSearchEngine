@@ -49,7 +49,7 @@ QueueNode fifoqueue_pop(FiFoQueue q){
     //insert mutex here to verify safe queue multi-thread consuming
 
     //if the node is not empty
-    if(!q->size){ printf("JobQueue was found empty!\nCannot pop from queue!\n"); return NULL;}
+    if(!q->size){ return NULL;}
     //proceed
     QueueNode popnode = q->head;
 
