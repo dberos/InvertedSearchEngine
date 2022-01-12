@@ -53,4 +53,7 @@ typedef struct query_list* QueryList;
 typedef struct Document* DocumentPtr;
 typedef struct bloom_filter* BloomFilter;
 typedef struct thread* Thread;
+typedef struct job* Job;
 typedef struct job_scheduler* JobScheduler;
+typedef struct queue_node* QueueNode;
+typedef struct fifo_queue* FiFoQueue;
