@@ -31,7 +31,7 @@ Core core_create(){
         core->th_boxes[i]=query_list_create();
     }
 
-    core->job_scheduler=job_scheduler_create(4);
+    // core->job_scheduler=job_scheduler_create(4);
     
     return core;
 }
@@ -57,6 +57,6 @@ void core_destroy(Core core){
     }
     
     destroyDocumentsArray(core->docs, core->document_number);
-    job_scheduler_destroy(core->job_scheduler);
+    // job_scheduler_destroy(core->job_scheduler);
     free(core);
 }
