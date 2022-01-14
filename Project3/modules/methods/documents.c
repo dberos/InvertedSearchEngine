@@ -102,6 +102,8 @@ void clear_matchedInfo(Core core){
 
 ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
     if(match_type==MT_EDIT_DIST){
+	pthread_mutex_lock(&core->job_scheduler->edit_mutex);
+
         //for every word of the edit dictionary
 		for(int i=0 ; i<core->edit_queries->capacity ; i++){
             for(Entry edit_entry=core->edit_queries->array[i].entry_list->head;edit_entry!=NULL;edit_entry=edit_entry->next){
@@ -132,6 +134,8 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 				destroy_entry_list(results);
 			}
     	}
+    pthread_mutex_unlock(&core->job_scheduler->edit_mutex);
+
         return EC_SUCCESS; 
     }
     else if(match_type==MT_HAMMING_DIST){

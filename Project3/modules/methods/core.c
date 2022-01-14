@@ -205,9 +205,8 @@ ErrorCode EndQuery(QueryID query_id){
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-ErrorCode MyMatchDocument(DocID doc_id, const char* doc_str){
+ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	
-	printf("MATCH DOC RE NOYMERO %u \n", doc_id);
 	core->document = map_create();
 	// Create document (so we can save its info/results)
 	core->current_doc = addDocument(core, doc_id);
@@ -288,7 +287,7 @@ ErrorCode MyMatchDocument(DocID doc_id, const char* doc_str){
 
 }
 
-ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
+ErrorCode OldMatchDocument(DocID doc_id, const char* doc_str){
 	core->document = map_create();
 	DocumentPtr doc = addDocument(core, doc_id);
 

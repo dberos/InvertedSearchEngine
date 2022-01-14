@@ -33,6 +33,7 @@ JobScheduler job_scheduler_create(int num_threads){
     //Initialize mutexes
     pthread_mutex_init(&job_scheduler->queue_consume,0);
     pthread_mutex_init(&job_scheduler->addto_documentresults_mutex,0);
+    pthread_mutex_init(&job_scheduler->edit_mutex,0);
 
     // This is a test
     // pthread_mutex_init(&job_scheduler->mutex,0);
@@ -51,6 +52,7 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     // This is a test
     pthread_mutex_destroy(&job_scheduler->queue_consume);
     pthread_mutex_destroy(&job_scheduler->addto_documentresults_mutex);
+    pthread_mutex_destroy(&job_scheduler->edit_mutex);
 
     // pthread_mutex_destroy(&job_scheduler->mutex);
     // pthread_cond_destroy(&job_scheduler->cond);
