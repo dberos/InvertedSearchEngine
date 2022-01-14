@@ -71,6 +71,7 @@ void query_cleanup(Query query,String query_str){
 }
 
 void matchQuery(Core core, Query query, String word, DocumentPtr doc){
+	// pthread_mutex_lock(&core->job_scheduler->addto_documentresults_mutex);
     
     //check the matched words array in query
     for(int i=0 ; i<query->matched_words_num ; i++){
@@ -89,6 +90,8 @@ void matchQuery(Core core, Query query, String word, DocumentPtr doc){
         //lock query so if we meet it again, we dont bother with this one because its alread matched
         query->lock=true;
     }
+    // pthread_mutex_unlock(&core->job_scheduler->addto_documentresults_mutex);
+
 }
 
 void add_query_to_doc_results(Core core, QueryID query_id, DocumentPtr doc){

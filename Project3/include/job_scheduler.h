@@ -31,6 +31,7 @@ struct job_scheduler{
     //Mutexes
     pthread_mutex_t queue_consume;
     pthread_mutex_t addto_documentresults_mutex;
+    pthread_mutex_t edit_mutex;
     
 
     // This is a test
