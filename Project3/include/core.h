@@ -58,6 +58,13 @@ extern "C" {
 /// Maximum query length in characters.
 #define MAX_QUERY_LENGTH ((MAX_WORD_LENGTH+1)*MAX_QUERY_WORDS)
 
+// The number of threads that we will use
+#define THREADS_NUMBER 9
+
+#if THREADS_NUMBER > 9
+    #undef THREADS_NUMBER
+    #define THREADS_NUMBER 9
+#endif
 
 /// Query ID type.
 typedef unsigned int QueryID;

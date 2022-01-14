@@ -22,7 +22,8 @@ DocumentPtr createDoc(DocID doc_id){
 }
 
 
-void addDocumentResult(DocumentPtr doc, QueryID id){
+void addDocumentResult(Core core, DocumentPtr doc, QueryID id){
+    
     memcpy(&doc->query_ids[doc->num_res],&id,sizeof(id));
     doc->num_res++;
     return;
@@ -122,7 +123,7 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 						if(node->query_list->size>0){
 							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
 								if(check_list_existence(edit_entry->payload,lnode->query->query_id)){
-									matchQuery(lnode->query,edit_entry->word,core->current_doc);
+									matchQuery(core, lnode->query,edit_entry->word,core->current_doc);
 								}
 							}
 						}
@@ -155,7 +156,7 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 						if(node->query_list->size>0){
 							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
 								if(check_list_existence(hamming_entry->payload,lnode->query->query_id)){
-									matchQuery(lnode->query,hamming_entry->word,core->current_doc);
+									matchQuery(core, lnode->query,hamming_entry->word,core->current_doc);
 								}
 							}
 						}
@@ -189,7 +190,7 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
                         if(node->query_list->size>0){
                             for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
                                 if(check_list_existence(exact_entry->payload,lnode->query->query_id)){
-                                    matchQuery(lnode->query,exact_entry->word,core->current_doc);
+                                    matchQuery(core, lnode->query,exact_entry->word,core->current_doc);
                                 }
                             }
                         }

@@ -32,6 +32,7 @@ JobScheduler job_scheduler_create(int num_threads){
 
     //Initialize mutexes
     pthread_mutex_init(&job_scheduler->queue_consume,0);
+    pthread_mutex_init(&job_scheduler->addto_documentresults_mutex,0);
 
     // This is a test
     // pthread_mutex_init(&job_scheduler->mutex,0);
@@ -42,15 +43,15 @@ JobScheduler job_scheduler_create(int num_threads){
 }
 
 void job_scheduler_destroy(JobScheduler job_scheduler){
-    for(int i=0;i<job_scheduler->num_threads;i++){
-        thread_destroy(&job_scheduler->threads[i]);
-    }
+    
 
     //Destroy job fifo queue
     fifoqueue_destroy(job_scheduler->q);
 
     // This is a test
     pthread_mutex_destroy(&job_scheduler->queue_consume);
+    pthread_mutex_destroy(&job_scheduler->addto_documentresults_mutex);
+
     // pthread_mutex_destroy(&job_scheduler->mutex);
     // pthread_cond_destroy(&job_scheduler->cond);
     
@@ -78,10 +79,27 @@ Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold){
     newjob->hamming_job = hamming_job;
     newjob->exact_job = exact_job;
 
+    newjob->end_job = false;
+
     newjob->treshold = threshold;
 
     return newjob;
 
+}
+
+// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
+// for new jobs and terminate itself
+Job create_End_job(){
+    Job newjob = (Job)malloc(sizeof(struct job));
+    newjob->edit_job = false;
+    newjob->hamming_job = false;
+    newjob->exact_job = false;
+
+    newjob->end_job = true;
+
+    newjob->treshold = 0;
+
+    return newjob;
 }
 
 void destroy_job(Job job){
