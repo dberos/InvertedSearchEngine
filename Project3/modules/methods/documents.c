@@ -102,7 +102,6 @@ void clear_matchedInfo(Core core){
 
 ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
     if(match_type==MT_EDIT_DIST){
-	pthread_mutex_lock(&core->job_scheduler->edit_mutex);
 
         //for every word of the edit dictionary
 		for(int i=0 ; i<core->edit_queries->capacity ; i++){
@@ -110,7 +109,9 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 				
 				EntryList results = create_entry_list();
 
+	            pthread_mutex_lock(&core->job_scheduler->edit_mutex);
 				lookup_entry_index(edit_entry->word, core->current_edit_tree, threshold, results, MT_EDIT_DIST);
+                pthread_mutex_unlock(&core->job_scheduler->edit_mutex);
 				//so now we have the results | the words of the document that matched with this threshold
 				if(results->size!=0){
 					
@@ -134,7 +135,6 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 				destroy_entry_list(results);
 			}
     	}
-    pthread_mutex_unlock(&core->job_scheduler->edit_mutex);
 
         return EC_SUCCESS; 
     }
