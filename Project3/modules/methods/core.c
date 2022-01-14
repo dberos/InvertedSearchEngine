@@ -34,7 +34,6 @@
 
 
 Core core=NULL;
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 static Pointer trial(Core core){
@@ -108,13 +107,13 @@ static Pointer trial(Core core){
 
 ErrorCode InitializeIndex(){
 	core=core_create();
-
 	return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+
 	//THIS WILL SOON GO
 	// sleep(2);
 
@@ -411,6 +410,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 			}
 		}
 	}
+
+	// Everything is done so threads will continue with next document jobs
+	pthread_mutex_lock(&core->testing_mutex);
+	pthread_cond_broadcast(&core->testing_cond);
+	pthread_mutex_unlock(&core->testing_mutex);
 
 	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
 	clear_matchedInfo(core);
