@@ -21,7 +21,7 @@ struct Document
 
 DocumentPtr addDocument(Core core, DocID doc_id);
 DocumentPtr createDoc(DocID doc_id);
-void addDocumentResult(DocumentPtr doc, QueryID id);
+void addDocumentResult(Core core, DocumentPtr doc, QueryID id);
 void destroyDocument(DocumentPtr doc);
 void destroyDocumentsArray(DocumentPtr* array, uint doc_number);
 void clear_matchedInfo(Core core);

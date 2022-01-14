@@ -58,10 +58,10 @@ int dedup(String string, Core core);
 bool exact_matching(Map map,String word);
 
 // Check whether a word has already matched a query, if not,match it (check modules/methods/matchquery.c)
-void matchQuery(Query query, String word, DocumentPtr doc);
+void matchQuery(Core core, Query query, String word, DocumentPtr doc);
 
 // Add a query id to the results of a doc
-void add_query_to_doc_results(QueryID query_id, DocumentPtr doc);
+void add_query_to_doc_results(Core core, QueryID query_id, DocumentPtr doc);
 
 // Specific Match Document
 // To be used at Sigmod's MatchDocument

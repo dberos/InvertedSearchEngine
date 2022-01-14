@@ -12,6 +12,11 @@ struct job{
     bool hamming_job;
     bool exact_job;
 
+    //This will be true if this job is an End Job
+    // if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
+    // for new jobs and terminate itself
+    bool end_job;
+
     int treshold;   //and this will define the threshold of the operation
 };
 
@@ -25,7 +30,8 @@ struct job_scheduler{
 
     //Mutexes
     pthread_mutex_t queue_consume;
-
+    pthread_mutex_t addto_documentresults_mutex;
+    
 
     // This is a test
     pthread_mutex_t mutex;
@@ -55,6 +61,12 @@ int submit_job(JobScheduler sch, Job job);
 
 // Create a job
 Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold);
+
+// Create an End job
+// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
+// for new jobs and terminate itself
+Job create_End_job();
+
 
 // Destroy a job
 void destroy_job(Job job);

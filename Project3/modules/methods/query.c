@@ -70,7 +70,7 @@ void query_cleanup(Query query,String query_str){
     free(str);
 }
 
-void matchQuery(Query query, String word, DocumentPtr doc){
+void matchQuery(Core core, Query query, String word, DocumentPtr doc){
     
     //check the matched words array in query
     for(int i=0 ; i<query->matched_words_num ; i++){
@@ -84,12 +84,16 @@ void matchQuery(Query query, String word, DocumentPtr doc){
 
     //And if after this all the query words have been matched, add this query id to Doc results
     if(query->matched_words_num==query->query_words_num){
-        add_query_to_doc_results(query->query_id, doc);    
+        // printf("docid: %u   queryid: %u\n", doc->doc_id, query->query_id);
+        add_query_to_doc_results(core, query->query_id, doc);    
         //lock query so if we meet it again, we dont bother with this one because its alread matched
         query->lock=true;
     }
 }
 
-void add_query_to_doc_results(QueryID query_id, DocumentPtr doc){
-    addDocumentResult(doc, query_id);
+void add_query_to_doc_results(Core core, QueryID query_id, DocumentPtr doc){
+	pthread_mutex_lock(&core->job_scheduler->addto_documentresults_mutex);
+    addDocumentResult(core, doc, query_id);
+    pthread_mutex_unlock(&core->job_scheduler->addto_documentresults_mutex);
+
 }
