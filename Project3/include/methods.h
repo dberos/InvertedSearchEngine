@@ -30,6 +30,12 @@ struct core{
     DocumentPtr current_doc;                    // At MatchDocument
     struct bkindex* current_edit_tree;          // At MatchDocument
     struct bkindex** current_hamming_array;     // At MatchDocument
+
+    // TESTING
+    pthread_t testing_thread;
+    pthread_mutex_t testing_mutex;
+    pthread_cond_t testing_cond;
+
 };
 
 // Global struct to store all the needed structs

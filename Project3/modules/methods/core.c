@@ -34,94 +34,41 @@
 
 
 Core core=NULL;
+volatile sig_atomic_t fin=0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
 // This is a Test
-// int four=1;
-// static Pointer trial(Core core){
-
-
-
-// 	// pthread_mutex_lock(&core->job_scheduler->mutex);
-
-// 	while(1){
-
-// 		//Safely grab a job from the Queue!!!
-// 		pthread_mutex_lock(&core->job_scheduler->queue_consume);
-
-// 		QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
-		
-// 		//if the queue is empty, try again later
-// 		if(job_node==NULL){
-// 			pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-// 			continue;
-// 		}
-
-// 		//else grab the job
-// 		Job current_job = job_node->job;
-
-// 		//Now another thread can grab a job from the queue
-// 		pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-
-// 		int waitingfor = rand()%3;
-// 		printf("I am the newly created thread %ld and I'l lwait for %d\nAnd i Have the job edit: %d hamming %d exact: %d theshold: %d\n",(long)pthread_self(), waitingfor, current_job->edit_job, current_job->hamming_job, current_job->exact_job, current_job->treshold);
-		
-// 		//This is just to wait for random seconds( like executing the job ) 
-// 		sleep(waitingfor);
-
-
-// 	}
-
-
-// 	// printf("I am the newly created thread %ld \n",(long)pthread_self());
-// 	// printf("NUM: %d \n",four);
-
-// 	// four++;
-// 	// pthread_mutex_unlock(&core->job_scheduler->mutex);
-// 	return 0;
-// }
+static Pointer trial(Core core){
+	// Threads that have finished job will wait on a MUTEX1
+	// Then When all jobs done
+	// Multiple threads can have multiple jobs
+	// (counter==?)
+	// Then main thread will send cond_broadcast at MatchDocument with a MUTEXx a CONDVARx and unlock MUTEX1
+	// Or just with the same MUTEX1 and CONDVARx(not tested)
+	// Then threads will wait for next jobs
+	while(fin==0){
+		printf("WAITING FOR MATCH DOCUMENT TO FINISH \n");
+		pthread_cond_wait(&core->testing_cond,&core->testing_mutex);
+		printf("MATCH DOCUMENT HAS FINISHED \n");
+	}
+	return 0;
+}
 
 ErrorCode InitializeIndex(){
 	core=core_create();
-	
-	// Initialize any thread at any given time
-	// Not necessary here
-	// This is a test
-	// for(int i=0;i<core->job_scheduler->num_threads;i++){
-	// 	thread_init(&core->job_scheduler->threads[i],trial);
-	// }
-
-	// //THIS WILL BE PUT AT THE BEGINNING OF THE MATCH DOCUMENT FUNCTION()
-	// //(fill job queue with jobs)
-
-	// //Edit distance queries
-	// submit_job(core->job_scheduler, create_job(true, false, false, 0));	// threshold 0
-	// submit_job(core->job_scheduler, create_job(true, false, false, 1));	// threshold 1
-	// submit_job(core->job_scheduler, create_job(true, false, false, 2));	// threshold 2
-	// submit_job(core->job_scheduler, create_job(true, false, false, 3));	// threshold 3
-
-	// //Hamming distance queries
-	// submit_job(core->job_scheduler, create_job(false, true, false, 0));	// threshold 0
-	// submit_job(core->job_scheduler, create_job(false, true, false, 1));	// threshold 1
-	// submit_job(core->job_scheduler, create_job(false, true, false, 2));	// threshold 2
-	// submit_job(core->job_scheduler, create_job(false, true, false, 3));	// threshold 3
-
-	// //Exact match queries
-	// submit_job(core->job_scheduler, create_job(false, false, true, 0));	// threshold 0
-
-
-
-
+	pthread_create(&core->testing_thread,0,(Pointer)trial,(Pointer)core);
+	pthread_mutex_init(&core->testing_mutex,0);
+	pthread_cond_init(&core->testing_cond,0);
 	return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
-	//THIS WILL SOON GO
-	sleep(2);
-
-	printf("Destroy!\n");
+	fin=1;
+	pthread_cond_broadcast(&core->testing_cond);
+	pthread_join(core->testing_thread,0);
+	pthread_mutex_destroy(&core->testing_mutex);
+	pthread_cond_destroy(&core->testing_cond);
 	core_destroy(core);
 	return EC_SUCCESS;
 }
@@ -241,6 +188,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 			return EC_FAIL;
 		}
 	}
+
+	// Everything is done so threads will continue with next document jobs
+	pthread_mutex_lock(&core->testing_mutex);
+	pthread_cond_broadcast(&core->testing_cond);
+	pthread_mutex_unlock(&core->testing_mutex);
 
 	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
 	clear_matchedInfo(core);
