@@ -102,13 +102,19 @@ volatile sig_atomic_t signal_main=0;
 // }
 
 void obtain(Core core){
-	printf("waiting..\n");
+	printf("%ld THREAD IS WAITING \n",(long)pthread_self());
 	pthread_mutex_lock(&mutex1);
 	while(empty==0){
 		pthread_cond_wait(&cond1,&mutex1);
 	}
+	pthread_mutex_lock(&core->job_scheduler->queue_consume);
 	QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
-	Job current_job = job_node->job;
+	Job current_job=NULL;
+	if(job_node!=NULL){
+		current_job = job_node->job;
+	}
+	pthread_mutex_unlock(&core->job_scheduler->queue_consume);
+	
 	if(current_job!=NULL){
 		if(current_job->edit_job==true){
 			printf("%ld GRABBED MY EDIT JOB \n",(long)pthread_self());
@@ -125,6 +131,7 @@ void obtain(Core core){
 		}
 	}
 	else{
+		empty=0;
 		signal_main=1;
 		pthread_cond_signal(&cond2);
 	}
@@ -155,6 +162,8 @@ ErrorCode InitializeIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+	fin=1;
+	pthread_cond_broadcast(&cond1);
 	pthread_mutex_destroy(&mutex1);
 	pthread_mutex_destroy(&mutex2);
 	pthread_mutex_destroy(&mutex3);
@@ -305,9 +314,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	empty=1;
 	pthread_mutex_unlock(&mutex2);
 	while(signal_main==0){
+		printf("I AM THE MAIN THREAD %ld AND WAITING FOR MY THREADS TO FINISH THEIR JOBS \n",(long)pthread_self());
 		pthread_cond_wait(&cond2,&mutex2);
 	}
 	pthread_mutex_lock(&mutex2);
+	printf("MY THREADS HAVE FINISHED THEIR JOBS \n");
 	signal_main=1;
 	empty=0;
 	pthread_mutex_unlock(&mutex2);
@@ -320,6 +331,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	destroy_hamming_array(core->current_hamming_array);
 
 	map_destroy(core->document);
+	printf("MATCH DOCUMENT HAS FINISHED \n");
 
 	return EC_SUCCESS;
 }
