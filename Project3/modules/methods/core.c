@@ -122,6 +122,7 @@ ErrorCode InitializeIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+	pthread_mutex_trylock(&mutex1);
 	fin=1;
 	pthread_cond_broadcast(&cond1);
 	pthread_mutex_destroy(&mutex1);
@@ -273,7 +274,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	// for new jobs and terminate itself
 
 	pthread_mutex_lock(&mutex2);
-	pthread_cond_broadcast(&cond1);
+	pthread_cond_signal(&cond1);
 	empty=1;
 	// pthread_mutex_unlock(&mutex2);
 	while(signal_main==0){

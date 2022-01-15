@@ -31,7 +31,7 @@ Core core_create(){
         core->th_boxes[i]=query_list_create();
     }
 
-    core->job_scheduler=job_scheduler_create(THREADS_NUMBER);
+    core->job_scheduler=job_scheduler_create(1);
     
     return core;
 }
