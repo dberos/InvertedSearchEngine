@@ -109,9 +109,9 @@ ErrorCode SpecificMatchDocument(Core core,MatchType match_type,int threshold){
 				
 				EntryList results = create_entry_list();
 
-	            pthread_mutex_lock(&core->job_scheduler->edit_mutex);
+	            // pthread_mutex_lock(&core->job_scheduler->edit_mutex);
 				lookup_entry_index(edit_entry->word, core->current_edit_tree, threshold, results, MT_EDIT_DIST);
-                pthread_mutex_unlock(&core->job_scheduler->edit_mutex);
+                // pthread_mutex_unlock(&core->job_scheduler->edit_mutex);
 				//so now we have the results | the words of the document that matched with this threshold
 				if(results->size!=0){
 					

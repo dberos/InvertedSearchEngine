@@ -95,8 +95,8 @@ void matchQuery(Core core, Query query, String word, DocumentPtr doc){
 }
 
 void add_query_to_doc_results(Core core, QueryID query_id, DocumentPtr doc){
-	pthread_mutex_lock(&core->job_scheduler->addto_documentresults_mutex);
+	// pthread_mutex_lock(&core->job_scheduler->addto_documentresults_mutex);
     addDocumentResult(core, doc, query_id);
-    pthread_mutex_unlock(&core->job_scheduler->addto_documentresults_mutex);
+    // pthread_mutex_unlock(&core->job_scheduler->addto_documentresults_mutex);
 
 }

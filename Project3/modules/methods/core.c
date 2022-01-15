@@ -34,90 +34,135 @@
 
 
 Core core=NULL;
+pthread_mutex_t mutex1;
+pthread_mutex_t mutex2;
+pthread_mutex_t mutex3;
+pthread_cond_t cond1;
+pthread_cond_t cond2;
+pthread_cond_t cond3;
+volatile sig_atomic_t fin=0;
+volatile sig_atomic_t empty=0;
+volatile sig_atomic_t signal_main=0;
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-static Pointer trial(Core core){
 
+// static Pointer trial(Core core){
+// 	while(1){
 
+// 		//Safely grab a job from the Queue!!!
+// 		pthread_mutex_lock(&core->job_scheduler->queue_consume);
 
-
-	while(1){
-
-		//Safely grab a job from the Queue!!!
-		pthread_mutex_lock(&core->job_scheduler->queue_consume);
-
-		QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
+// 		QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
 		
-		//if the queue is empty, try again later
-		if(job_node==NULL){
-			pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-			continue;
-		}
+// 		//if the queue is empty, try again later
+// 		if(job_node==NULL){
+// 			pthread_mutex_unlock(&core->job_scheduler->queue_consume);
+// 			continue;
+// 		}
 
-		//else grab the job
-		Job current_job = job_node->job;
+// 		//else grab the job
+// 		Job current_job = job_node->job;
 
-		//Now another thread can grab a job from the queue
-		pthread_mutex_unlock(&core->job_scheduler->queue_consume);
+// 		//Now another thread can grab a job from the queue
+// 		pthread_mutex_unlock(&core->job_scheduler->queue_consume);
 
 
-		//--------------------------------------------------------------------
+// 		//--------------------------------------------------------------------
 		
-		//Now we have safely grabbed a job from the FIFO job queue
+// 		//Now we have safely grabbed a job from the FIFO job queue
 		
 
-		//check whether this is an End Job
+// 		//check whether this is an End Job
 
-		// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
-		// for new jobs and terminate itself
+// 		// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
+// 		// for new jobs and terminate itself
 
-		if(current_job->end_job==true){
-			//stop looking for other jobs and terminate thread
-			break;
-		}else{ //we got a real job ^.^
+// 		if(current_job->end_job==true){
+// 			//stop looking for other jobs and terminate thread
+// 			break;
+// 		}else{ //we got a real job ^.^
 			
-			// Now we have:
-			// - a specific match type (edit/Hamming/Exact)
-			// - a specific threshold 
+// 			// Now we have:
+// 			// - a specific match type (edit/Hamming/Exact)
+// 			// - a specific threshold 
 
-			//And we will match the document we are in with these attributes of this job
-			if(current_job->edit_job==true){
-				SpecificMatchDocument(core, MT_EDIT_DIST, current_job->treshold);
-			}else if(current_job->hamming_job==true){
-				SpecificMatchDocument(core, MT_HAMMING_DIST, current_job->treshold);
-			}else{
-				SpecificMatchDocument(core, MT_EXACT_MATCH, current_job->treshold);
-			}
+// 			//And we will match the document we are in with these attributes of this job
+// 			if(current_job->edit_job==true){
+// 				SpecificMatchDocument(core, MT_EDIT_DIST, current_job->treshold);
+// 			}else if(current_job->hamming_job==true){
+// 				SpecificMatchDocument(core, MT_HAMMING_DIST, current_job->treshold);
+// 			}else{
+// 				SpecificMatchDocument(core, MT_EXACT_MATCH, current_job->treshold);
+// 			}
+// 		}
+// 	}
 
+// 	return NULL;
+// }
 
-		}
-
-		// int waitingfor = rand()%3;
-		// printf("I am the newly created thread %ld and I'l lwait for %d\nAnd i Have the job edit: %d hamming %d exact: %d theshold: %d\n",(long)pthread_self(), waitingfor, current_job->edit_job, current_job->hamming_job, current_job->exact_job, current_job->treshold);
-		
-		// //This is just to wait for random seconds( like executing the job ) 
-		// sleep(waitingfor);
-
-
+void obtain(Core core){
+	printf("waiting..\n");
+	pthread_mutex_lock(&mutex1);
+	while(empty==0){
+		pthread_cond_wait(&cond1,&mutex1);
 	}
+	QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
+	Job current_job = job_node->job;
+	if(current_job!=NULL){
+		if(current_job->edit_job==true){
+			printf("%ld GRABBED MY EDIT JOB \n",(long)pthread_self());
+			SpecificMatchDocument(core, MT_EDIT_DIST, current_job->treshold);
+			printf("%ld FINISHED MY EDIT JOB \n",(long)pthread_self());
+		}else if(current_job->hamming_job==true){
+			printf("%ld GRABBED MY HAMMING JOB \n",(long)pthread_self());
+			SpecificMatchDocument(core, MT_HAMMING_DIST, current_job->treshold);
+			printf("%ld FINISHED MY HAMMING JOB \n",(long)pthread_self());
+		}else{
+			printf("%ld GRABBED MY EXACT JOB \n",(long)pthread_self());
+			SpecificMatchDocument(core, MT_EXACT_MATCH, current_job->treshold);
+			printf("%ld FINISHED MY EXACT JOB \n",(long)pthread_self());
+		}
+	}
+	else{
+		signal_main=1;
+		pthread_cond_signal(&cond2);
+	}
+	pthread_mutex_unlock(&mutex1);
+}
 
-	// printf("TELOS!\n");
-	return NULL;
+Pointer consumer(Core core){
+	while(fin==0){
+		obtain(core);
+	}
+	return 0;
 }
 
 ErrorCode InitializeIndex(){
 	core=core_create();
+	pthread_mutex_init(&mutex1,0);
+	pthread_mutex_init(&mutex2,0);
+	pthread_mutex_init(&mutex3,0);
+	pthread_cond_init(&cond1,0);
+	pthread_cond_init(&cond2,0);
+	pthread_cond_init(&cond3,0);
+	for(int i=0;i<core->job_scheduler->num_threads;i++){
+		thread_init(&core->job_scheduler->threads[i],consumer);
+	}
 	return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+	pthread_mutex_destroy(&mutex1);
+	pthread_mutex_destroy(&mutex2);
+	pthread_mutex_destroy(&mutex3);
+	pthread_cond_destroy(&cond1);
+	pthread_cond_destroy(&cond2);
+	pthread_cond_destroy(&cond3);
 
-	//THIS WILL SOON GO
-	// sleep(2);
 
-	// printf("Destroy!\n");
 	core_destroy(core);
 	return EC_SUCCESS;
 }
@@ -255,23 +300,17 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
 	// for new jobs and terminate itself
 
-	for(int i=0 ; i<THREADS_NUMBER ; i++){
-		submit_job(core->job_scheduler, create_End_job());
+	pthread_mutex_lock(&mutex2);
+	pthread_cond_broadcast(&cond1);
+	empty=1;
+	pthread_mutex_unlock(&mutex2);
+	while(signal_main==0){
+		pthread_cond_wait(&cond2,&mutex2);
 	}
-//-------------------------------------------------------------------------------------
-
-	// 2) Initialize threads that will do the jobs
-	for(int i=0;i<core->job_scheduler->num_threads;i++){
-		thread_init(&core->job_scheduler->threads[i],trial);
-	}
-
-
-//-------------------------------------------------------------------------------------
-
-	// 3) Wait for threads to end their work
-	for(int i=0;i<core->job_scheduler->num_threads;i++){
-        thread_destroy(&core->job_scheduler->threads[i]);
-    }
+	pthread_mutex_lock(&mutex2);
+	signal_main=1;
+	empty=0;
+	pthread_mutex_unlock(&mutex2);
 
 
 	// 4) Destroy the structures created from thsi document
@@ -283,153 +322,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	map_destroy(core->document);
 
 	return EC_SUCCESS;
-
-
-}
-
-ErrorCode OldMatchDocument(DocID doc_id, const char* doc_str){
-	core->document = map_create();
-	DocumentPtr doc = addDocument(core, doc_id);
-
-	//deduplicate text
-	String str=strdup((String)doc_str);
-	dedup(str, core);
-	free(str);
-
-	//build indexes (exact match index is a map  that is already filled and up to date :) - core->document (MAP)
-	
-	//Create edit distance BK-Tree 
-    Index_ptr edit_tree = malloc(sizeof(*edit_tree));
-    build_entry_index(core->document->entry_list, MT_EDIT_DIST, edit_tree);
-
-	//Create hamming distance BK-Trees [ one for each possible word length]
-	//created an array of index trees hamming_array[num] is for the bk tree of words with num letters
-	Index_ptr* hamming_array = malloc(28*sizeof(*hamming_array));
-	fill_hamming_ix_array(hamming_array, core->document->entry_list, MT_HAMMING_DIST);
-	
-
-	//for every possible threshold (match_dist)
-	for(int threshold=0 ; threshold<4 ; threshold++){
-		
-		//for every word of the edit dictionary
-		for(int i=0 ; i<core->edit_queries->capacity ; i++){
-            for(Entry edit_entry=core->edit_queries->array[i].entry_list->head;edit_entry!=NULL;edit_entry=edit_entry->next){
-				
-				EntryList results = create_entry_list();
-
-				lookup_entry_index(edit_entry->word, edit_tree, threshold, results, MT_EDIT_DIST);
-				//so now we have the results | the words of the document that matched with this threshold
-				if(results->size!=0){
-					
-					// if it matched with at least one word
-					//then we should add this word to the matched words of a query if:
-					//  1) a query belongs to the th_box of the current threshold ) th_box[threshold]
-					//  2) has match type edit
-					//  3) belongs to the payload of the word wwe just checked
-					
-					for(int j=0;j<core->query_edit_map[threshold]->capacity;j++){
-						QueryMapNode node=&core->query_edit_map[threshold]->array[j];
-						if(node->query_list->size>0){
-							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
-								if(check_list_existence(edit_entry->payload,lnode->query->query_id)){
-									matchQuery(core, lnode->query,edit_entry->word,doc);
-								}
-							}
-						}
-					}
-				}
-				destroy_entry_list(results);
-			}
-    	} 
-
-		//Now the same for every word of the hammign dictionary
-		//for every word of the hamming dictionary
-		for(int i=0 ; i<core->hamming_queries->capacity ; i++){
-            for(Entry hamming_entry=core->hamming_queries->array[i].entry_list->head;hamming_entry!=NULL;hamming_entry=hamming_entry->next){
-				
-				EntryList results = create_entry_list();
-
-				lookup_entry_index(hamming_entry->word, hamming_array[strlen(hamming_entry->word)-4], threshold, results, MT_HAMMING_DIST);
-				//so now we have the results | the words of the document that matched with this threshold
-				if(results->size!=0){
-					// if it matched with at least one word
-					//then we should add this word to the matched words of a query if:
-					//  1) a query belongs to the th_box of the current threshold ) th_box[threshold]
-					//  2) has match type hamming
-					//  3) belongs to the payload of the word wwe just checked
-
-					for(int j=0;j<core->query_hamming_map[threshold]->capacity;j++){
-						QueryMapNode node=&core->query_hamming_map[threshold]->array[j];
-						if(node->query_list->size>0){
-							for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
-								if(check_list_existence(hamming_entry->payload,lnode->query->query_id)){
-									matchQuery(core, lnode->query,hamming_entry->word,doc);
-								}
-							}
-						}
-					}
-				}
-				destroy_entry_list(results);
-			}
-    	} 
-
-		//And last but not least, take care of the exact queries
-		//which appear only on threshold==0
-		if(threshold==0){
-			for(int i=0 ; i<core->exact_queries->capacity ; i++){
-				for(Entry exact_entry=core->exact_queries->array[i].entry_list->head;exact_entry!=NULL;exact_entry=exact_entry->next){
-					
-					EntryList results = create_entry_list();
-
-					bool result = map_find(core->document, exact_entry->word);
-					if(result!=false){ //If there was such word in exact dictionary, there can be only one by the way
-						add_entry(results, create_entry("exactresult"));
-					}
-					//so now we have the results | the words of the document that matched with this threshold
-					if(results->size!=0){
-						// if it matched with at least one word
-						//then we should add this word to the matched words of a query if:
-						//  1) a query belongs to the th_box of the current threshold ) th_box[threshold]
-						//  2) has match type exact
-						//  3) belongs to the payload of the word wwe just checked
-
-						for(int j=0;j<core->query_exact_map->capacity;j++){
-							QueryMapNode node=&core->query_exact_map->array[j];
-							if(node->query_list->size>0){
-								for(QueryListNode lnode=node->query_list->head;lnode!=NULL;lnode=lnode->next){
-									if(check_list_existence(exact_entry->payload,lnode->query->query_id)){
-										matchQuery(core, lnode->query,exact_entry->word,doc);
-									}
-								}
-							}
-						}
-					}
-					destroy_entry_list(results);
-				}
-			}
-		}
-	}
-
-	// Everything is done so threads will continue with next document jobs
-	pthread_mutex_lock(&core->testing_mutex);
-	pthread_cond_broadcast(&core->testing_cond);
-	pthread_mutex_unlock(&core->testing_mutex);
-
-	// //Now that we are done with this document, we should clear all matched_words info from all queries so we do nto affect the next document
-	clear_matchedInfo(core);
-
-	destroy_entry_index(edit_tree);
-	destroy_hamming_array(hamming_array);
-
-	map_destroy(core->document);
-
-	return EC_SUCCESS;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-int comparator (const void * p1, const void * p2)
-{
-  return (*(int*)p1 - *(int*)p2);
-}
 
 void merge(QueryID queryId[], int left, int mid, int right) {
     int lsubLen = mid - left + 1;
