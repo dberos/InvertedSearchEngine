@@ -43,65 +43,15 @@ pthread_cond_t cond3;
 volatile sig_atomic_t fin=0;
 volatile sig_atomic_t empty=0;
 volatile sig_atomic_t signal_main=0;
+pthread_mutex_t mtx;
+pthread_cond_t cond_non_empty;
+pthread_cond_t cond_non_full;
+volatile sig_atomic_t count=0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-// static Pointer trial(Core core){
-// 	while(1){
-
-// 		//Safely grab a job from the Queue!!!
-// 		pthread_mutex_lock(&core->job_scheduler->queue_consume);
-
-// 		QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
-		
-// 		//if the queue is empty, try again later
-// 		if(job_node==NULL){
-// 			pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-// 			continue;
-// 		}
-
-// 		//else grab the job
-// 		Job current_job = job_node->job;
-
-// 		//Now another thread can grab a job from the queue
-// 		pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-
-
-// 		//--------------------------------------------------------------------
-		
-// 		//Now we have safely grabbed a job from the FIFO job queue
-		
-
-// 		//check whether this is an End Job
-
-// 		// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
-// 		// for new jobs and terminate itself
-
-// 		if(current_job->end_job==true){
-// 			//stop looking for other jobs and terminate thread
-// 			break;
-// 		}else{ //we got a real job ^.^
-			
-// 			// Now we have:
-// 			// - a specific match type (edit/Hamming/Exact)
-// 			// - a specific threshold 
-
-// 			//And we will match the document we are in with these attributes of this job
-// 			if(current_job->edit_job==true){
-// 				SpecificMatchDocument(core, MT_EDIT_DIST, current_job->treshold);
-// 			}else if(current_job->hamming_job==true){
-// 				SpecificMatchDocument(core, MT_HAMMING_DIST, current_job->treshold);
-// 			}else{
-// 				SpecificMatchDocument(core, MT_EXACT_MATCH, current_job->treshold);
-// 			}
-// 		}
-// 	}
-
-// 	return NULL;
-// }
-
-void obtain(Core core){
+int obtain(Core core){
 	printf("%ld THREAD IS WAITING \n",(long)pthread_self());
 	pthread_mutex_lock(&mutex1);
 	while(empty==0){
@@ -131,16 +81,23 @@ void obtain(Core core){
 		}
 	}
 	else{
-		empty=0;
+		// empty=0;
 		signal_main=1;
-		pthread_cond_signal(&cond2);
+		// pthread_cond_signal(&cond2);
+		pthread_mutex_unlock(&mutex1);
+		return 1;
 	}
 	pthread_mutex_unlock(&mutex1);
+	return 0;
 }
 
 Pointer consumer(Core core){
 	while(fin==0){
-		obtain(core);
+		int num=obtain(core);
+		if(num==1){
+			pthread_mutex_unlock(&mutex2);
+			pthread_cond_signal(&cond2);
+		}
 	}
 	return 0;
 }
@@ -150,9 +107,12 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&mutex1,0);
 	pthread_mutex_init(&mutex2,0);
 	pthread_mutex_init(&mutex3,0);
+	pthread_mutex_init(&mtx,0);
 	pthread_cond_init(&cond1,0);
 	pthread_cond_init(&cond2,0);
 	pthread_cond_init(&cond3,0);
+	pthread_cond_init(&cond_non_empty,0);
+	pthread_cond_init(&cond_non_full,0);
 	for(int i=0;i<core->job_scheduler->num_threads;i++){
 		thread_init(&core->job_scheduler->threads[i],consumer);
 	}
@@ -167,9 +127,12 @@ ErrorCode DestroyIndex(){
 	pthread_mutex_destroy(&mutex1);
 	pthread_mutex_destroy(&mutex2);
 	pthread_mutex_destroy(&mutex3);
+	pthread_mutex_destroy(&mtx);
 	pthread_cond_destroy(&cond1);
 	pthread_cond_destroy(&cond2);
 	pthread_cond_destroy(&cond3);
+	pthread_cond_destroy(&cond_non_empty);
+	pthread_cond_destroy(&cond_non_full);
 
 
 	core_destroy(core);
@@ -312,7 +275,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	pthread_mutex_lock(&mutex2);
 	pthread_cond_broadcast(&cond1);
 	empty=1;
-	pthread_mutex_unlock(&mutex2);
+	// pthread_mutex_unlock(&mutex2);
 	while(signal_main==0){
 		printf("I AM THE MAIN THREAD %ld AND WAITING FOR MY THREADS TO FINISH THEIR JOBS \n",(long)pthread_self());
 		pthread_cond_wait(&cond2,&mutex2);
