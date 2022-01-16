@@ -47,14 +47,18 @@ pthread_mutex_t mtx;
 pthread_cond_t cond_non_empty;
 pthread_cond_t cond_non_full;
 volatile sig_atomic_t count=0;
+volatile sig_atomic_t flag_fin=0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 int obtain(Core core){
 	printf("%ld THREAD IS WAITING \n",(long)pthread_self());
-	pthread_mutex_lock(&mutex1);
 	while(empty==0){
+		if(flag_fin==1){
+			printf("FOUND FLAG FIN == 1 \n");
+			pthread_exit(0);
+		}
 		pthread_cond_wait(&cond1,&mutex1);
 	}
 	pthread_mutex_lock(&core->job_scheduler->queue_consume);
@@ -81,13 +85,9 @@ int obtain(Core core){
 		}
 	}
 	else{
-		// empty=0;
 		signal_main=1;
-		// pthread_cond_signal(&cond2);
-		pthread_mutex_unlock(&mutex1);
 		return 1;
 	}
-	pthread_mutex_unlock(&mutex1);
 	return 0;
 }
 
@@ -113,6 +113,9 @@ ErrorCode InitializeIndex(){
 	pthread_cond_init(&cond3,0);
 	pthread_cond_init(&cond_non_empty,0);
 	pthread_cond_init(&cond_non_full,0);
+	
+	pthread_mutex_lock(&mutex1);
+
 	for(int i=0;i<core->job_scheduler->num_threads;i++){
 		thread_init(&core->job_scheduler->threads[i],consumer);
 	}
@@ -122,9 +125,12 @@ ErrorCode InitializeIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
-	pthread_mutex_trylock(&mutex1);
 	fin=1;
+	flag_fin=1;
+	pthread_mutex_lock(&mutex3);
+	pthread_mutex_unlock(&mutex1);
 	pthread_cond_broadcast(&cond1);
+	pthread_mutex_unlock(&mutex3);
 	pthread_mutex_destroy(&mutex1);
 	pthread_mutex_destroy(&mutex2);
 	pthread_mutex_destroy(&mutex3);
@@ -134,6 +140,10 @@ ErrorCode DestroyIndex(){
 	pthread_cond_destroy(&cond3);
 	pthread_cond_destroy(&cond_non_empty);
 	pthread_cond_destroy(&cond_non_full);
+
+	for(int i=0;i<core->job_scheduler->num_threads;i++){
+		thread_destroy(&core->job_scheduler->threads[i]);
+	}
 
 
 	core_destroy(core);
@@ -275,8 +285,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 
 	pthread_mutex_lock(&mutex2);
 	pthread_cond_signal(&cond1);
+	pthread_mutex_unlock(&mutex1);
 	empty=1;
-	// pthread_mutex_unlock(&mutex2);
 	while(signal_main==0){
 		printf("I AM THE MAIN THREAD %ld AND WAITING FOR MY THREADS TO FINISH THEIR JOBS \n",(long)pthread_self());
 		pthread_cond_wait(&cond2,&mutex2);
@@ -296,6 +306,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 
 	map_destroy(core->document);
 	printf("MATCH DOCUMENT HAS FINISHED \n");
+
+	pthread_mutex_lock(&mutex1);
 
 	return EC_SUCCESS;
 }
