@@ -32,35 +32,52 @@
 #include"../../include/fifoqueue.h"
 
 
-
-Core core=NULL;
-pthread_mutex_t mutex1;
-pthread_mutex_t mutex2;
-pthread_mutex_t mutex3;
-pthread_cond_t cond1;
-pthread_cond_t cond2;
-pthread_cond_t cond3;
-volatile sig_atomic_t fin=0;
-volatile sig_atomic_t empty=0;
-volatile sig_atomic_t signal_main=0;
-pthread_mutex_t mtx;
-pthread_cond_t cond_non_empty;
-pthread_cond_t cond_non_full;
-volatile sig_atomic_t count=0;
-volatile sig_atomic_t flag_fin=0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+Core core=NULL;
 
 
-int obtain(Core core){
+volatile sig_atomic_t fin=0;
+volatile sig_atomic_t flag_fin=0;
+volatile sig_atomic_t signal_main=0;
+volatile sig_atomic_t empty=0;
+
+
+pthread_mutex_t mutex1;
+pthread_cond_t cond1;
+
+pthread_mutex_t mutex2;
+pthread_cond_t cond2;
+
+pthread_mutex_t mutex3;
+pthread_cond_t cond3;
+
+
+pthread_mutex_t mtx1;
+pthread_cond_t cnd1;
+
+pthread_mutex_t mtx2;
+pthread_cond_t cnd2;
+
+pthread_mutex_t mtx3;
+pthread_cond_t cnd3;
+
+
+pthread_barrier_t barrier;
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+int obtain1(Core core){
 	printf("%ld THREAD IS WAITING \n",(long)pthread_self());
+	pthread_mutex_lock(&mtx1);
 	while(empty==0){
 		if(flag_fin==1){
-			printf("FOUND FLAG FIN == 1 \n");
+			pthread_mutex_unlock(&mtx1);
 			pthread_exit(0);
 		}
-		pthread_cond_wait(&cond1,&mutex1);
+		pthread_cond_wait(&cnd1,&mtx1);
 	}
+
 	pthread_mutex_lock(&core->job_scheduler->queue_consume);
 	QueueNode job_node = fifoqueue_pop(core->job_scheduler->q);
 	Job current_job=NULL;
@@ -68,7 +85,7 @@ int obtain(Core core){
 		current_job = job_node->job;
 	}
 	pthread_mutex_unlock(&core->job_scheduler->queue_consume);
-	
+
 	if(current_job!=NULL){
 		if(current_job->edit_job==true){
 			printf("%ld GRABBED MY EDIT JOB \n",(long)pthread_self());
@@ -85,65 +102,95 @@ int obtain(Core core){
 		}
 	}
 	else{
-		signal_main=1;
+		empty=0;
+		pthread_barrier_wait(&barrier);
+		pthread_mutex_unlock(&mtx1);
 		return 1;
 	}
+	pthread_mutex_unlock(&mtx1);
 	return 0;
 }
 
-Pointer consumer(Core core){
+Pointer consumer1(Core core){
 	while(fin==0){
-		int num=obtain(core);
+		int num=obtain1(core);
 		if(num==1){
-			pthread_mutex_unlock(&mutex2);
-			pthread_cond_signal(&cond2);
+			printf("%ld THREAD IS READY FOR THE NEW ROUND OF JOBS \n",(long)pthread_self());
 		}
 	}
 	return 0;
 }
 
-ErrorCode InitializeIndex(){
-	core=core_create();
-	pthread_mutex_init(&mutex1,0);
-	pthread_mutex_init(&mutex2,0);
-	pthread_mutex_init(&mutex3,0);
-	pthread_mutex_init(&mtx,0);
-	pthread_cond_init(&cond1,0);
-	pthread_cond_init(&cond2,0);
-	pthread_cond_init(&cond3,0);
-	pthread_cond_init(&cond_non_empty,0);
-	pthread_cond_init(&cond_non_full,0);
-	
-	pthread_mutex_lock(&mutex1);
+///////////////////////////////////////////////////////////////////////////////////////////////
 
-	for(int i=0;i<core->job_scheduler->num_threads;i++){
-		thread_init(&core->job_scheduler->threads[i],consumer);
-	}
+
+ErrorCode InitializeIndex(){
+
+	core=core_create();
+
+
+	pthread_mutex_init(&mutex1,0);
+	pthread_cond_init(&cond1,0);
+
+	pthread_mutex_init(&mutex2,0);
+	pthread_cond_init(&cond2,0);
+
+	pthread_mutex_init(&mutex3,0);
+	pthread_cond_init(&cond3,0);
+
+
+	pthread_mutex_init(&mtx1,0);
+	pthread_cond_init(&cnd1,0);
+
+	pthread_mutex_init(&mtx2,0);
+	pthread_cond_init(&cnd2,0);
+
+	pthread_mutex_init(&mtx3,0);
+	pthread_cond_init(&cnd3,0);
+
+
+	pthread_barrier_init(&barrier,0,2);
+
+
+	thread_init(&core->job_scheduler->threads[0],consumer1);
+
 	return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
+
+	pthread_mutex_lock(&mutex3);
 	fin=1;
 	flag_fin=1;
-	pthread_mutex_lock(&mutex3);
-	pthread_mutex_unlock(&mutex1);
-	pthread_cond_broadcast(&cond1);
+	pthread_cond_signal(&cnd1);
 	pthread_mutex_unlock(&mutex3);
-	pthread_mutex_destroy(&mutex1);
-	pthread_mutex_destroy(&mutex2);
-	pthread_mutex_destroy(&mutex3);
-	pthread_mutex_destroy(&mtx);
-	pthread_cond_destroy(&cond1);
-	pthread_cond_destroy(&cond2);
-	pthread_cond_destroy(&cond3);
-	pthread_cond_destroy(&cond_non_empty);
-	pthread_cond_destroy(&cond_non_full);
 
-	for(int i=0;i<core->job_scheduler->num_threads;i++){
-		thread_destroy(&core->job_scheduler->threads[i]);
-	}
+	pthread_mutex_destroy(&mutex1);
+	pthread_cond_destroy(&cond1);
+
+	pthread_mutex_destroy(&mutex2);
+	pthread_cond_destroy(&cond2);
+
+	pthread_mutex_destroy(&mutex3);
+	pthread_cond_destroy(&cond3);
+
+
+	pthread_mutex_destroy(&mtx1);
+	pthread_cond_destroy(&cnd1);
+
+	pthread_mutex_destroy(&mtx2);
+	pthread_cond_destroy(&cnd2);
+
+	pthread_mutex_destroy(&mtx3);
+	pthread_cond_destroy(&cnd3);
+
+
+	pthread_barrier_destroy(&barrier);
+
+
+	thread_destroy(&core->job_scheduler->threads[0]);
 
 
 	core_destroy(core);
@@ -234,6 +281,8 @@ ErrorCode EndQuery(QueryID query_id){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
+
+	pthread_mutex_lock(&mutex1);
 	
 	core->document = map_create();
 	// Create document (so we can save its info/results)
@@ -254,16 +303,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	core->current_hamming_array = malloc(28*sizeof(*core->current_hamming_array));
 	fill_hamming_ix_array(core->current_hamming_array, core->document->entry_list, MT_HAMMING_DIST);
 
-//-------------------------------------------------------------------------------------
-
-
-
-	//So the process is:
-
-//-------------------------------------------------------------------------------------
-	
-	// 1) Add the jobs that need to be done to Jobs FIFO Queue
-
 	//	Edit distance queries
 	submit_job(core->job_scheduler, create_job(true, false, false, 0));	// threshold 0
 	submit_job(core->job_scheduler, create_job(true, false, false, 1));	// threshold 1
@@ -279,23 +318,12 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	//	Exact match queries
 	submit_job(core->job_scheduler, create_job(false, false, true, 0));	// threshold 0
 
-	//	End jobs (as many as our threads are)
-	// if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
-	// for new jobs and terminate itself
 
-	pthread_mutex_lock(&mutex2);
+	printf("ALL JOBS SUBMITTED \n");
 	empty=1;
-	pthread_cond_signal(&cond1);
-	pthread_mutex_unlock(&mutex1);
-	while(signal_main==0){
-		printf("I AM THE MAIN THREAD %ld AND WAITING FOR MY THREADS TO FINISH THEIR JOBS \n",(long)pthread_self());
-		pthread_cond_wait(&cond2,&mutex2);
-	}
-	pthread_mutex_lock(&mutex2);
-	printf("MY THREADS HAVE FINISHED THEIR JOBS \n");
-	signal_main=1;
-	empty=0;
-	pthread_mutex_unlock(&mutex2);
+	pthread_cond_signal(&cnd1);
+	pthread_barrier_wait(&barrier);
+	printf("%ld I AM THE MAIN THREAD AND FOUND OUT THAT ALL JOBS ARE DONE \n",(long)pthread_self());
 
 
 	// 4) Destroy the structures created from thsi document
@@ -307,7 +335,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	map_destroy(core->document);
 	printf("MATCH DOCUMENT HAS FINISHED \n");
 
-	pthread_mutex_lock(&mutex1);
+	pthread_mutex_unlock(&mutex1);
 
 	return EC_SUCCESS;
 }
