@@ -284,9 +284,9 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	// for new jobs and terminate itself
 
 	pthread_mutex_lock(&mutex2);
+	empty=1;
 	pthread_cond_signal(&cond1);
 	pthread_mutex_unlock(&mutex1);
-	empty=1;
 	while(signal_main==0){
 		printf("I AM THE MAIN THREAD %ld AND WAITING FOR MY THREADS TO FINISH THEIR JOBS \n",(long)pthread_self());
 		pthread_cond_wait(&cond2,&mutex2);
