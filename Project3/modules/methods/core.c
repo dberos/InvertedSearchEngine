@@ -83,6 +83,9 @@ int obtain1(Core core){
 	Job current_job=NULL;
 	if(job_node!=NULL){
 		current_job = job_node->job;
+		current_job=create_job(job_node->job->edit_job,job_node->job->hamming_job,
+			job_node->job->exact_job,job_node->job->treshold);
+		destroy_single_fifoqueue_node(job_node);
 	}
 	pthread_mutex_unlock(&core->job_scheduler->queue_consume);
 
@@ -91,14 +94,17 @@ int obtain1(Core core){
 			printf("%ld GRABBED MY EDIT JOB \n",(long)pthread_self());
 			SpecificMatchDocument(core, MT_EDIT_DIST, current_job->treshold);
 			printf("%ld FINISHED MY EDIT JOB \n",(long)pthread_self());
+			destroy_job(current_job);
 		}else if(current_job->hamming_job==true){
 			printf("%ld GRABBED MY HAMMING JOB \n",(long)pthread_self());
 			SpecificMatchDocument(core, MT_HAMMING_DIST, current_job->treshold);
 			printf("%ld FINISHED MY HAMMING JOB \n",(long)pthread_self());
+			destroy_job(current_job);
 		}else{
 			printf("%ld GRABBED MY EXACT JOB \n",(long)pthread_self());
 			SpecificMatchDocument(core, MT_EXACT_MATCH, current_job->treshold);
 			printf("%ld FINISHED MY EXACT JOB \n",(long)pthread_self());
+			destroy_job(current_job);
 		}
 	}
 	else{
