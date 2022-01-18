@@ -15,6 +15,7 @@
 #include<sys/select.h>
 #include<sys/time.h>
 #include<pthread.h>
+#include<assert.h>
 
 #define BLOOMBYTES (uint)1e5
 #define BLOOMBITS (uint)8e5
@@ -29,6 +30,7 @@ typedef unsigned char uchar;
 typedef ulong (*HashFunction)(String);
 typedef uint (*HashFunc)(Pointer);
 typedef ulong (*HashBloom)(uchar*,uint);
+typedef uint (*DistanceFunction)(String,int,String,int);
 
 typedef struct word* Word;
 typedef struct entry* Entry;
@@ -57,3 +59,7 @@ typedef struct job* Job;
 typedef struct job_scheduler* JobScheduler;
 typedef struct queue_node* QueueNode;
 typedef struct fifo_queue* FiFoQueue;
+typedef struct vector_node* VectorNode;
+typedef struct vector* Vector;
+typedef struct bkt_node* BktNode;
+typedef struct bkt* Bkt;
