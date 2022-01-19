@@ -59,7 +59,7 @@ extern "C" {
 #define MAX_QUERY_LENGTH ((MAX_WORD_LENGTH+1)*MAX_QUERY_WORDS)
 
 // The number of threads that we will use
-#define THREADS_NUMBER 6
+#define THREADS_NUMBER 7
 
 #if THREADS_NUMBER > 9
     #undef THREADS_NUMBER

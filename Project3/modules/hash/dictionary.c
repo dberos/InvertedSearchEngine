@@ -29,6 +29,43 @@ Dictionary dictionary_create(){
     return dictionary;
 }
 
+Dictionary dictionary_copy_create(Dictionary old){
+    // Allocate memory for the Dictionary
+    Dictionary dictionary=malloc(sizeof(*dictionary));
+
+    // Set starting size to 0
+    dictionary->size=0;
+    // Set starting capacity as the capacity of the odl dictionary
+    dictionary->capacity=old->capacity;
+    // Set Hash Function
+    dictionary->hash_function=hash_string;
+
+    // Allocate memory for the List array
+    dictionary->array=malloc(sizeof(*dictionary->array)*dictionary->capacity);
+    // On each Node
+    for(int i=0;i<dictionary->capacity;i++){
+        // Create an Entry List
+        dictionary->array[i].entry_list=create_entry_list();
+    }
+
+    //copy elements
+    copy_dictionary_contents(old, dictionary);
+
+    // Return the dictionary
+    return dictionary;
+}
+
+void copy_dictionary_contents(Dictionary old, Dictionary new){
+    
+    for(int i=0;i<old->capacity;i++){
+        if(old->array[i].entry_list->head!=NULL){
+            for(Entry entry=old->array[i].entry_list->head;entry!=NULL;entry=entry->next){
+                insert_entry_list_raw(new->array[i].entry_list, create_entry_with_payload(entry->word, entry->payload));
+            }
+        }
+    }
+}
+
 void dictionary_destroy(Dictionary dictionary){
     // On each Node
     for(int i=0;i<dictionary->capacity;i++){

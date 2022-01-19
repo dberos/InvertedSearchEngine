@@ -1,10 +1,11 @@
 #include"../../include/methods.h"
+#include"../../include/map.h"
+
 
 Core core_create(){
     Core core=malloc(sizeof(*core));
     // Set NULL the map for the documents here
-    // Create it in MatchDocument and destroy it in GetNextAvailableRes
-    core->document=NULL;
+
     // Create the Dictionary for the exact matching
     core->exact_queries=dictionary_create();
     // Create the dictionary for the edit distance
@@ -27,11 +28,10 @@ Core core_create(){
     core->docs=NULL;
     core->last_result_index=0;
 
-    for(int i=0 ; i<4 ; i++){
-        core->th_boxes[i]=query_list_create();
-    }
+    core->finished_jobs = false;
+    
 
-    core->job_scheduler=job_scheduler_create(1);
+    core->job_scheduler=job_scheduler_create(THREADS_NUMBER);
     
     return core;
 }
@@ -51,12 +51,36 @@ void core_destroy(Core core){
     free(core->query_edit_map);
     free(core->query_hamming_map);
 
-    //Destroy th_boxes
-    for(int i=0 ; i<4 ; i++){
-        query_list_destroy(core->th_boxes[i]);
-    }
     
     destroyDocumentsArray(core->docs, core->document_number);
     job_scheduler_destroy(core->job_scheduler);
     free(core);
+}
+
+
+//-------------------------------------------------------------------------------
+
+///DocInfo struct (@methods.h)
+
+DocInfo create_docinfo(){
+    DocInfo newdoc = (DocInfo)malloc(sizeof(struct docinfo));
+
+    newdoc->document = map_create();
+
+    newdoc->exact_queries = NULL;
+    newdoc->edit_queries = NULL;
+    newdoc->hamming_queries = NULL;
+
+    newdoc->active_queries_number = 0;
+
+    newdoc->query_exact_map = NULL;
+    newdoc->query_edit_map = (QueryMap*) malloc(sizeof(QueryMap)*4);
+    newdoc->query_hamming_map = (QueryMap*) malloc(sizeof(QueryMap)*4);
+
+    newdoc->doc = NULL;
+
+    // newdoc->edit_tree = (Index_ptr)malloc(sizeof(struct bkindex));
+    // newdoc->hamming_array = (Index_ptr*)malloc(28*sizeof(Index_ptr));
+
+    return newdoc;
 }

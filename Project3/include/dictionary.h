@@ -40,3 +40,9 @@ void dictionary_remove(Dictionary dictionary,QueryMap query_map,uint id);
 // Remove an entry from the EntryList of a dictionary node
 void remove_entry_from_list(Dictionary dictionary, String word);
 
+// Copy the contents of a dictionary to another
+void copy_dictionary_contents(Dictionary old, Dictionary new);
+
+// Create the exact copy of a dictionary
+Dictionary dictionary_copy_create(Dictionary old);
+

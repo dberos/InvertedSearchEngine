@@ -1,5 +1,7 @@
 #include"../../include/job_scheduler.h"
 #include"../../include/fifoqueue.h"
+#include"../../include/methods.h"
+
 
 
 extern Core core;
@@ -31,14 +33,15 @@ JobScheduler job_scheduler_create(int num_threads){
     job_scheduler->q = fifoqueue_create();
 
     //Initialize mutexes
-    pthread_mutex_init(&job_scheduler->queue_consume,0);
-    pthread_mutex_init(&job_scheduler->addto_documentresults_mutex,0);
-    pthread_mutex_init(&job_scheduler->edit_mutex,0);
+    pthread_mutex_init(&job_scheduler->fifoqueue_mtx,NULL);
+    pthread_mutex_init(&job_scheduler->stupidmtx,NULL);
+    
+    
+    //Initialize semaphores
+    sem_init(&job_scheduler->emptyQ, 0, 0);
 
-    // This is a test
-    // pthread_mutex_init(&job_scheduler->mutex,0);
-
-    // pthread_cond_init(&job_scheduler->cond,0);
+    //Initialize barriers
+    pthread_barrier_init(&job_scheduler->resultsbarrier, NULL, THREADS_NUMBER+1);
 
     return job_scheduler;
 }
@@ -49,14 +52,18 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     //Destroy job fifo queue
     fifoqueue_destroy(job_scheduler->q);
 
-    // This is a test
-    pthread_mutex_destroy(&job_scheduler->queue_consume);
-    pthread_mutex_destroy(&job_scheduler->addto_documentresults_mutex);
-    pthread_mutex_destroy(&job_scheduler->edit_mutex);
-
-    // pthread_mutex_destroy(&job_scheduler->mutex);
-    // pthread_cond_destroy(&job_scheduler->cond);
+    //Destroy mutexes
+    pthread_mutex_destroy(&job_scheduler->fifoqueue_mtx);
+    pthread_mutex_destroy(&job_scheduler->stupidmtx);
     
+    
+
+    //Destroy semaphores
+    sem_destroy(&job_scheduler->emptyQ);
+    
+    //Destroy barriers
+    pthread_barrier_destroy(&job_scheduler->resultsbarrier);
+
     free(job_scheduler->threads);
     free(job_scheduler);
 }
@@ -71,19 +78,20 @@ int submit_job(JobScheduler sch, Job job){ //returns the number of submitted job
 
 
 
+
+
 // Struct Job operations -------------------------------------
 
 
-Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold){
+Job create_job(){
     
     Job newjob = (Job)malloc(sizeof(struct job));
-    newjob->edit_job = edit_job;
-    newjob->hamming_job = hamming_job;
-    newjob->exact_job = exact_job;
+    
+    newjob->document = create_docinfo();
 
     newjob->end_job = false;
 
-    newjob->treshold = threshold;
+    newjob->finish_job = false;
 
     return newjob;
 
@@ -93,18 +101,50 @@ Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold){
 // for new jobs and terminate itself
 Job create_End_job(){
     Job newjob = (Job)malloc(sizeof(struct job));
-    newjob->edit_job = false;
-    newjob->hamming_job = false;
-    newjob->exact_job = false;
+
+    newjob->document = NULL;
 
     newjob->end_job = true;
 
-    newjob->treshold = 0;
+    newjob->finish_job = false;
 
     return newjob;
 }
 
+//check job_Scheduler.h for explanation
+Job create_finish_job(){
+    Job newjob = (Job)malloc(sizeof(struct job));
+
+    newjob->document = NULL;
+
+    newjob->end_job = false;
+
+    newjob->finish_job = true;
+
+    return newjob;
+}
+
+
+void destroy_end_or_finish_job(Job job){
+    free(job);
+}
+
 void destroy_job(Job job){
+
+    map_destroy(job->document->document);
+    dictionary_destroy(job->document->edit_queries);
+    dictionary_destroy(job->document->hamming_queries);
+    dictionary_destroy(job->document->exact_queries);
+    query_map_destroy(job->document->query_exact_map);
+    for(int i=0;i<4;i++){
+        query_map_destroy(job->document->query_edit_map[i]);
+        query_map_destroy(job->document->query_hamming_map[i]);
+    }
+    free(job->document->query_edit_map);
+    free(job->document->query_hamming_map);
+    // destroy_entry_index(job->document->edit_tree);
+	// destroy_hamming_array(job->document->hamming_array);
+    free(job->document);
     free(job);
 }
 

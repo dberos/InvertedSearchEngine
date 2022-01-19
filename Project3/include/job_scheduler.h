@@ -1,23 +1,23 @@
 #pragma once
 
 #include"common_types.h"
-
+#include <pthread.h> 
 
 typedef Pointer (*Routine)(Core);
 
 struct job{
-    //only one of the below bool variables will be true
-    //the one that is true, will define the operation  of the job that needs to be done
-    bool edit_job;
-    bool hamming_job;
-    bool exact_job;
+    //A job is a document that we want to match
 
-    //This will be true if this job is an End Job
+    //this job should hold all the necessary doc info ( deduplicated document words, active queries of this document)
+    DocInfo document;
+
     // if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
     // for new jobs and terminate itself
     bool end_job;
 
-    int treshold;   //and this will define the threshold of the operation
+    //Check GetNextAvailRes for explanation of this
+    bool finish_job;
+
 };
 
 
@@ -29,14 +29,18 @@ struct job_scheduler{
     FiFoQueue q;
 
     //Mutexes
-    pthread_mutex_t queue_consume;
-    pthread_mutex_t addto_documentresults_mutex;
-    pthread_mutex_t edit_mutex;
+    pthread_mutex_t fifoqueue_mtx;
+    pthread_mutex_t stupidmtx;
+    
     
 
-    // This is a test
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    //Semaphores
+    sem_t emptyQ;
+    
+    //Barrier
+    pthread_barrier_t resultsbarrier;
+
+    
 };
 
 // Creating a Job Scheduler
@@ -58,10 +62,11 @@ void thread_destroy(pthread_t* thread);
 int submit_job(JobScheduler sch, Job job);
 
 
+
 // Struct Job operations -------------------------------------
 
 // Create a job
-Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold);
+Job create_job();
 
 // Create an End job
 // if a thread is assigned an End Job then it has to stop listening to the FIFO job queue
@@ -69,5 +74,13 @@ Job create_job(bool edit_job, bool hamming_job, bool exact_job, int threshold);
 Job create_End_job();
 
 
+//A finish job is a job placed on the FIFO(!) job queue
+//When a finish job is grabbed by a thread, then we know that all previous jobs have been submitted 
+Job create_finish_job();
+
+
 // Destroy a job
 void destroy_job(Job job);
+
+// Destroy an end job
+void destroy_end_or_finish_job(Job job);

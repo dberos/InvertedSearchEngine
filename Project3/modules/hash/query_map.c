@@ -28,6 +28,45 @@ QueryMap query_map_create(){
     return query_map;
 }
 
+QueryMap query_map_copy_create(QueryMap old){
+    // Creating an Active Query Set
+    QueryMap query_map=malloc(sizeof(*query_map));
+
+    // Set size to 0
+    query_map->size=0;
+    // Set starting capacity to the first prime of the array
+    query_map->capacity=old->capacity;
+    // Set Hash Function
+    query_map->hash_function=hash_string;
+
+    // Allocate memory for the array
+    query_map->array=malloc(sizeof(*query_map->array)*query_map->capacity);
+    // On each Node
+    for(int i=0;i<query_map->capacity;i++){
+        // Create a List
+        query_map->array[i].query_list=query_list_create();
+    }
+
+    //copy its contents
+    copy_query_map(old, query_map);
+
+    return query_map;
+}
+
+void copy_query_map(QueryMap old, QueryMap new){
+
+    for(int i=0;i<old->capacity;i++){
+        if(old->array[i].query_list->size>0){
+            for(QueryListNode node=old->array[i].query_list->head;node!=NULL;node=node->next){
+                Query copy_query = query_create(node->query->query_id, node->query->match_type, node->query->match_dist);
+                passWords_to_query(copy_query, node->query);
+                query_list_insert_raw(new->array[i].query_list, copy_query);
+            }
+        }
+    }
+
+}
+
 void query_map_destroy(QueryMap query_map){
     // On each Node
     for(int i=0;i<query_map->capacity;i++){
