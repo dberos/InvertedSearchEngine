@@ -29,6 +29,18 @@ Entry create_entry_with_payload(const String word, List payload){
     return entry;
 }
 
+void insert_entry_list_raw(EntryList el, Entry entry){
+    if(el->head==NULL){
+        el->head=entry;
+        el->end=entry;
+        el->size++;
+        return;
+    }
+    el->end->next=entry;
+    el->end=entry;
+    el->size++;
+}
+
 void destroy_entry(Entry entry,EntryList entry_list){
     // Free the word
     free(entry->word);
@@ -101,6 +113,15 @@ void print_payload(List payload){
     printf("payload: \n");
     for(ListNode node=payload->head;node!=NULL;node=node->next){
             printf("%u ", node->value);
+    }
+    printf("\n");
+
+}
+
+void print_entrylist(EntryList el){
+    printf("entrylist: ");
+    for(Entry node=el->head;node!=NULL;node=node->next){
+            printf("%s ", node->word);
     }
     printf("\n");
 

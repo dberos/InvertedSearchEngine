@@ -25,7 +25,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
+// #define _XOPEN_SOURCE 600 
+//https://stackoverflow.com/questions/61647896/unknown-type-name-pthread-barrier-t
 #include"../include/common_types.h"
 #include"../include/core.h"
 

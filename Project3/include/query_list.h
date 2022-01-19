@@ -26,6 +26,8 @@ void query_list_insert_head(QueryList query_list,Query query);
 
 // Inserting at the tail of a List without traverse
 void query_list_insert_tail(QueryList query_list,Query query);
+void query_list_insert_raw(QueryList list, Query query);
+
 
 // Remove a Query from the List based on its id
 bool query_list_remove(QueryList list,uint id);

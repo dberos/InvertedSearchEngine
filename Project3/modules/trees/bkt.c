@@ -1,10 +1,51 @@
 #include "../../include/bkt.h"
 
+
+// // Distance Tools
+// unsigned int minOfTwo(int x, int y) {
+//     return x > y ? y : x;
+// }
+
+// unsigned int minOfThree(int x, int y, int z) {
+//     return minOfTwo(minOfTwo(x, y), z);
+// }
+
+// //Distance Metrics 
+// unsigned int HammingDistance(String a, String b){
+
+//     int i, min, max, result;
+
+//     result=0;
+
+//     (strlen(a) < strlen(b)) ? (min=strlen(a), max=strlen(b)) : (min=strlen(b), max=strlen(a));
+
+//     for(i=0 ; i<min ; i++){
+//         if(a[i]!=b[i]) result++;
+//     }
+
+//     return result+max-min;
+
+// }
+
+// unsigned int EditDistance(String str1, String str2){
+//     if (!strlen(str1)) return strlen(str2);
+//     if (!strlen(str2)) return strlen(str1);
+    
+//     if (str1[0] == str2[0]) return EditDistance(&str1[1], &str2[1]);
+    
+//     return (1 + minOfThree(
+//                     EditDistance(&str1[1], str2),
+//                     EditDistance(str1, &str2[1]),
+//                     EditDistance(&str1[1], &str2[1])
+//                 )
+//             );
+// }
+
 unsigned int EditDistance(String a, int na, String b, int nb)
 {
 	int oo=0x7FFFFFFF;
 
-	static int T[2][MAX_WORD_LENGTH+1];
+    int T[2][MAX_WORD_LENGTH+1];
 
 	int ia, ib;
 
@@ -89,7 +130,7 @@ index_node_ptr create_index_node(const String word, List payload){
 }
 
 
-void build_entry_index(const EntryList el, MatchType type, Index_ptr ix){
+void build_entry_index(Core core, const EntryList el, MatchType type, Index_ptr ix){
 
     if(get_first(el)==NULL){
         perror("Entry list was empty!\nNo index was created!\n");
@@ -111,7 +152,7 @@ void build_entry_index(const EntryList el, MatchType type, Index_ptr ix){
     // int i=0;
     while(next_entry!=NULL){
         // printf("for build %d\n", i++);
-        add_index_node(ix->root, create_index_node(next_entry->word, next_entry->payload), type);
+        add_index_node(core, ix->root, create_index_node(next_entry->word, next_entry->payload), type);
         next_entry = get_next(el, next_entry);        
     }
 
@@ -119,7 +160,7 @@ void build_entry_index(const EntryList el, MatchType type, Index_ptr ix){
     return;
 }
 
-void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, Index_ptr ix){
+void build_entry_index_from_dictionary(Core core, Dictionary dictionary, MatchType type, Index_ptr ix){
 
     int root_flag=0;
 
@@ -133,7 +174,7 @@ void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, In
                     continue;   
                 }
 
-                add_index_node(ix->root, create_index_node(entry->word, entry->payload), type);
+                add_index_node(core, ix->root, create_index_node(entry->word, entry->payload), type);
                 
 
             }
@@ -150,7 +191,7 @@ void build_entry_index_from_dictionary(Dictionary dictionary, MatchType type, In
 
 }
 
-void fill_hamming_ix_array_from_dictionary(Index_ptr* array, Dictionary dictionary, MatchType type){
+void fill_hamming_ix_array_from_dictionary(Core core, Index_ptr* array, Dictionary dictionary, MatchType type){
 
     //MIN_WORD_LENGTH 4 | MAX_WORD_LENGTH 31 so we'll need 28 cells
     for(int i=0 ; i<28 ; i++){
@@ -169,7 +210,7 @@ void fill_hamming_ix_array_from_dictionary(Index_ptr* array, Dictionary dictiona
                 }
 
                 //if there is already a word with such length
-                add_index_node(array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
+                add_index_node(core, array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
                 
 
             }
@@ -181,7 +222,7 @@ void fill_hamming_ix_array_from_dictionary(Index_ptr* array, Dictionary dictiona
 }
 
 
-void fill_hamming_ix_array(Index_ptr* array, EntryList el, MatchType type){
+void fill_hamming_ix_array(Core core, Index_ptr* array, EntryList el, MatchType type){
 
     //MIN_WORD_LENGTH 4 | MAX_WORD_LENGTH 31 so we'll need 28 cells
     for(int i=0 ; i<28 ; i++){
@@ -197,7 +238,7 @@ void fill_hamming_ix_array(Index_ptr* array, EntryList el, MatchType type){
                 }
 
                 //if there is already a word with such length
-                add_index_node(array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
+                add_index_node(core, array[ strlen(entry->word)-4 ]->root, create_index_node(entry->word, entry->payload), type);
                 
 
             }
@@ -207,14 +248,19 @@ void fill_hamming_ix_array(Index_ptr* array, EntryList el, MatchType type){
 
 
 
-void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType type){
+void add_index_node(Core core, index_node_ptr parent, index_node_ptr newnode, MatchType type){
     // printf("add_index\n");
     unsigned int distance;
 
     // printf("pro dist\n");
 
     if(type==MT_HAMMING_DIST) distance = HammingDistance(parent->word, strlen(parent->word), newnode->word, strlen(newnode->word)); // Hamming Distance
-    else distance = EditDistance(parent->word, strlen(parent->word), newnode->word, strlen(newnode->word));  // Edit Distance
+    else{
+        
+    // pthread_mutex_lock(&core->job_scheduler->stupidmtx);
+    distance = EditDistance(parent->word, strlen(parent->word), newnode->word, strlen(newnode->word));  // Edit Distance
+    // pthread_mutex_unlock(&core->job_scheduler->stupidmtx);
+    } 
     // printf("after dist\n");
     
 
@@ -232,7 +278,7 @@ void add_index_node(index_node_ptr parent, index_node_ptr newnode, MatchType typ
         if(parent->children[i]->parent_distance == distance){
             // printf("palevw %d\n", j++);
             //recursive function call for this node
-            add_index_node(parent->children[i], newnode, type);
+            add_index_node(core, parent->children[i], newnode, type);
             return;
         }
     }
@@ -274,7 +320,7 @@ void destroy_entry_index(Index_ptr ix){
     free(ix);
 }
 
-void recursive_search(const String w, index_node_ptr node, int threshold, EntryList result, MatchType type){
+void recursive_search(Core core, const String w, index_node_ptr node, int threshold, EntryList result, MatchType type){
 
     //The search algorithm contains 3 steps:
 
@@ -284,8 +330,15 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
 
     unsigned int distance;
 
+
     if(type==MT_HAMMING_DIST) distance = HammingDistance(node->word, strlen(node->word), w, strlen(w)); // Hamming Distance
-    else distance = EditDistance(node->word, strlen(node->word), w, strlen(w));  // Edit Distance
+    else{
+
+    // pthread_mutex_lock(&core->job_scheduler->stupidmtx);
+    distance = EditDistance(node->word, strlen(node->word), w, strlen(w));  // Edit Distance
+    // pthread_mutex_unlock(&core->job_scheduler->stupidmtx);
+    } 
+    
 
     //If the distance is LE to the threshold then add it to result
     if(distance<=threshold){
@@ -300,14 +353,14 @@ void recursive_search(const String w, index_node_ptr node, int threshold, EntryL
     for( i=0 ; i<node->children_number ; i++ ){
         if((node->children[i]->parent_distance >= (distance-threshold)) && (node->children[i]->parent_distance <= (distance+threshold))){
             //add_word_to_list(node->children[i]->word, candidates);
-            recursive_search(w,node->children[i], threshold, result, type);
+            recursive_search(core, w,node->children[i], threshold, result, type);
         }
     }
 
     
 }
 
-void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList result, MatchType type){
+void lookup_entry_index(Core core, const String w, Index_ptr ix, int threshold, EntryList result, MatchType type){
 
     //we might come here by a hamming match type and there is high possibility that there is no BK tree with such word length
     if(ix==NULL){
@@ -315,7 +368,7 @@ void lookup_entry_index(const String w, Index_ptr ix, int threshold, EntryList r
         result->head=NULL;
         return;
     }
-    recursive_search(w,ix->root, threshold, result, type);
+    recursive_search(core, w,ix->root, threshold, result, type);
 }
 
 void destroy_hamming_array(Index_ptr* array){

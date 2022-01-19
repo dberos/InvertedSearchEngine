@@ -24,6 +24,13 @@ struct query_map{
 // Creating an active Query Set
 QueryMap query_map_create();
 
+// Create a copy of a query map
+QueryMap query_map_copy_create(QueryMap old);
+
+// Copy the contents of a query map
+void copy_query_map(QueryMap old, QueryMap new);
+
+
 // Destroying an active Query Set
 void query_map_destroy(QueryMap query_map);
 

@@ -37,6 +37,21 @@ void query_list_insert_head(QueryList query_list,Query query){
     query_list->size++;
 }
 
+void query_list_insert_raw(QueryList list, Query query){
+    QueryListNode querynode=(QueryListNode)malloc(sizeof(struct query_list_node));
+    querynode->query=query;
+    querynode->next = NULL;
+    if(list->head==NULL){
+        list->head=querynode;
+        list->tail=querynode;
+        list->size++;
+        return;
+    }
+    list->tail->next=querynode;
+    list->tail=querynode;
+    list->size++;
+}
+
 void query_list_insert_tail(QueryList list,Query query){
     QueryListNode node=malloc(sizeof(*node));
     node->next=NULL;

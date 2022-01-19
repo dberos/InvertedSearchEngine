@@ -16,8 +16,7 @@ $(MODULES)/lists/word_list.o $(MODULES)/lists/list.o $(MODULES)/lists/fifoqueue.
 $(MODULES)/hash/hash_functions.o $(MODULES)/hash/dictionary.o \
 $(MODULES)/hash/map.o $(MODULES)/hash/query_map.o $(MODULES)/hash/bloom_filter.o \
 $(MODULES)/methods/core.o $(MODULES)/methods/deduplication.o $(MODULES)/methods/global_core.o \
-$(MODULES)/methods/query.o $(MODULES)/methods/documents.o $(MODULES)/methods/job_scheduler.o \
-$(MODULES)/vector/vector.o $(MODULES)/trees/bk-tree.o
+$(MODULES)/methods/query.o $(MODULES)/methods/documents.o $(MODULES)/methods/job_scheduler.o 
 
 
 # Η βιβλιοθήκη

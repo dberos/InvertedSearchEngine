@@ -47,6 +47,8 @@ void destroy_entry_list(EntryList el);
 // If it doesnt exist create an entry 
 // Else update the payload
 bool insert_entry(EntryList entry_list,String word,uint id);
+void insert_entry_list_raw(EntryList el, Entry entry);
 
 
 void print_payload(List payload);
+void print_entrylist(EntryList el);
