@@ -1,9 +1,10 @@
 #pragma once
 
 #include"common_types.h"
+#include"entry.h"
 
 struct vector_node{
-    String word;
+    Entry entry;
 };
 
 struct vector{
@@ -19,10 +20,10 @@ Vector vector_create();
 void vector_destroy(Vector vector);
 
 // Inserting at the end of a Vector
-void vector_push_back(Vector vector,String word);
+void vector_push_back(Vector vector,Entry entry);
 
 // Get the Node of given position
 VectorNode vector_at(Vector vector,int pos);
 
-// Check whether word exists
+// Check whether word of the entry exists
 bool vector_find(Vector vector,String word);

@@ -4,9 +4,10 @@
 #include"vector.h"
 #include"core.h"
 #include"bkt.h"
+#include"entry.h"
 
 struct bkt_node{
-    String word;
+    Entry entry;
     Vector* vector;
 };
 
@@ -31,11 +32,11 @@ void bkt_destroy(Bkt bkt);
 // Destroying a BK-Tree
 void bkt_destroy(Bkt bkt);
 
-// Set the word of the root
-void bkt_set_root(Bkt bkt,String word);
+// Set the Entry of the root
+void bkt_set_root(Bkt bkt,Entry entry);
 
-// Insert a word at a BK-Tree
-void bkt_insert(Bkt bkt,String word);
+// Insert an entry at a BK-Tree
+void bkt_insert(Bkt bkt,Entry entry);
 
 // Find the similar words of given word given the threshold
-Vector bkt_find(Bkt bkt,String word,uint threshold);
+Vector bkt_find(Bkt bkt,String word,int threshold);

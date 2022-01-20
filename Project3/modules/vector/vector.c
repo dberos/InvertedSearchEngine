@@ -17,19 +17,13 @@ Vector vector_create(){
 }
 
 void vector_destroy(Vector vector){
-    for(int i=0;i<vector->size;i++){
-        // Free the lines if they aren't empty
-        if(vector->array[i].word!=NULL){
-            free(vector->array[i].word);
-        }
-    }
     // Free the array
     free(vector->array);
     // Free the vector
     free(vector);
 }
 
-void vector_push_back(Vector vector,String word){
+void vector_push_back(Vector vector,Entry entry){
     // Increase the size of vector
     vector->size++;
 
@@ -45,8 +39,8 @@ void vector_push_back(Vector vector,String word){
     int pos=vector->size-1;
     // Node for the insertion
     VectorNode node=&vector->array[pos];
-    // Set the word of the Node
-    node->word=strdup(word);
+    // Set the Entry of the Node
+    node->entry=entry;
 }
 
 VectorNode vector_at(Vector vector,int pos){
@@ -58,8 +52,8 @@ bool vector_find(Vector vector,String word){
     // Iterate over the array and check for word existance
     for(int i=0;i<vector->size;i++){
         VectorNode node=vector_at(vector,i);
-        if(node->word!=NULL){
-            if(strcmp(node->word,word)==0){
+        if(node->entry!=NULL){
+            if(strcmp(node->entry->word,word)==0){
                 return true;
             }
         }

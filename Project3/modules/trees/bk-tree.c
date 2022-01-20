@@ -3,9 +3,9 @@
 BktNode bkt_node_create(){
     // Allocating memory for the Node
     BktNode node=malloc(sizeof(*node));
-    // Set the word to NULL
-    // Root will get the word randomly
-    node->word=NULL;
+    // Set the root's entry to NULL
+    // Root will get the entry word randomly
+    node->entry=NULL;
     // Allocate memory for the Vector array
     node->vector=malloc(sizeof(*node->vector)*28);
     // Creating the Vectors
@@ -24,9 +24,6 @@ void bkt_node_destroy(BktNode node){
     // Free the array
     free(node->vector);
     // Free the word if it isn't NULL
-    if(node->word!=NULL){
-        free(node->word);
-    }
     // Free the Node
     free(node);
 }
@@ -57,49 +54,61 @@ void bkt_destroy(Bkt bkt){
     free(bkt);
 }
 
-void bkt_set_root(Bkt bkt,String word){
-    bkt->root->word=strdup(word);
+void bkt_set_root(Bkt bkt,Entry entry){
+    bkt->root->entry=entry;
 }
 
-void bkt_insert(Bkt bkt,String word){
+void bkt_insert(Bkt bkt,Entry entry){
     // Assert bkt_set_root has already been called
     // Or stop the program to avoid segs
-    assert(bkt->root->word!=NULL);
+    assert(bkt->root->entry!=NULL);
 
     // Find the distance from the root
-    int distance=bkt->distance(bkt->root->word,strlen(bkt->root->word),
-                                    word,strlen(word));
+    int distance=bkt->distance
+        (bkt->root->entry->word,
+            strlen(bkt->root->entry->word),
+                entry->word,
+                    strlen(entry->word));
     
     // Insert at the correct Vector
-    vector_push_back(bkt->root->vector[distance],word);
+    vector_push_back(bkt->root->vector[distance],entry);
 }
 
-Vector bkt_find(Bkt bkt,String word,uint threshold){
+Vector bkt_find(Bkt bkt,String word,int threshold){
     // Create a Vector to store the similar words
     Vector results=vector_create();
     // Find the distance from the root
-    int distance=bkt->distance(bkt->root->word,strlen(bkt->root->word),
-                                    word,strlen(word));
+    int distance=bkt->distance
+        (bkt->root->entry->word,
+            strlen(bkt->root->entry->word),
+                word,
+                    strlen(word));
     
     // Check whether root word can be inserted
     if(distance<=threshold){
-        vector_push_back(results,bkt->root->word);
+        vector_push_back(results,bkt->root->entry);
     }
     
     // Iterate over [d-n,d+1] asserting starting position is positive
-    for(int d=((d=distance-threshold)<0) ? 1 : (distance-threshold);(d<=distance+threshold);d++){
-        // Find the vector of this position
-        Vector vector=bkt->root->vector[d];
-        for(int i=0;i<vector->size;i++){
-            // Find distance
-            int dist=bkt->distance(vector->array[i].word,strlen(vector->array[i].word)
-                                        ,word,strlen(word));
-            // Assert distance is inside given threshold
-            if(dist<=threshold){
-                // Insert at the results
-                vector_push_back(results,vector->array[i].word);
+    for(int d=((d=distance-threshold)<0) ? 1 : (distance-threshold);
+        (d<=distance+threshold);
+            d++){
+                // Find the vector of this position
+                Vector vector=bkt->root->vector[d];
+                for(int i=0;i<vector->size;i++){
+                    // Find distance
+                    int dist=bkt->distance
+                        (vector->array[i].entry->word,
+                            strlen(vector->array[i].entry->word),
+                                word,
+                                    strlen(word));
+                                    
+                    // Assert distance is inside given threshold
+                    if(dist<=threshold){
+                        // Insert at the results
+                        vector_push_back(results,vector->array[i].entry);
+                    }
+                }
             }
-        }
-    }
     return results;
 }
