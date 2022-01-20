@@ -75,7 +75,7 @@ void bkt_insert(Bkt bkt,Entry entry){
 }
 
 Vector bkt_find(Bkt bkt,String word,int threshold){
-    // Create a Vector to store the similar words
+    // Create a Vector to store the similar entry results
     Vector results=vector_create();
     // Find the distance from the root
     int distance=bkt->distance
@@ -84,12 +84,12 @@ Vector bkt_find(Bkt bkt,String word,int threshold){
                 word,
                     strlen(word));
     
-    // Check whether root word can be inserted
+    // Check whether root entry can be inserted
     if(distance<=threshold){
         vector_push_back(results,bkt->root->entry);
     }
     
-    // Iterate over [d-n,d+1] asserting starting position is positive
+    // Iterate over [d-n,d+n] asserting starting position is positive
     for(int d=((d=distance-threshold)<0) ? 1 : (distance-threshold);
         (d<=distance+threshold);
             d++){
