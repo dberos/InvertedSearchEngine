@@ -15,9 +15,10 @@ struct job_scheduler{
     DocumentQueue document_queue;
 
     volatile sig_atomic_t fin;
+    int num_query_threads;
     int num_match_threads;
     int num_res_threads;
-    pthread_t query_thread;
+    pthread_t* query_threads;
     pthread_t* match_threads;
     pthread_t* res_threads;
 
@@ -45,10 +46,13 @@ struct job_scheduler{
     pthread_mutex_t add_res_job_mutex;
     pthread_barrier_t res_barrier;
     pthread_mutex_t add_core_document_mutex;
+    volatile sig_atomic_t total_jobs;
+    volatile sig_atomic_t finished_jobs;
+    pthread_mutex_t jobs_mutex;
 };
 
 // Creating a Job Scheduler
-JobScheduler job_scheduler_create(int num_match_threads,int num_res_threads);
+JobScheduler job_scheduler_create(int num_query_threads,int num_match_threads,int num_res_threads);
 
 // Destroying a Job Scheduler
 void job_scheduler_destroy(JobScheduler job_scheduler);

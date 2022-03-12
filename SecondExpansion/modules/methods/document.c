@@ -51,12 +51,14 @@ void document_destroy(Document document){
 }
 
 void document_deduplication(Document document){
-    String word=strtok(document->doc_str," ");
-    while(word!=NULL){
-		// Insert at the map, if it can get inserted
-        map_insert(document->map,word);
-        word=strtok(NULL," ");
-    }
+	// Get each word
+	String token;
+	// Get whole document string
+	String res=document->doc_str;
+	// Thread safe strtok_r
+	while((token=strtok_r(res," ",&res))){
+		map_insert(document->map,token);
+	}
 }
 
 void document_create_edit(Core core,Document document){

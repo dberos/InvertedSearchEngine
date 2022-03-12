@@ -41,15 +41,17 @@ ErrorCode InitializeIndex(){
 	// Creating the main struct
 	core=core_create();
 	// Creating the Job Scheduler
-	job_scheduler=job_scheduler_create(1,3);
+	job_scheduler=job_scheduler_create(3,2,2);
 
-	// Creating the Query thread
-	thread_init(&job_scheduler->query_thread,(Pointer)query_routine);
-	// Creating the MatchDocument threads (1st arg)
+	// Creating the Query threads (1st arg)
+	for(int i=0;i<job_scheduler->num_query_threads;i++){
+		thread_init(&job_scheduler->query_threads[i],(Pointer)query_routine);
+	}
+	// Creating the MatchDocument threads (2nd arg)
 	for(int i=0;i<job_scheduler->num_match_threads;i++){
 		thread_init(&job_scheduler->match_threads[i],(Pointer)match_routine);
 	}
-	// Creating the GetNextAvailRes threads (2nd arg)
+	// Creating the GetNextAvailRes threads (3rd arg)
 	for(int i=0;i<job_scheduler->num_res_threads;i++){
 		thread_init(&job_scheduler->res_threads[i],(Pointer)res_routine);
 	}
@@ -68,15 +70,19 @@ ErrorCode DestroyIndex(){
 	for(int i=0;i<job_scheduler->num_res_threads;i++){
 		sem_post(&job_scheduler->res_semaphore);
 	}
-	// Post Query thread 
-	sem_post(&job_scheduler->query_queue_semaphore);
+	// Post Query threads
+	for(int i=0;i<job_scheduler->num_query_threads;i++){
+		sem_post(&job_scheduler->query_queue_semaphore);
+	}
 	// Signal Match threads that program is finishing
 	pthread_cond_broadcast(&job_scheduler->match_queue_cond);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->main_mutex);
 
-	// Join the Query thread
-	thread_destroy(&job_scheduler->query_thread);
+	// Join the Query threads
+	for(int i=0;i<job_scheduler->num_query_threads;i++){
+		thread_destroy(&job_scheduler->query_threads[i]);
+	}
 	// Join the MatchDocument threads
 	for(int i=0;i<job_scheduler->num_match_threads;i++){
 		thread_destroy(&job_scheduler->match_threads[i]);
@@ -109,12 +115,21 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	set_start_query_job(job,start_query_job);
 	// Free Query's String
 	free(str);
+
 	// Lock the mutex for safely submission
 	pthread_mutex_lock(&job_scheduler->add_query_job_mutex);
 	// Submit Job at the Query Queue
 	queue_insert_last(job_scheduler->query_queue,job);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->add_query_job_mutex);
+
+	// Lock the mutex to increase the Job count
+	pthread_mutex_lock(&job_scheduler->jobs_mutex);
+	// Increase the count of total Jobs
+	job_scheduler->total_jobs++;
+	// Unlock the mutex
+	pthread_mutex_unlock(&job_scheduler->jobs_mutex);
+
 	// Post semaphore 
 	sem_post(&job_scheduler->query_queue_semaphore);
 	// Unlock the mutex
@@ -134,12 +149,21 @@ ErrorCode EndQuery(QueryID query_id){
 	Job job=job_create();
 	// Set Job
 	set_end_query_job(job,end_query_job);
+
 	// Lock the mutex for safely submission
 	pthread_mutex_lock(&job_scheduler->add_query_job_mutex);
 	// Submit Job at the Query Queue
 	queue_insert_last(job_scheduler->query_queue,job);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->add_query_job_mutex);
+
+	// Lock the mutex to increase the Job count
+	pthread_mutex_lock(&job_scheduler->jobs_mutex);
+	// Increase the count of total Jobs
+	job_scheduler->total_jobs++;
+	// Unlock the mutex
+	pthread_mutex_unlock(&job_scheduler->jobs_mutex);
+
 	// Post semaphore
 	sem_post(&job_scheduler->query_queue_semaphore);
 	// Unlock the mutex
@@ -155,7 +179,9 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	pthread_mutex_lock(&job_scheduler->main_mutex);
 	// Post semaphore
 	sem_post(&job_scheduler->query_queue_semaphore);
-	// If there are no remaining Jobs then Query thread will wait at barrier
+	// Send signal
+	pthread_cond_signal(&job_scheduler->res_queue_cond);
+	// If there are no remaining Jobs then a Query thread will wait at barrier
 	// So does main thread
 	pthread_barrier_wait(&job_scheduler->match_barrier);
 
@@ -169,6 +195,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	set_match_document_job(job,match_document_job);
 	// Free Document's String
 	free(str);
+
 	// Submit Job at the Match Queue
 	queue_insert_last(job_scheduler->match_queue,job);
 	// Signal threads there is available Job
@@ -194,12 +221,14 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	Job job=job_create();
 	// Set Job
 	set_get_next_avail_res_job(job,get_next_avail_res_job);
+
 	// Lock the mutex to safely insert a Job
 	pthread_mutex_lock(&job_scheduler->add_res_job_mutex);
 	// Submit Job at the GetNextAvailRes Queue
 	queue_insert_last(job_scheduler->res_queue,job);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->add_res_job_mutex);
+	
 	// Post a waiting GetNextAvailRes thread
 	sem_post(&job_scheduler->res_semaphore);
 	// Wait at barrier for the result

@@ -10,11 +10,11 @@ ErrorCode execute_MatchDocument(Job job){
 	Document document=document_create(job->match_document_job->doc_id,
 										job->match_document_job->doc_str);
 
-	// Deduplicating the Document
-	document_deduplication(document);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->add_document_mutex);
 
+	// Deduplicating the Document
+	document_deduplication(document);
 	// Creating the Document's Edit Distance BK-Tree from all active MT_EDIT_DIST Entries
 	document_create_edit(core,document);
 	// Creating the Document Hamming Distance BK-Trees from all active MT_HAMMING_DIST Entries

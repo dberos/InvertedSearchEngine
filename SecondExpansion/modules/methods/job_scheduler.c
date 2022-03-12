@@ -3,7 +3,7 @@
 extern Core core;
 extern JobScheduler job_scheduler;
 
-JobScheduler job_scheduler_create(int num_match_threads,int num_res_threads){
+JobScheduler job_scheduler_create(int num_query_threads,int num_match_threads,int num_res_threads){
     // Allocating memory for the Job Scheduler
     JobScheduler job_scheduler=malloc(sizeof(*job_scheduler));
     
@@ -15,10 +15,14 @@ JobScheduler job_scheduler_create(int num_match_threads,int num_res_threads){
     job_scheduler->res_queue=queue_create();
     // Creating a Queue to get available documents for GetNextAvailRes
     job_scheduler->document_queue=document_queue_create();
+    // Set number of Query threads
+    job_scheduler->num_query_threads=num_query_threads;
     // Set number of MatchDocument threads
     job_scheduler->num_match_threads=num_match_threads;
     // Set number of GetNextAvailRes threads
     job_scheduler->num_res_threads=num_res_threads;
+    // Allocating memory for the Query threads
+    job_scheduler->query_threads=malloc(sizeof(*job_scheduler->query_threads)*job_scheduler->num_query_threads);
     // Allocating memory for the MatchDocument threads
     job_scheduler->match_threads=malloc(sizeof(*job_scheduler->match_threads)*num_match_threads);
     // Allocating memory for the GetNextAvailRes threads
@@ -70,6 +74,12 @@ JobScheduler job_scheduler_create(int num_match_threads,int num_res_threads){
     pthread_barrier_init(&job_scheduler->res_barrier,0,2);
     // Creating the mutex to insert Document at the main Queue for the destroys
     pthread_mutex_init(&job_scheduler->add_core_document_mutex,0);
+    // Creating the mutex for the Jobs count
+    pthread_mutex_init(&job_scheduler->jobs_mutex,0);
+    // Set starting number of Jobs
+    job_scheduler->total_jobs=0;
+    // Set starting number of finished Jobs
+    job_scheduler->finished_jobs=0;
 
     // Set program finishing flag to 0
     job_scheduler->fin=0;
@@ -125,6 +135,8 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     pthread_barrier_destroy(&job_scheduler->res_barrier);
     // Destroying the mutex for the main Queue
     pthread_mutex_destroy(&job_scheduler->add_core_document_mutex);
+    // Destroying the mutex for the Jobs count
+    pthread_mutex_destroy(&job_scheduler->jobs_mutex);
     
 
     // Destroying the Query Queue
@@ -135,6 +147,8 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     queue_destroy(job_scheduler->res_queue);
     // Destroying the Queue for available documents
     document_queue_destroy(job_scheduler->document_queue);
+    // Free the allocated memory for the Query threads
+    free(job_scheduler->query_threads);
     // Free the allocated memory for the Match threads
     free(job_scheduler->match_threads);
     // Free the allocated memory for the GetNextAvailRes threads
@@ -172,8 +186,16 @@ Routine query_routine(Core core){
             job_execute(job);
         }
         else{
-            // Or wait at barrier for MatchDocument to procceed
+            // Lock the mutex
+            pthread_mutex_lock(&job_scheduler->res_queue_mutex);
+            // Wait for signal
+            while(job_scheduler->total_jobs!=job_scheduler->finished_jobs){
+                pthread_cond_wait(&job_scheduler->res_queue_cond,&job_scheduler->res_queue_mutex);
+            }
+            // Wait at barrier for MatchDocument to procceed
             pthread_barrier_wait(&job_scheduler->match_barrier);
+            // Unlock the mutex
+            pthread_mutex_unlock(&job_scheduler->res_queue_mutex);
         }
     }
     return 0;

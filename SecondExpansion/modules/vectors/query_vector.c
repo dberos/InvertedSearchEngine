@@ -36,17 +36,8 @@ void query_vector_push_back(QueryVector vector,QueryID query_id,String query_str
     pthread_mutex_lock(&job_scheduler->query_vector_mutex);
     // Increase the size of vector
     vector->size++;
-
-    // If it needs realloc
-    if(vector->capacity<vector->size){
-        // Double up the capacity
-        vector->capacity*=2;
-        // Realloc
-        vector->array=realloc(vector->array,sizeof(*vector->array)*vector->capacity);
-    }
-
-    // Position for the insertion since size is increased
-    int pos=vector->size-1;
+    // Get position
+    int pos=query_id-1;
     // Node for the insertion
     QueryVectorNode node=&vector->array[pos];
 
