@@ -40,7 +40,7 @@ void test_create(void){
 
 void test_insert(void){
     srand(time(0));
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Dictionary dictionary=dictionary_create();
     int* ids=malloc(sizeof(*ids)*10000);
     for(int i=0;i<10000;i++){
@@ -63,7 +63,7 @@ void test_insert(void){
 
 void test_find(void){
     srand(time(0));
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Dictionary dictionary=dictionary_create();
     int* ids=malloc(sizeof(*ids)*10000);
     String* strings=malloc(sizeof(*strings)*10000);
@@ -88,7 +88,7 @@ void test_find(void){
 }
 
 void test_remove(void){
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Dictionary dictionary=dictionary_create();
     String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){

@@ -4,6 +4,9 @@ extern Core core;
 extern JobScheduler job_scheduler;
 
 JobScheduler job_scheduler_create(int num_query_threads,int num_match_threads,int num_res_threads){
+    // Assert at least 1 thread of each type exists
+    assert(num_query_threads>0 && num_match_threads>0 && num_res_threads>0);
+
     // Allocating memory for the Job Scheduler
     JobScheduler job_scheduler=malloc(sizeof(*job_scheduler));
     
@@ -164,6 +167,13 @@ void thread_init(pthread_t* thread,Routine routine){
 void thread_destroy(pthread_t* thread){
     // Join the thread
     pthread_join(*thread,0);
+    /**
+     * Detach the thread
+     * Tell to OS to release resources
+     * Without it, sometimes ended in deadlock
+     * After many make run | valgrind in a row without make clean
+     **/
+    pthread_detach(*thread);
 }
 
 Routine query_routine(Core core){

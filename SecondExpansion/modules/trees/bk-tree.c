@@ -25,7 +25,6 @@ void bkt_node_destroy(BktNode node){
     }
     // Free the array
     free(node->vector);
-    // Free the word if it isn't NULL
     // Free the Node
     free(node);
 }

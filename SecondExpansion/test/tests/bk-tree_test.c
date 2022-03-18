@@ -28,7 +28,7 @@ static String create_random_string(){
 // BK-Tree functions needed mutex
 
 void test_create(void){
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Bkt bkt=bkt_create(MT_EDIT_DIST);
     TEST_ASSERT(bkt->distance==EditDistance);
     TEST_ASSERT(bkt->match_type==MT_EDIT_DIST);
@@ -40,7 +40,7 @@ void test_create(void){
 }
 
 void test_insert(void){
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Bkt bkt=bkt_create(MT_EDIT_DIST);
     EntryList entry_list=create_entry_list();
     String* strings=malloc(sizeof(*strings)*10000);
@@ -72,7 +72,7 @@ void test_insert(void){
 }
 
 void test_find(void){
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     Bkt bkt=bkt_create(MT_EDIT_DIST);
     EntryList entry_list=create_entry_list();
     String strings[]={"help","fall","felt","fell","small","melt"};

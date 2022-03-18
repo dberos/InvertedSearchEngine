@@ -31,15 +31,26 @@ void query_vector_destroy(QueryVector vector){
     // Free the Vector
     free(vector);
 }
-void query_vector_push_back(QueryVector vector,QueryID query_id,String query_str,MatchType match_type,uint match_dist){
+
+void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,MatchType match_type,uint match_dist){
     // Lock the mutex
     pthread_mutex_lock(&job_scheduler->query_vector_mutex);
     // Increase the size of vector
     vector->size++;
+
+    // If it needs realloc
+    if(vector->capacity<query_id){
+        // Double up the capacity
+        vector->capacity*=2;
+        // Realloc
+        vector->array=realloc(vector->array,sizeof(*vector->array)*vector->capacity);
+    }
+
     // Get position
     int pos=query_id-1;
     // Node for the insertion
     QueryVectorNode node=&vector->array[pos];
+
 
     // Creating a Query
     Query query=query_create(query_id,match_type,match_dist);

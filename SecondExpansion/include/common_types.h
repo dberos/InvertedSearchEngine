@@ -27,14 +27,12 @@ typedef unsigned int uint;
 typedef unsigned char uchar;
 
 typedef ulong (*HashFunction)(String);
-typedef uint (*HashFunc)(Pointer);
 typedef uint (*DistanceFunction)(String,int,String,int);
 
 typedef enum{
     NaN,STARTQUERY,ENDQUERY,MATCHDOCUMENT,GETNEXTAVAILRES
 }JobType;
 
-typedef struct word* Word;
 typedef struct entry* Entry;
 typedef struct entry_list* EntryList;
 typedef struct entry_list_node* EntryListNode;
@@ -48,10 +46,6 @@ typedef struct list_node* ListNode;
 typedef struct list* List;
 typedef struct core* Core;
 typedef struct Query* Query;
-typedef struct query_map_node* QueryMapNode;
-typedef struct query_map* QueryMap;
-typedef struct query_list_node* QueryListNode;
-typedef struct query_list* QueryList;
 typedef struct Document* Document;
 typedef struct vector_node* VectorNode;
 typedef struct vector* Vector;

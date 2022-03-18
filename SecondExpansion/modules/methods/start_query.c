@@ -38,7 +38,7 @@ ErrorCode execute_StartQuery(Job job){
 	free(str);
 	
 	// Insert at the active Query Set
-	query_vector_push_back(core->vector,
+	query_vector_insert(core->vector,
 								job->start_query_job->query_id,
 									job->start_query_job->query_str,
 										job->start_query_job->match_type,

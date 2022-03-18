@@ -179,10 +179,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	pthread_mutex_lock(&job_scheduler->main_mutex);
 	// Post semaphore
 	sem_post(&job_scheduler->query_queue_semaphore);
-	// Send signal
-	pthread_cond_signal(&job_scheduler->res_queue_cond);
-	// If there are no remaining Jobs then a Query thread will wait at barrier
-	// So does main thread
+	/**
+	 * If all Start | End Query Jobs have been completed
+	 * Then a Query thread will wait at barrier
+	 * So does main thread, to procceed submitting MatchDocument Jobs
+	 **/
 	pthread_barrier_wait(&job_scheduler->match_barrier);
 
 	// Cast String to not disqualify const expression

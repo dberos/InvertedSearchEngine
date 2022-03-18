@@ -55,7 +55,7 @@ void test_insert(void){
 }
 void test_find(void){
     // list_find needed mutex
-    job_scheduler=job_scheduler_create(0,0);
+    job_scheduler=job_scheduler_create(1,1,1);
     List list=list_create();
     for(int i=0;i<10000;i++){
         list_insert_tail(list,i);
