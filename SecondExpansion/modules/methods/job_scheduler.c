@@ -64,6 +64,8 @@ JobScheduler job_scheduler_create(int num_query_threads,int num_match_threads,in
     sem_init(&job_scheduler->semaphore,0,0);
     // Creating the mutex for the active Query Set
     pthread_mutex_init(&job_scheduler->query_vector_mutex,0);
+    // Creating the mutex for the barrier
+    pthread_mutex_init(&job_scheduler->barrier_mutex,0);
 
     // Creating the mutex for the GetNextAvailRes Queue
     pthread_mutex_init(&job_scheduler->res_queue_mutex,0);
@@ -125,6 +127,9 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     sem_destroy(&job_scheduler->semaphore);
     // Destroying the mutex for the active Query Set
     pthread_mutex_destroy(&job_scheduler->query_vector_mutex);
+    // Destroying the mutex for the barrier
+    pthread_mutex_destroy(&job_scheduler->barrier_mutex);
+    
 
     // Destroying the mutex for the GetNextAvailRes Queue
     pthread_mutex_destroy(&job_scheduler->res_queue_mutex);

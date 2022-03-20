@@ -8,7 +8,7 @@ uint EditDistance(String a, int na,String b, int nb)
 {
 	int oo=0x7FFFFFFF;
 
-	static int T[2][MAX_WORD_LENGTH+1];
+	int T[2][MAX_WORD_LENGTH+1];
 
 	int ia, ib;
 

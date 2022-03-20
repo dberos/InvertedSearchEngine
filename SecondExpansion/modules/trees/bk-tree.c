@@ -51,22 +51,17 @@ Bkt bkt_create(MatchType match_type){
 }
 
 void bkt_destroy(Bkt bkt){
-    pthread_mutex_lock(&job_scheduler->bkt_mutex);
     // Destroy the root
     bkt_node_destroy(bkt->root);
     // Free the BK-Tree
     free(bkt);
-    pthread_mutex_unlock(&job_scheduler->bkt_mutex);
 }
 
 void bkt_set_root(Bkt bkt,Entry entry){
-    pthread_mutex_lock(&job_scheduler->bkt_mutex);
     bkt->root->entry=entry;
-    pthread_mutex_unlock(&job_scheduler->bkt_mutex);
 }
 
 void bkt_insert(Bkt bkt,Entry entry){
-    pthread_mutex_lock(&job_scheduler->bkt_mutex);
     // Assert bkt_set_root has already been called
     // Or stop the program to avoid segs
     assert(bkt->root->entry!=NULL);
@@ -80,11 +75,9 @@ void bkt_insert(Bkt bkt,Entry entry){
     
     // Insert at the correct Vector
     vector_push_back(bkt->root->vector[distance],entry);
-    pthread_mutex_unlock(&job_scheduler->bkt_mutex);
 }
 
 Vector bkt_find(Bkt bkt,String word,int threshold){
-    pthread_mutex_lock(&job_scheduler->bkt_mutex);
     // Create a Vector to store the similar entry results
     Vector results=vector_create();
     // Find the distance from the root
@@ -92,7 +85,6 @@ Vector bkt_find(Bkt bkt,String word,int threshold){
     if(bkt->root->entry==NULL){
         // Destroy the Vector
         vector_destroy(results);
-        pthread_mutex_unlock(&job_scheduler->bkt_mutex);
         // And return NULL
         // To avoid segs calculating distance to an empty root
         return NULL;
@@ -129,6 +121,5 @@ Vector bkt_find(Bkt bkt,String word,int threshold){
                     }
                 }
             }
-    pthread_mutex_unlock(&job_scheduler->bkt_mutex);
     return results;
 }

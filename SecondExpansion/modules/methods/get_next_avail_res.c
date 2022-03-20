@@ -59,7 +59,9 @@ ErrorCode execute_GetNextAvailRes(Job job){
 	
 	// Debug
 	if(document==NULL){
+		pthread_mutex_lock(&job_scheduler->barrier_mutex);
 		pthread_barrier_wait(&job_scheduler->res_barrier);
+		pthread_mutex_unlock(&job_scheduler->barrier_mutex);
 		return EC_NO_AVAIL_RES;
 	}
 	// Set attributes
@@ -83,8 +85,12 @@ ErrorCode execute_GetNextAvailRes(Job job){
 	document_queue_insert_last(core->document_queue,document);
 	// Unlock the mutex
 	pthread_mutex_unlock(&job_scheduler->add_core_document_mutex);
+	// Lock the mutex
+	pthread_mutex_lock(&job_scheduler->barrier_mutex);
 	// Wait at barrier for the result
 	pthread_barrier_wait(&job_scheduler->res_barrier);
+	// Unlock the mutex
+	pthread_mutex_unlock(&job_scheduler->barrier_mutex);
 	// Destroy the Job
     job_destroy(job);
 	return EC_SUCCESS;
