@@ -26,15 +26,14 @@ void query_destroy(Query query){
 }
 
 void query_cleanup(Query query,String query_str){
-    // Get the whole Query String
-    String str=strdup(query_str);
-    // Each word of the Query
-    String word=strtok(str," ");
     // Get each word
-    while(word!=NULL){
-        // Insert each word at the list
-        linked_list_insert_end(query->list,word);
-        word=strtok(NULL," ");
-    }
+	String token;
+	// Get whole Query string
+	String str=strdup(query_str);
+    String res=str;
+	// Thread safe strtok_r
+	while((token=strtok_r(res," ",&res))){
+		linked_list_insert_end(query->list,token);
+	}
     free(str);
 }
