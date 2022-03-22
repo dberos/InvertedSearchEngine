@@ -11,7 +11,7 @@ struct queue_node{
 struct queue{
     QueueNode head;
     QueueNode tail;
-    volatile sig_atomic_t size;
+    atomic_int size;
 };
 
 // Creating a Queue

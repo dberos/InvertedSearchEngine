@@ -60,8 +60,6 @@ void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,Ma
     
     // Set Node's Query
     node->query=query;
-    // Unlock the mutex
-    // pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
 }
 
 Query query_vector_at(QueryVector vector,uint pos){

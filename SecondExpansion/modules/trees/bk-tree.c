@@ -30,7 +30,6 @@ void bkt_node_destroy(BktNode node){
 }
 
 Bkt bkt_create(MatchType match_type){
-    pthread_mutex_lock(&job_scheduler->bkt_mutex);
     // Allocating memory for the BK-Tree
     Bkt bkt=malloc(sizeof(*bkt));
     // Set the Match Type of the BK-Tree
@@ -45,7 +44,6 @@ Bkt bkt_create(MatchType match_type){
     else{
         bkt->distance=HammingDistance;
     }
-    pthread_mutex_unlock(&job_scheduler->bkt_mutex);
     // Return the BK-Tree
     return bkt;
 }
@@ -67,7 +65,7 @@ void bkt_insert(Bkt bkt,Entry entry){
     assert(bkt->root->entry!=NULL);
 
     // Find the distance from the root
-    int distance=bkt->distance
+    atomic_int distance=bkt->distance
         (bkt->root->entry->word,
             strlen(bkt->root->entry->word),
                 entry->word,
@@ -89,7 +87,7 @@ Vector bkt_find(Bkt bkt,String word,int threshold){
         // To avoid segs calculating distance to an empty root
         return NULL;
     }
-    int distance=bkt->distance
+    atomic_int distance=bkt->distance
         (bkt->root->entry->word,
             strlen(bkt->root->entry->word),
                 word,
@@ -108,7 +106,7 @@ Vector bkt_find(Bkt bkt,String word,int threshold){
                 Vector vector=bkt->root->vector[d];
                 for(int i=0;i<vector->size;i++){
                     // Find distance
-                    int dist=bkt->distance
+                    atomic_int dist=bkt->distance
                         (vector->array[i].entry->word,
                             strlen(vector->array[i].entry->word),
                                 word,

@@ -14,7 +14,7 @@ struct job_scheduler{
     Queue res_queue;
     DocumentQueue document_queue;
 
-    volatile sig_atomic_t fin;
+    atomic_int fin;
     int num_query_threads;
     int num_match_threads;
     int num_res_threads;
@@ -47,8 +47,8 @@ struct job_scheduler{
     pthread_mutex_t add_res_job_mutex;
     pthread_barrier_t res_barrier;
     pthread_mutex_t add_core_document_mutex;
-    volatile sig_atomic_t total_jobs;
-    volatile sig_atomic_t finished_jobs;
+    atomic_int total_jobs;
+    atomic_int finished_jobs;
     pthread_mutex_t jobs_mutex;
 };
 

@@ -9,7 +9,7 @@ struct linked_list_node{
 
 struct linked_list{
     LinkedListNode head;
-    int size;
+    atomic_int size;
 };
 
 // Creating a Linked List

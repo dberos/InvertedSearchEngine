@@ -19,6 +19,7 @@
 #include<sys/time.h>
 #include<pthread.h>
 #include<semaphore.h>
+#include<stdatomic.h>
 
 typedef void* Pointer;
 typedef char* String;
