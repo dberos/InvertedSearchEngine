@@ -12,7 +12,7 @@ struct list_node{
 struct list{
     ListNode head;
     ListNode tail;
-    atomic_int size;
+    int size;
 };
 
 // Creating a List

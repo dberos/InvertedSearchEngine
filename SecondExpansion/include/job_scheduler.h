@@ -47,8 +47,8 @@ struct job_scheduler{
     pthread_mutex_t add_res_job_mutex;
     pthread_barrier_t res_barrier;
     pthread_mutex_t add_core_document_mutex;
-    atomic_int total_jobs;
-    atomic_int finished_jobs;
+    int total_jobs;
+    int finished_jobs;
     pthread_mutex_t jobs_mutex;
 };
 

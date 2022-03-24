@@ -13,7 +13,7 @@ Map map_create(){
     // Set starting size to 0;
     map->size=0;
     // Set starting capacity as the first prime from the array
-    map->capacity=prime_table[0];
+    map->capacity=prime_table[2];
     // Set Hash Function
     map->hash_function=hash_string;
 

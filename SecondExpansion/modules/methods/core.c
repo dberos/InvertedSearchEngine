@@ -41,7 +41,7 @@ ErrorCode InitializeIndex(){
 	// Creating the main struct
 	core=core_create();
 	// Creating the Job Scheduler
-	job_scheduler=job_scheduler_create(3,7,1);
+	job_scheduler=job_scheduler_create(3,9,1);
 
 	// Creating the Query threads (1st arg)
 	for(int i=0;i<job_scheduler->num_query_threads;i++){

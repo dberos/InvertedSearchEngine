@@ -5,11 +5,10 @@
 void test_create(void){
     HashTable hash_table=hash_table_create();
     TEST_ASSERT(hash_table->size==0);
-    TEST_ASSERT(hash_table->capacity==53);
-    TEST_ASSERT(hash_table->hash_function==hash_string);
+    TEST_ASSERT(hash_table->capacity==389);
     TEST_ASSERT(hash_table->array!=NULL);
     for(int i=0;i<hash_table->capacity;i++){
-        TEST_ASSERT(hash_table->array[i].key==NULL);
+        TEST_ASSERT(hash_table->array[i].key==0);
         TEST_ASSERT(hash_table->array[i].value!=NULL);
     }
     hash_table_destroy(hash_table);

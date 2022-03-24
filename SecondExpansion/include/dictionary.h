@@ -15,8 +15,8 @@ struct dictionary_node{
 
 struct dictionary{
     DictionaryNode array;
-    atomic_int size;
-    atomic_int capacity;
+    int size;
+    int capacity;
     HashFunction hash_function;
 };
 

@@ -9,13 +9,12 @@
 // Open Addressing Hash Table to match existing Queries 
 
 struct hash_node{
-    String key;                 // Key is the QueryID
+    QueryID key;
     LinkedList value;           // Value is a List with all matched words of this Query
 };
 
 struct hash_table{
     HashNode array;             // Array of Hash Table
-    HashFunction hash_function; // Hash Fucntion
     int size;                   // Size of Hash Table
     int capacity;               // Capacity of Hash Table
 };

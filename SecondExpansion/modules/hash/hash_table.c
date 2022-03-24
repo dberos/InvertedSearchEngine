@@ -13,9 +13,7 @@ HashTable hash_table_create(){
     // Set starting size
     hash_table->size=0;
     // Set starting capacity
-    hash_table->capacity=hash_primes[0];
-    // Set Hash Function
-    hash_table->hash_function=hash_string;
+    hash_table->capacity=hash_primes[3];
 
     // Allocating memory for the array
     hash_table->array=malloc(sizeof(*hash_table->array)*hash_table->capacity);
@@ -23,8 +21,8 @@ HashTable hash_table_create(){
     for(int i=0;i<hash_table->capacity;i++){
         // Get the Node
         HashNode node=&hash_table->array[i];
-        // Set key
-        node->key=NULL;
+        // Set key, QueryIDs start from 1
+        node->key=0;
         // Create a List
         node->value=linked_list_create();
     }
@@ -40,10 +38,6 @@ void hash_table_destroy(HashTable hash_table){
         HashNode node=&hash_table->array[i];
         // Destroy the Node's List
         linked_list_destroy(node->value);
-        // If key exists, free it
-        if(node->key!=NULL){
-            free(node->key);
-        }
     }
     // Free the array
     free(hash_table->array);
@@ -52,20 +46,12 @@ void hash_table_destroy(HashTable hash_table){
 }
 
 bool hash_table_insert(HashTable hash_table,QueryID query_id,String word,int num_words){
-    // Allocate only as much memory as needed
-    // To avoid Stack Overflows
-    int num_digits=floor(log10(abs(query_id)))+1;
-    
-    // Create the QueryID as a String
-    String string_id=malloc(num_digits+1);
-    sprintf(string_id,"%d",query_id);
-
     // Hash Position
     ulong pos;
-    for(pos=hash_table->hash_function(string_id)%hash_table->capacity;
-            hash_table->array[pos].key!=NULL;
+    for(pos=query_id%hash_table->capacity;
+            hash_table->array[pos].key!=0;
                 pos=(pos+1)%hash_table->capacity){
-                    if(strcmp(hash_table->array[pos].key,string_id)==0){
+                    if(hash_table->array[pos].key==query_id){
                         break;
                     }
                 }
@@ -73,16 +59,12 @@ bool hash_table_insert(HashTable hash_table,QueryID query_id,String word,int num
     // Find Hash Position when traverse stopped
     HashNode node=&hash_table->array[pos];
 
-    // Check whether to set or free the key
-    if(node->key==NULL){
+    // Check whether to set the key
+    if(node->key==0){
         // Set key
-        node->key=string_id;
+        node->key=query_id;
         // Increase the size
         hash_table->size++;
-    }
-    else{
-        // Or free the string
-        free(string_id);
     }
 
     // Check whether word can be inserted at the List
@@ -133,7 +115,7 @@ void hash_table_rehash(HashTable hash_table){
         // Get the Node
         HashNode node=&hash_table->array[i];
         // Set key
-        node->key=NULL;
+        node->key=0;
         // Create a List
         node->value=linked_list_create();
     }
@@ -142,13 +124,12 @@ void hash_table_rehash(HashTable hash_table){
     for(int i=0;i<old_capacity;i++){
         // Get the Node
         HashNode node=&old_array[i];
-        if(node->key!=NULL){
+        if(node->key!=0){
             // Insert the words
             for(LinkedListNode lnode=node->value->head;lnode!=NULL;lnode=lnode->next){
                 // Don't mind for number of words here
-                hash_table_insert(hash_table,atoi(node->key),lnode->string,0);
+                hash_table_insert(hash_table,node->key,lnode->string,0);
             }
-            free(node->key);
         }
         linked_list_destroy(node->value);
     }
@@ -157,26 +138,15 @@ void hash_table_rehash(HashTable hash_table){
 }
 
 bool hash_table_find(HashTable hash_table,QueryID query_id,int num_words){
-    // Allocate only as much memory as needed
-    // To avoid Stack Overflows
-    int num_digits=floor(log10(abs(query_id)))+1;
-    
-    // Create the QueryID as a String
-    String string_id=malloc(num_digits+1);
-    sprintf(string_id,"%d",query_id);
-
     // Hash Position
     ulong pos;
-    for(pos=hash_table->hash_function(string_id)%hash_table->capacity;
-            hash_table->array[pos].key!=NULL;
+    for(pos=query_id%hash_table->capacity;
+            hash_table->array[pos].key!=0;
                 pos=(pos+1)%hash_table->capacity){
-                    if(strcmp(hash_table->array[pos].key,string_id)==0){
+                    if(hash_table->array[pos].key==query_id){
                         break;
                     }
                 }
-    
-    // Free the string
-    free(string_id);
 
     // Find Hash Position when traverse stopped
     HashNode node=&hash_table->array[pos];

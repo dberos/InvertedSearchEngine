@@ -18,11 +18,7 @@ Document document_create(DocID doc_id,String doc_str){
     // Creating the Edit Distance BK-Tree
     document->edit_tree=bkt_create(MT_EDIT_DIST);
     // Allocating memory for the Hamming Distance BK-Trees
-    document->hamming_trees=malloc(sizeof(*document->hamming_trees)*28);
-    for(int i=0;i<28;i++){
-        // Creating Hamming Distance BK-Trees
-        document->hamming_trees[i]=bkt_create(MT_HAMMING_DIST);
-    }
+	document->hamming_trees=calloc(28,sizeof(*document->hamming_trees));
     // Creating an Open Addressing Hash Table to match Document's queries
     document->hash_table=hash_table_create();
 	// Set starting number of results
@@ -41,7 +37,9 @@ void document_destroy(Document document){
     bkt_destroy(document->edit_tree);
     // Destroying the Hamming Distance BK-Trees
     for(int i=0;i<28;i++){
-        bkt_destroy(document->hamming_trees[i]);
+		if(document->hamming_trees[i]!=NULL){
+			bkt_destroy(document->hamming_trees[i]);
+		}
     }
     free(document->hamming_trees);
     // Destroying the Hash Table
@@ -92,6 +90,10 @@ void document_create_hamming(Core core,Document document){
 		if(node->entry_list->size>0){
 			// From all Entries of the list
 			for(Entry entry=node->entry_list->head;entry!=NULL;entry=entry->next){
+				// Creating the BK-Tree if it doesn't exist
+				if(document->hamming_trees[strlen(entry->word)]==NULL){
+					document->hamming_trees[strlen(entry->word)]=bkt_create(MT_HAMMING_DIST);
+				}
 				if(document->hamming_trees[strlen(entry->word)]->root->entry==NULL){
 					// Set the root of the correct BK-Tree
 					bkt_set_root(document->hamming_trees[strlen(entry->word)],entry);
@@ -160,33 +162,35 @@ void document_match(Core core,Document document){
 				vector_destroy(edit_result);
 			}
 
-			// Get the results from MT_HAMMING_DISTANCE
-			Vector hamming_result=bkt_find(document->hamming_trees[strlen(word->word)],
-												word->word,
-													threshold);
-            if(hamming_result!=NULL){
-				// For all words that matched
-				for(int i=0;i<hamming_result->size;i++){
-					// For all QUERYIDs in matched entry
-					List list=hamming_result->array[i].entry->payload;
-					for(ListNode node=list->head;node!=NULL;node=node->next){
-						// Find the Query
-						Query query=query_vector_at(core->vector,node->value);
-						if(query!=NULL && query->match_type==MT_HAMMING_DIST && query->match_dist==threshold){
-							// Match it							
-							bool match=hash_table_insert(document->hash_table,
-															query->query_id,
-																hamming_result->array[i].entry->word,
-																	query->list->size);
-							if(match==true){
-								// Set result
-								document->query_ids[document->num_res]=query->query_id;
-    							document->num_res++;
+			if(document->hamming_trees[strlen(word->word)]!=NULL){
+				// Get the results from MT_HAMMING_DISTANCE
+				Vector hamming_result=bkt_find(document->hamming_trees[strlen(word->word)],
+													word->word,
+														threshold);
+				if(hamming_result!=NULL){
+					// For all words that matched
+					for(int i=0;i<hamming_result->size;i++){
+						// For all QUERYIDs in matched entry
+						List list=hamming_result->array[i].entry->payload;
+						for(ListNode node=list->head;node!=NULL;node=node->next){
+							// Find the Query
+							Query query=query_vector_at(core->vector,node->value);
+							if(query!=NULL && query->match_type==MT_HAMMING_DIST && query->match_dist==threshold){
+								// Match it							
+								bool match=hash_table_insert(document->hash_table,
+																query->query_id,
+																	hamming_result->array[i].entry->word,
+																		query->list->size);
+								if(match==true){
+									// Set result
+									document->query_ids[document->num_res]=query->query_id;
+									document->num_res++;
+								}
 							}
 						}
 					}
+					vector_destroy(hamming_result);
 				}
-				vector_destroy(hamming_result);
 			}
 		}
 
