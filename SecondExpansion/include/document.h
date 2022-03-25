@@ -6,7 +6,7 @@
 #include"map.h"
 #include"bk-tree.h"
 #include"hash_table.h"
-
+#include"priority_queue.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +18,7 @@ struct Document{
 	Bkt edit_tree;
 	Bkt* hamming_trees;
 	HashTable hash_table;
-	QueryID query_ids[2000];
-	int num_res;
+	PriorityQueue pqueue;
 };
 
 

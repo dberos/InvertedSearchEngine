@@ -24,6 +24,8 @@ Hash_Table_Test_OBJS = hash_table_test.o $(LIB)/$(LIBRARY)
 Linked_List_Test_OBJS = linked_list_test.o $(LIB)/$(LIBRARY)
 List_Test_OBJS = list_test.o $(LIB)/$(LIBRARY)
 Map_Test_OBJS = map_test.o $(LIB)/$(LIBRARY)
+PriorityQueue_Test_OBJS = priority_queue_test.o $(LIB)/$(LIBRARY)
+QueryVector_Test_OBJS = query_vector_test.o $(LIB)/$(LIBRARY)
 Vector_Test_OBJS = vector_test.o $(LIB)/$(LIBRARY)
 
 # Λίστα με όλα τα εκτελέσιμα

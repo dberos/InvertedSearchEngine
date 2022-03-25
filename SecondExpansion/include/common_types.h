@@ -21,6 +21,10 @@
 #include<semaphore.h>
 #include<stdatomic.h>
 
+#define PARENT(pos)(pos/2)
+#define LEFT(pos)(pos*2)
+#define RIGHT(pos)((pos*2)+1)
+
 typedef void* Pointer;
 typedef char* String;
 typedef unsigned long ulong;
@@ -34,6 +38,10 @@ typedef uint (*HashFunc)(Pointer);
 typedef enum{
     NaN,STARTQUERY,ENDQUERY,MATCHDOCUMENT,GETNEXTAVAILRES
 }JobType;
+
+typedef enum{
+    MAX,MIN
+}Priority;
 
 typedef struct entry* Entry;
 typedef struct entry_list* EntryList;
@@ -69,3 +77,5 @@ typedef struct document_queue_node* DocumentQueueNode;
 typedef struct document_queue* DocumentQueue;
 typedef struct query_vector_node* QueryVectorNode;
 typedef struct query_vector* QueryVector;
+typedef struct priority_queue_node* PriorityQueueNode;
+typedef struct priority_queue* PriorityQueue;

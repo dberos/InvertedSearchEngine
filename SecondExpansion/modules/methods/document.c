@@ -21,8 +21,8 @@ Document document_create(DocID doc_id,String doc_str){
 	document->hamming_trees=calloc(28,sizeof(*document->hamming_trees));
     // Creating an Open Addressing Hash Table to match Document's queries
     document->hash_table=hash_table_create();
-	// Set starting number of results
-	document->num_res=0;
+	// Creating the Priority Queue
+	document->pqueue=pqueue_create(MIN);
 
     // Return the Document
     return document;
@@ -44,6 +44,8 @@ void document_destroy(Document document){
     free(document->hamming_trees);
     // Destroying the Hash Table
     hash_table_destroy(document->hash_table);
+	// Destroying the Priority Queue
+	pqueue_destroy(document->pqueue);
     // Free the document
     free(document);
 }
@@ -123,9 +125,8 @@ void document_match(Core core,Document document){
 																word->word,
 																	query->list->size);
 					if(match==true){
-						// Set result
-						document->query_ids[document->num_res]=query->query_id;
-    					document->num_res++;
+						// Insert at the Priority Queue
+						pqueue_insert(document->pqueue,query->query_id);
 					}
 				}
 			}
@@ -152,9 +153,8 @@ void document_match(Core core,Document document){
 																edit_result->array[i].entry->word,
 																	query->list->size);
 							if(match==true){
-								// Set result
-								document->query_ids[document->num_res]=query->query_id;
-    							document->num_res++;
+								// Insert at the Priority Queue
+								pqueue_insert(document->pqueue,query->query_id);
 							}
 						}
 					}
@@ -182,9 +182,8 @@ void document_match(Core core,Document document){
 																	hamming_result->array[i].entry->word,
 																		query->list->size);
 								if(match==true){
-									// Set result
-									document->query_ids[document->num_res]=query->query_id;
-									document->num_res++;
+									// Insert at the Priority Queue
+									pqueue_insert(document->pqueue,query->query_id);
 								}
 							}
 						}

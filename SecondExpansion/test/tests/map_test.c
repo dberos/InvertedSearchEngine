@@ -28,7 +28,7 @@ void test_create(void){
     Map map=map_create();
     TEST_ASSERT(map!=NULL);
     TEST_ASSERT(map->array!=NULL);
-    TEST_ASSERT(map->capacity==193);
+    TEST_ASSERT(map->capacity==53);
     TEST_ASSERT(map->hash_function==hash_string);
     TEST_ASSERT(map->size==0);
     TEST_ASSERT(map->entry_list!=NULL);

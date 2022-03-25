@@ -13,7 +13,7 @@ HashTable hash_table_create(){
     // Set starting size
     hash_table->size=0;
     // Set starting capacity
-    hash_table->capacity=hash_primes[3];
+    hash_table->capacity=hash_primes[0];
     // Set Hash Function
     hash_table->hash_function=hash_int;
 

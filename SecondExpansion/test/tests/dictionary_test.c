@@ -29,7 +29,7 @@ static String create_random_string(){
 void test_create(void){
     Dictionary dictionary=dictionary_create();
     TEST_ASSERT(dictionary->size==0);
-    TEST_ASSERT(dictionary->capacity==389);
+    TEST_ASSERT(dictionary->capacity==53);
     TEST_ASSERT(dictionary->hash_function==hash_string);
     TEST_ASSERT(dictionary->array!=NULL);
     for(int i=0;i<dictionary->capacity;i++){

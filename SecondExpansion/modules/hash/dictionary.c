@@ -16,7 +16,7 @@ Dictionary dictionary_create(){
     // Set starting size to 0
     dictionary->size=0;
     // Set starting capacity
-    dictionary->capacity=prime_table_dictionary[3];
+    dictionary->capacity=prime_table_dictionary[0];
     // Set Hash Function
     dictionary->hash_function=hash_string;
 

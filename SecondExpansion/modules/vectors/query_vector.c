@@ -8,8 +8,8 @@ QueryVector query_vector_create(){
 
     // Set starting size to 0
     vector->size=0;
-    // Set starting capacity to 2000 (max small_test QueryIDs) for no realloc
-    vector->capacity=2000;
+    // Set starting capacity
+    vector->capacity=10;
 
     // Allocating memory for the array
     vector->array=malloc(sizeof(*vector->array)*vector->capacity);
@@ -45,8 +45,7 @@ void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,Ma
         // Realloc
         vector->array=realloc(vector->array,sizeof(*vector->array)*vector->capacity);
     }
-    // Unlock the mutex
-    pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
+    
     // Get position
     int pos=query_id-1;
     // Node for the insertion
@@ -60,16 +59,24 @@ void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,Ma
     
     // Set Node's Query
     node->query=query;
+    // Unlock the mutex
+    pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
 }
 
 Query query_vector_at(QueryVector vector,uint pos){
+    // Lock the mutex
+    pthread_mutex_lock(&job_scheduler->query_vector_mutex);
     // Get the Node
     Query query=vector->array[pos-1].query;
+    // Unlock the mutex
+    pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
     // Unlock the mutex
     return query;
 }
 
 void query_vector_set(QueryVector vector,uint pos){
+    // Lock the mutex
+    pthread_mutex_lock(&job_scheduler->query_vector_mutex);
     // Get the Node
     QueryVectorNode node=&vector->array[pos-1];
     // Destroy the Query
@@ -78,4 +85,6 @@ void query_vector_set(QueryVector vector,uint pos){
     node->query=NULL;
     // Don't decrease the size
     // Push Backs depend on size and query isn't for sure at last position
+    // Unlock the mutex
+    pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
 }

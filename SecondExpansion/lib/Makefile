@@ -34,7 +34,8 @@ $(MODULES)/methods/get_next_avail_res.o \
 $(MODULES)/lists/linked_list.o \
 $(MODULES)/hash/hash_table.o \
 $(MODULES)/lists/document_queue.o \
-$(MODULES)/vectors/query_vector.o
+$(MODULES)/vectors/query_vector.o \
+$(MODULES)/trees/priority_queue.o
 
 # Η βιβλιοθήκη
 LIBRARY = libcore.so
