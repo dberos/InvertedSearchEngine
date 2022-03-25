@@ -11,3 +11,5 @@ ulong hash_i(uchar* str,uint i);
 
 // djb2 for Map
 ulong hash_string(String str);
+
+uint hash_int(Pointer value);

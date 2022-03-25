@@ -33,3 +33,7 @@ ulong hash_string(String str){
     }
     return hash;
 }
+
+uint hash_int(Pointer value){
+	return *(int*)value;
+}

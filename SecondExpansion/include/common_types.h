@@ -29,6 +29,7 @@ typedef unsigned char uchar;
 
 typedef ulong (*HashFunction)(String);
 typedef uint (*DistanceFunction)(String,int,String,int);
+typedef uint (*HashFunc)(Pointer);
 
 typedef enum{
     NaN,STARTQUERY,ENDQUERY,MATCHDOCUMENT,GETNEXTAVAILRES

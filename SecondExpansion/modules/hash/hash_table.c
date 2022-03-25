@@ -14,6 +14,8 @@ HashTable hash_table_create(){
     hash_table->size=0;
     // Set starting capacity
     hash_table->capacity=hash_primes[3];
+    // Set Hash Function
+    hash_table->hash_function=hash_int;
 
     // Allocating memory for the array
     hash_table->array=malloc(sizeof(*hash_table->array)*hash_table->capacity);
@@ -21,8 +23,8 @@ HashTable hash_table_create(){
     for(int i=0;i<hash_table->capacity;i++){
         // Get the Node
         HashNode node=&hash_table->array[i];
-        // Set key, QueryIDs start from 1
-        node->key=0;
+        // Set key to NULL
+        node->key=NULL;
         // Create a List
         node->value=linked_list_create();
     }
@@ -45,11 +47,11 @@ void hash_table_destroy(HashTable hash_table){
     free(hash_table);
 }
 
-bool hash_table_insert(HashTable hash_table,QueryID query_id,String word,int num_words){
+bool hash_table_insert(HashTable hash_table,Pointer query_id,String word,int num_words){
     // Hash Position
     ulong pos;
-    for(pos=query_id%hash_table->capacity;
-            hash_table->array[pos].key!=0;
+    for(pos=hash_table->hash_function(query_id)%hash_table->capacity;
+            hash_table->array[pos].key!=NULL;
                 pos=(pos+1)%hash_table->capacity){
                     if(hash_table->array[pos].key==query_id){
                         break;
@@ -60,7 +62,7 @@ bool hash_table_insert(HashTable hash_table,QueryID query_id,String word,int num
     HashNode node=&hash_table->array[pos];
 
     // Check whether to set the key
-    if(node->key==0){
+    if(node->key==NULL){
         // Set key
         node->key=query_id;
         // Increase the size
@@ -137,10 +139,10 @@ void hash_table_rehash(HashTable hash_table){
     free(old_array);
 }
 
-bool hash_table_find(HashTable hash_table,QueryID query_id,int num_words){
+bool hash_table_find(HashTable hash_table,Pointer query_id,int num_words){
     // Hash Position
     ulong pos;
-    for(pos=query_id%hash_table->capacity;
+    for(pos=hash_table->hash_function(query_id)%hash_table->capacity;
             hash_table->array[pos].key!=0;
                 pos=(pos+1)%hash_table->capacity){
                     if(hash_table->array[pos].key==query_id){

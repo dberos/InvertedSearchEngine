@@ -12,6 +12,9 @@ Query query_create(QueryID id, MatchType match_type, uint match_dist){
     query->match_dist=match_dist;
     // Creating a List for its words
     query->list=linked_list_create();
+    // Creating the ID as Pointer
+    query->ptr=malloc(sizeof(*query->ptr));
+    *query->ptr=query->query_id;
 
     // Return the Query
     return query;
@@ -20,7 +23,8 @@ Query query_create(QueryID id, MatchType match_type, uint match_dist){
 void query_destroy(Query query){
     // Destroy the list for the words
     linked_list_destroy(query->list);
-    
+    // Free the Pointer
+    free(query->ptr);
     // Free the Query
     free(query);
 }

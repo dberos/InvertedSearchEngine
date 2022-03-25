@@ -119,7 +119,7 @@ void document_match(Core core,Document document){
 				if(query!=NULL && query->match_type==MT_EXACT_MATCH){
 					// Match it
 					bool match=hash_table_insert(document->hash_table,
-															query->query_id,
+															query->ptr,
 																word->word,
 																	query->list->size);
 					if(match==true){
@@ -148,7 +148,7 @@ void document_match(Core core,Document document){
 						if(query!=NULL && query->match_type==MT_EDIT_DIST && query->match_dist==threshold){
 							// Match it
 							bool match=hash_table_insert(document->hash_table,
-															query->query_id,
+															query->ptr,
 																edit_result->array[i].entry->word,
 																	query->list->size);
 							if(match==true){
@@ -178,7 +178,7 @@ void document_match(Core core,Document document){
 							if(query!=NULL && query->match_type==MT_HAMMING_DIST && query->match_dist==threshold){
 								// Match it							
 								bool match=hash_table_insert(document->hash_table,
-																query->query_id,
+																query->ptr,
 																	hamming_result->array[i].entry->word,
 																		query->list->size);
 								if(match==true){
