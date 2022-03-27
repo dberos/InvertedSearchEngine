@@ -64,13 +64,9 @@ void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,Ma
 }
 
 Query query_vector_at(QueryVector vector,uint pos){
-    // Lock the mutex
-    pthread_mutex_lock(&job_scheduler->query_vector_mutex);
-    // Get the Node
-    Query query=vector->array[pos-1].query;
-    // Unlock the mutex
-    pthread_mutex_unlock(&job_scheduler->query_vector_mutex);
-    // Unlock the mutex
+    // Get the Query
+    _Atomic const Query query=vector->array[pos-1].query;
+    // Return it
     return query;
 }
 
