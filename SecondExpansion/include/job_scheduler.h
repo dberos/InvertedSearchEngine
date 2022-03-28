@@ -40,6 +40,7 @@ struct job_scheduler{
     pthread_mutex_t query_vector_mutex;
     pthread_mutex_t dictionary_mutex2;
     pthread_mutex_t barrier_mutex;
+    pthread_mutex_t match_job_mutex;
 
     pthread_mutex_t res_queue_mutex;
     pthread_cond_t res_queue_cond;

@@ -197,8 +197,12 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	// Free Document's String
 	free(str);
 
+	// Lock the mutex for safely submission
+	pthread_mutex_lock(&job_scheduler->match_job_mutex);
 	// Submit Job at the Match Queue
 	queue_insert_last(job_scheduler->match_queue,job);
+	// Unlock the mutex
+	pthread_mutex_unlock(&job_scheduler->match_job_mutex);
 	// Signal threads there is available Job
 	pthread_cond_broadcast(&job_scheduler->match_queue_cond);
 	// Unlock the mutex

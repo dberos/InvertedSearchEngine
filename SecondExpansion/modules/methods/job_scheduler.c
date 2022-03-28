@@ -66,6 +66,8 @@ JobScheduler job_scheduler_create(int num_query_threads,int num_match_threads,in
     pthread_mutex_init(&job_scheduler->query_vector_mutex,0);
     // Creating the mutex for the barrier
     pthread_mutex_init(&job_scheduler->barrier_mutex,0);
+    // Creating the mutex for the MatchDocument Jobs
+    pthread_mutex_init(&job_scheduler->match_job_mutex,0);
 
     // Creating the mutex for the GetNextAvailRes Queue
     pthread_mutex_init(&job_scheduler->res_queue_mutex,0);
@@ -129,7 +131,8 @@ void job_scheduler_destroy(JobScheduler job_scheduler){
     pthread_mutex_destroy(&job_scheduler->query_vector_mutex);
     // Destroying the mutex for the barrier
     pthread_mutex_destroy(&job_scheduler->barrier_mutex);
-    
+    // Destroying the mutex for the MatchDocument Jobs
+    pthread_mutex_destroy(&job_scheduler->match_job_mutex);
 
     // Destroying the mutex for the GetNextAvailRes Queue
     pthread_mutex_destroy(&job_scheduler->res_queue_mutex);
@@ -224,8 +227,12 @@ Routine match_routine(Core core){
         while(job_scheduler->match_queue->size<=0){
             // Check whether program is finishing
             if(job_scheduler->fin==1){
+                // Lock the mutex
+                pthread_mutex_lock(&job_scheduler->match_job_mutex);
                 // Acquire a Job from the Queue
                 Job job=queue_remove_first(job_scheduler->match_queue);
+                // Unlock the mutex
+                pthread_mutex_unlock(&job_scheduler->match_job_mutex);
                 // Unlock the mutex
                 pthread_mutex_unlock(&job_scheduler->match_queue_mutex);
                 // Execute the Job
@@ -238,8 +245,12 @@ Routine match_routine(Core core){
             pthread_cond_wait(&job_scheduler->match_queue_cond,&job_scheduler->match_queue_mutex);
             // Check whether program is finishing
             if(job_scheduler->fin==1){
+                // Lock the mutex
+                pthread_mutex_lock(&job_scheduler->match_job_mutex);
                 // Acquire a Job from the Queue
                 Job job=queue_remove_first(job_scheduler->match_queue);
+                // Unlock the mutex
+                pthread_mutex_unlock(&job_scheduler->match_job_mutex);
                 // Unlock the mutex
                 pthread_mutex_unlock(&job_scheduler->match_queue_mutex);
                 // Execute the Job
@@ -249,8 +260,12 @@ Routine match_routine(Core core){
                 return 0;
             }
         }
+        // Lock the mutex
+        pthread_mutex_lock(&job_scheduler->match_job_mutex);
         // Acquire a Job from the Queue
         Job job=queue_remove_first(job_scheduler->match_queue);
+        // Unlock the mutex
+        pthread_mutex_unlock(&job_scheduler->match_job_mutex);
         // Unlock the mutex
         pthread_mutex_unlock(&job_scheduler->match_queue_mutex);
         // Execute the Job
