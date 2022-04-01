@@ -3,6 +3,7 @@
 #include"common_types.h"
 #include"entry.h"
 #include"map.h"
+#include"document.h"
 
 struct bst_node{
     String word;
@@ -65,3 +66,9 @@ BstNode bst_remove_node(BstNode node,String string,bool* removed);
 
 // Call node_remove
 bool bst_remove(Bst bst,String string);
+
+// Matching a Document
+void bst_node_match(BstNode node,Document document);
+
+// Calling node_match at the root
+void bst_match(Bst bst,Document document);

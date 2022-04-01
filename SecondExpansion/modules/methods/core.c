@@ -106,15 +106,13 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	// Lock the mutex
 	pthread_mutex_lock(&job_scheduler->main_mutex);
 	// Cast string to not disqualify const expression
-	String str=strdup((String)query_str);
+	String str=(String)query_str;
 	// Creating a StartQuery Job
 	StartQueryJob start_query_job=start_query_job_create(query_id,str,match_type,match_dist);
 	// Creating an empty Job
 	Job job=job_create();
 	// Set Job
 	set_start_query_job(job,start_query_job);
-	// Free Query's String
-	free(str);
 
 	// Lock the mutex for safely submission
 	pthread_mutex_lock(&job_scheduler->add_query_job_mutex);
@@ -187,15 +185,13 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str){
 	pthread_barrier_wait(&job_scheduler->match_barrier);
 
 	// Cast String to not disqualify const expression
-	String str=strdup((String)doc_str);
+	String str=(String)doc_str;
 	// Creating a MatchDocument Job
 	MatchDocumentJob match_document_job=match_document_job_create(doc_id,str);
 	// Creating an empty Job
 	Job job=job_create();
 	// Set Job
 	set_match_document_job(job,match_document_job);
-	// Free Document's String
-	free(str);
 
 	// Lock the mutex for safely submission
 	pthread_mutex_lock(&job_scheduler->match_job_mutex);

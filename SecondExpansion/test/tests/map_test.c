@@ -1,6 +1,7 @@
 #include"../../include/acutest.h"
 #include"../../include/bst.h"
 #include"../../include/map.h"
+#include"../../include/linked_list.h"
 #include"../../include/methods.h"
 
 static String create_random_string(){
@@ -31,7 +32,6 @@ void test_create(void){
     TEST_ASSERT(map->capacity==53);
     TEST_ASSERT(map->hash_function==hash_string);
     TEST_ASSERT(map->size==0);
-    TEST_ASSERT(map->entry_list!=NULL);
     for(int i=0;i<map->capacity;i++){
         TEST_ASSERT(map->array[i].bst!=NULL);
     }
@@ -61,32 +61,38 @@ void test_insert(void){
 
 void test_find(void){
     Map map=map_create();
+    LinkedList list=linked_list_create();
     for(int i=0;i<10000;i++){
         String string=create_random_string();
         map_insert(map,string);
+        linked_list_insert_end(list,string);
         free(string);
     }
-    for(Entry entry=map->entry_list->head;entry!=NULL;entry=entry->next){
-        bool exists=map_find(map,entry->word);
+    for(LinkedListNode node=list->head;node!=NULL;node=node->next){
+        bool exists=map_find(map,node->string);
         TEST_ASSERT(exists==true);
     }
     map_destroy(map);
+    linked_list_destroy(list);
 }
 
 void test_remove(void){
     Map map=map_create();
+    LinkedList list=linked_list_create();
     for(int i=0;i<10000;i++){
         String string=create_random_string();
         map_insert(map,string);
+        linked_list_insert_end(list,string);
         free(string);
     }
-    for(Entry entry=map->entry_list->head;entry!=NULL;entry=entry->next){
+    for(LinkedListNode node=list->head;node!=NULL;node=node->next){
         int size=map->size;
-        bool removed=map_remove(map,entry->word);
+        bool removed=map_remove(map,node->string);
         TEST_ASSERT(removed==true);
         TEST_ASSERT(map->size==size-1);
     }
     map_destroy(map);
+    linked_list_destroy(list);
 }
 
 

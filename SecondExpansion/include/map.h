@@ -1,7 +1,6 @@
 #pragma once
 
 #include"common_types.h"
-#include"entry.h"
 #include"bst.h"
 #include"hash_functions.h"
 
@@ -14,7 +13,6 @@ struct map{
     int size;
     int capacity;
     HashFunction hash_function;
-    EntryList entry_list;
 };
 
 // Creating a Map

@@ -1,5 +1,7 @@
 #include"../../include/bst.h"
 
+extern Core core;
+
 BstNode bst_node_create(String string){
     // Allocate memory for Node
     BstNode node=malloc(sizeof(*node));
@@ -209,4 +211,96 @@ bool bst_remove(Bst bst,String string){
         bst->size--;
     }
     return removed;
+}
+
+void bst_node_match(BstNode node,Document document){
+    if(node!=NULL){
+        bst_node_match(node->left,document);
+        String word=node->word;
+        // Check for MT_EXACT_MATCH
+		Entry entry=dictionary_find(core->exact_queries,word);
+		if(entry!=NULL){
+			for(ListNode node=entry->payload->head;node!=NULL;node=node->next){
+				// Find the Query
+				Query query=query_vector_at(core->vector,node->value);
+				if(query!=NULL && query->match_type==MT_EXACT_MATCH){
+					// Match it
+					bool match=hash_table_insert(document->hash_table,
+															query->ptr,
+																word,
+																	query->list->size);
+					if(match==true){
+						// Insert at the Priority Queue
+						pqueue_insert(document->pqueue,query->query_id);
+					}
+				}
+			}
+		}
+		// For every possible Match Distance
+        for(int threshold=1;threshold<4;threshold++){
+			// Get the results from MT_EDIT_DISTANCE
+			Vector edit_result=bkt_find(document->edit_tree,
+											word,
+												threshold);
+            if(edit_result!=NULL){
+				// For all words that matched
+				for(int i=0;i<edit_result->size;i++){
+					// For all QUERYIDs in matched entry
+					List list=edit_result->array[i].entry->payload;
+					for(ListNode node=list->head;node!=NULL;node=node->next){
+						// Find the Query
+						Query query=query_vector_at(core->vector,node->value);
+
+						if(query!=NULL && query->match_type==MT_EDIT_DIST && query->match_dist==threshold){
+							// Match it
+							bool match=hash_table_insert(document->hash_table,
+															query->ptr,
+																edit_result->array[i].entry->word,
+																	query->list->size);
+							if(match==true){
+								// Insert at the Priority Queue
+								pqueue_insert(document->pqueue,query->query_id);
+							}
+						}
+					}
+				}
+				vector_destroy(edit_result);
+			}
+
+			if(document->hamming_trees[strlen(word)]!=NULL){
+				// Get the results from MT_HAMMING_DISTANCE
+				Vector hamming_result=bkt_find(document->hamming_trees[strlen(word)],
+													word,
+														threshold);
+				if(hamming_result!=NULL){
+					// For all words that matched
+					for(int i=0;i<hamming_result->size;i++){
+						// For all QUERYIDs in matched entry
+						List list=hamming_result->array[i].entry->payload;
+						for(ListNode node=list->head;node!=NULL;node=node->next){
+							// Find the Query
+							Query query=query_vector_at(core->vector,node->value);
+							if(query!=NULL && query->match_type==MT_HAMMING_DIST && query->match_dist==threshold){
+								// Match it							
+								bool match=hash_table_insert(document->hash_table,
+																query->ptr,
+																	hamming_result->array[i].entry->word,
+																		query->list->size);
+								if(match==true){
+									// Insert at the Priority Queue
+									pqueue_insert(document->pqueue,query->query_id);
+								}
+							}
+						}
+					}
+					vector_destroy(hamming_result);
+				}
+			}
+		}
+        bst_node_match(node->right,document);
+    }
+}
+
+void bst_match(Bst bst,Document document){
+    bst_node_match(bst->root,document);
 }
