@@ -79,17 +79,14 @@ void destroy_entry_list(EntryList entry_list){
 }
 
 bool insert_entry(EntryList entry_list,String word,uint id){
-    Entry entry=create_entry(word);
     Entry curr;
-    list_insert_head(entry->payload,id);
     if(entry_list->head!=NULL && strcmp(entry_list->head->word,word)==0){
-        destroy_entry(entry,entry_list);
-        // Size shouldn't be affected by decreasing it at destroy_entry
-        entry_list->size++;
         list_insert_head(entry_list->head->payload,id);
         return false;
     }
     if(entry_list->head==NULL){
+        Entry entry=create_entry(word);
+        list_insert_head(entry->payload,id);
         entry->next=entry_list->head;
         entry_list->head=entry;
     }
@@ -100,13 +97,12 @@ bool insert_entry(EntryList entry_list,String word,uint id){
                 curr=curr->next;
             }
             else{
-                destroy_entry(entry,entry_list);
-                // Size shouldn't be affected by decreasing it at destroy_entry
-                entry_list->size++;
                 list_insert_head(curr->next->payload,id);
                 return false;
             }
         }
+        Entry entry=create_entry(word);
+        list_insert_head(entry->payload,id);
         entry->next=curr->next;
         curr->next=entry;
     }

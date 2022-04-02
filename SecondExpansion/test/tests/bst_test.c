@@ -38,38 +38,43 @@ void test_create(void){
 void test_insert(void){
     srand(time(0));
     Bst bst=bst_create();
+    String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         // Create a random string
-        String string=create_random_string();
+        strings[i]=create_random_string();
         // Bst size before insertion
         int size=bst->size;
-        bool inserted=bst_insert(bst,string);
+        bool inserted=bst_insert(bst,strings[i]);
         if(inserted==true){
             TEST_ASSERT(bst->size==size+1);
         }
         else{
             TEST_ASSERT(bst->size==size);
         }
-        free(string);
     }
+    for(int i=0;i<10000;i++){
+        free(strings[i]);
+    }
+    free(strings);
     bst_destroy(bst);
 }
 
 void test_find(void){
     srand(time(0));
     Bst bst=bst_create();
+    String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
         // Create a random string
-        String string=create_random_string();
+        strings[i]=create_random_string();
         // Bst size before insertion
         int size=bst->size;
-        bool inserted=bst_insert(bst,string);
+        bool inserted=bst_insert(bst,strings[i]);
         if(inserted==true){
-            bool exists=bst_find(bst,string);
+            bool exists=bst_find(bst,strings[i]);
             TEST_ASSERT(exists==true);
         }
         else{
-            bool exists=bst_find(bst,string);
+            bool exists=bst_find(bst,strings[i]);
             // Some strings may already be present
             // So they can't be inserted but still exist on the Bst 
             if(exists==true){
@@ -80,22 +85,25 @@ void test_find(void){
             }
 
         }
-        free(string);
     }
+    for(int i=0;i<10000;i++){
+        free(strings[i]);
+    }
+    free(strings);
     bst_destroy(bst);
 }
 
 void test_remove(void){
     srand(time(0));
     Bst bst=bst_create();
+    String* strings=malloc(sizeof(*strings)*10000);
     LinkedList list=linked_list_create();
     for(int i=0;i<10000;i++){
-        String string=create_random_string();
-        bool inserted=bst_insert(bst,string);
+        strings[i]=create_random_string();
+        bool inserted=bst_insert(bst,strings[i]);
         if(inserted==true){
-            linked_list_insert_end(list,string);
+            linked_list_insert_end(list,strings[i]);
         }
-        free(string);
     }
     for(LinkedListNode node=list->head;node!=NULL;node=node->next){
         int size=bst->size;
@@ -105,6 +113,10 @@ void test_remove(void){
     }
     bst_destroy(bst);
     linked_list_destroy(list);
+    for(int i=0;i<10000;i++){
+        free(strings[i]);
+    }
+    free(strings);
 }
 
 TEST_LIST = {

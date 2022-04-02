@@ -61,12 +61,12 @@ void test_insert(void){
 
 void test_find(void){
     Map map=map_create();
+    String* strings=malloc(sizeof(*strings)*10000);
     LinkedList list=linked_list_create();
     for(int i=0;i<10000;i++){
-        String string=create_random_string();
-        map_insert(map,string);
-        linked_list_insert_end(list,string);
-        free(string);
+        strings[i]=create_random_string();
+        map_insert(map,strings[i]);
+        linked_list_insert_end(list,strings[i]);
     }
     for(LinkedListNode node=list->head;node!=NULL;node=node->next){
         bool exists=map_find(map,node->string);
@@ -74,16 +74,20 @@ void test_find(void){
     }
     map_destroy(map);
     linked_list_destroy(list);
+    for(int i=0;i<10000;i++){
+        free(strings[i]);
+    }
+    free(strings);
 }
 
 void test_remove(void){
     Map map=map_create();
     LinkedList list=linked_list_create();
+    String* strings=malloc(sizeof(*strings)*10000);
     for(int i=0;i<10000;i++){
-        String string=create_random_string();
-        map_insert(map,string);
-        linked_list_insert_end(list,string);
-        free(string);
+        strings[i]=create_random_string();
+        map_insert(map,strings[i]);
+        linked_list_insert_end(list,strings[i]);
     }
     for(LinkedListNode node=list->head;node!=NULL;node=node->next){
         int size=map->size;
@@ -93,6 +97,10 @@ void test_remove(void){
     }
     map_destroy(map);
     linked_list_destroy(list);
+    for(int i=0;i<10000;i++){
+        free(strings[i]);
+    }
+    free(strings);
 }
 
 

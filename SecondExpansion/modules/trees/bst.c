@@ -6,7 +6,7 @@ BstNode bst_node_create(String string){
     // Allocate memory for Node
     BstNode node=malloc(sizeof(*node));
     // Create the value of the node
-    node->word=strdup(string);
+    node->word=string;
     // Set left NULL
     node->left=NULL;
     // Set right NULL
@@ -21,8 +21,6 @@ void bst_node_destroy(BstNode node){
     }
     // Inorder destroy
     bst_node_destroy(node->left);
-    // Free the word of the node
-    free(node->word);
     bst_node_destroy(node->right);
     free(node);
 }
@@ -162,7 +160,6 @@ BstNode bst_remove_node(BstNode node,String string,bool* removed){
     // If left doesn't exist
     if(node->left==NULL){
         BstNode right=node->right;
-        free(node->word);
         free(node);
         *removed=true;
         return right;
@@ -170,7 +167,6 @@ BstNode bst_remove_node(BstNode node,String string,bool* removed){
     // If right doesn't exist
     else if(node->right==NULL){
         BstNode left=node->left;
-        free(node->word);
         free(node);
         *removed=true;
         return left;
@@ -192,12 +188,8 @@ BstNode bst_remove_node(BstNode node,String string,bool* removed){
         else{
             root->right=temp->right;
         }
-        // Free the old word
-        free(node->word);
         // Set new one since tree is fixed
-        node->word=strdup(temp->word);
-        // Free temp
-        free(temp->word);
+        node->word=temp->word;
         free(temp);
         *removed=true;
     }
