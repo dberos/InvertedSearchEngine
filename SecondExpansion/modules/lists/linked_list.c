@@ -24,16 +24,14 @@ void linked_list_destroy(LinkedList list){
 
 
 bool linked_list_insert_end(LinkedList list,String string){
-    LinkedListNode node=malloc(sizeof(*node));
     LinkedListNode curr;
-    node->string=strdup(string);
     // First value found would get inserted twice
     if(list->head!=NULL && strcmp(list->head->string,string)==0){
-        free(node->string);
-        free(node);
         return false;
     }
     if(list->head==NULL){
+        LinkedListNode node=malloc(sizeof(*node));
+        node->string=strdup(string);
         node->next=list->head;
         list->head=node;
     }
@@ -44,11 +42,11 @@ bool linked_list_insert_end(LinkedList list,String string){
                 curr=curr->next;
             }
             else{
-                free(node->string);
-                free(node);
                 return false;
             }
         }
+        LinkedListNode node=malloc(sizeof(*node));
+        node->string=strdup(string);
         node->next=curr->next;
         curr->next=node;
     }

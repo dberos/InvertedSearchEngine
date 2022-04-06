@@ -12,7 +12,7 @@ struct document_queue_node{
 struct document_queue{
     DocumentQueueNode head;
     DocumentQueueNode tail;
-    atomic_int size;
+    int size;
 };
 
 // Creating a Queue

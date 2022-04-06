@@ -58,6 +58,9 @@ void test_insert(void){
                 entry->word,
                     strlen(entry->word));
 
+        if(bkt->root->vector[distance]==NULL){
+            bkt->root->vector[distance]=vector_create();
+        }
         int size=bkt->root->vector[distance]->size;
         bkt_insert(bkt,entry);
         TEST_ASSERT(bkt->root->vector[distance]->size==size+1);

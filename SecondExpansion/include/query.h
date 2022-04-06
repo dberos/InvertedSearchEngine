@@ -11,7 +11,7 @@
 struct Query{
 	QueryID query_id;
 	MatchType match_type;
-	atomic_int match_dist;
+	uint match_dist;
 	LinkedList list;
 	QueryID* ptr;
 };

@@ -14,7 +14,7 @@ struct entry{
 struct entry_list{
     Entry head;
     Entry tail;
-    atomic_int size;
+    int size;
 };
 
 // Creating an Entry

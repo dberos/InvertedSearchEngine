@@ -14,7 +14,7 @@ struct job_scheduler{
     Queue res_queue;
     DocumentQueue document_queue;
 
-    atomic_int fin;
+    int fin;
     int num_query_threads;
     int num_match_threads;
     int num_res_threads;

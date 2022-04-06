@@ -6,7 +6,6 @@
 #include<stdbool.h>
 #include<time.h>
 #include<errno.h>
-#include<ctype.h>
 #include<assert.h>
 #include<limits.h>
 #include<math.h>
@@ -19,7 +18,6 @@
 #include<sys/time.h>
 #include<pthread.h>
 #include<semaphore.h>
-#include<stdatomic.h>
 
 #define PARENT(pos)(pos/2)
 #define LEFT(pos)(pos*2)

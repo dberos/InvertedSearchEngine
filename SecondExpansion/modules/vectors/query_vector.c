@@ -65,7 +65,7 @@ void query_vector_insert(QueryVector vector,QueryID query_id,String query_str,Ma
 
 Query query_vector_at(QueryVector vector,uint pos){
     // Get the Query
-    _Atomic const Query query=vector->array[pos-1].query;
+    const Query query=vector->array[pos-1].query;
     // Return it
     return query;
 }

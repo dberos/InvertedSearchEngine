@@ -11,8 +11,8 @@ struct query_vector_node{
 
 struct query_vector{
     QueryVectorNode array;
-    atomic_int size;
-    atomic_int capacity;
+    int size;
+    int capacity;
 };
 
 // Creating an active Query Set
